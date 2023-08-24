@@ -239,6 +239,7 @@ fn handle_module(options: &Options, path: &Path, name: &str, fisa: FlagsOrIsa) -
     let mut total_module_code_size = 0;
     let mut context = Context::new();
     for (def_index, func) in dummy_environ.info.function_bodies.iter() {
+        println!("; Function {def_index:?}");
         context.func = func.clone();
 
         let mut saved_size = None;
@@ -254,6 +255,8 @@ fn handle_module(options: &Options, path: &Path, name: &str, fisa: FlagsOrIsa) -
                 .compile_and_emit(isa, &mut mem, &mut Default::default())
                 .map_err(|err| anyhow::anyhow!("{}", pretty_error(&err.func, err.inner)))?;
             let code_info = compiled_code.code_info();
+
+            println!("{}", std::str::from_utf8(compiled_code.code_buffer()).unwrap());
 
             if options.print_size {
                 println!(
