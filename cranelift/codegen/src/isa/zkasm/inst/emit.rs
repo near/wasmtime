@@ -429,6 +429,7 @@ impl Inst {
             | Inst::LoadConst64 { .. }
             | Inst::AluRRR { .. }
             | Inst::AddImm32 { .. }
+            | Inst::MulImm32 { .. }
             | Inst::FpuRRR { .. }
             | Inst::AluRRImm12 { .. }
             | Inst::Load { .. }
@@ -668,6 +669,14 @@ impl MachInstEmit for Inst {
                     sink,
                 );
             }
+            &Inst::MulImm32 { rd, src1, src2 } => {
+                let rd = allocs.next(rd.to_reg());
+                // TODO(akashin): Should we have a function for `bits` field?
+                put_string(
+                    &format!("{} * {} => {}\n", src1.bits, src2.bits, reg_name(rd)),
+                    sink,
+                );
+            }
             &Inst::AluRRR {
                 alu_op,
                 rd,
@@ -742,6 +751,7 @@ impl MachInstEmit for Inst {
                             sink,
                         );
                     }
+                    
                     _ => unreachable!("Op {:?} is not implemented", alu_op),
                 };
 

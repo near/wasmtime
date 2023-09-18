@@ -404,6 +404,12 @@
       (src1 Imm32)
       (src2 Imm32))
 
+    ;; A multiplication with 2 32-bit immediates.
+    (MulImm32
+      (rd WritableReg)
+      (src1 Imm32)
+      (src2 Imm32))
+
 ))
 
 
@@ -1008,6 +1014,12 @@
 (rule (zk_add imm1 imm2)
     (let ((dst WritableXReg (temp_writable_xreg))
           (_ Unit (emit (MInst.AddImm32 dst imm1 imm2))))
+     dst))
+
+(decl zk_mul (Imm32 Imm32) XReg)
+(rule (zk_mul imm1 imm2)
+    (let ((dst WritableXReg (temp_writable_xreg))
+          (_ Unit (emit (MInst.MulImm32 dst imm1 imm2))))
      dst))
 
 ;; Helper for emitting the `add` instruction.
