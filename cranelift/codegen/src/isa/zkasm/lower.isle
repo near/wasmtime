@@ -259,6 +259,11 @@
 (rule 5 (lower (has_type (ty_vec_fits_in_register ty) (imul x (splat y))))
   (rv_vmul_vx x y (unmasked) ty))
 
+
+(rule 6 (lower (imul (imm32_from_value x) (imm32_from_value y)))
+  (zk_mul x y))
+
+
 ;;;; Rules for `smulhi` ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (rule 0 (lower (has_type (ty_int_ref_scalar_64 ty) (smulhi x y)))
   (lower_smlhi ty (sext x ty $I64) (sext y ty $I64)))
