@@ -751,7 +751,6 @@ impl MachInstEmit for Inst {
                             sink,
                         );
                     }
-                    
                     _ => unreachable!("Op {:?} is not implemented", alu_op),
                 };
 
