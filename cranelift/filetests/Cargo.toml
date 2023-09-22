@@ -10,7 +10,7 @@ publish = false
 edition.workspace = true
 
 [dependencies]
-cranelift-codegen = { workspace = true, features = ["disas"] }
+cranelift-codegen = { workspace = true, features = ["disas", "zkasm"] }
 cranelift-frontend = { workspace = true }
 cranelift-interpreter = { workspace = true }
 cranelift-native = { workspace = true }
@@ -34,3 +34,4 @@ serde_derive = { workspace = true }
 cranelift-wasm.workspace = true
 wasmparser.workspace = true
 cranelift.workspace = true
+expect-test = "1.4.1"
