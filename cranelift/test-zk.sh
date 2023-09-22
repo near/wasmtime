@@ -29,7 +29,7 @@ elif [[ "$1" == "--all" ]]; then
     # Iterate over all .zkasm files in the specified directory
     for zkasm_file in ../wasmtime/cranelift/data/*.zkasm; do
         # Print only the name of the current file
-        echo "Processing file: $(basename $zkasm_file)"
+        echo -n -e "Testing file: $(basename $zkasm_file)...\t"
 
         # Execute the node command for each file and use grep and awk to process the output
         output=$(node test/zkasmtest.js "$zkasm_file" | grep -Eo "cntSteps: [0-9]+")
@@ -47,6 +47,7 @@ elif [[ "$1" == "--all" ]]; then
     # Print the final counts with coloring
     echo -e "\n${GREEN}$passed_count files passed${RESET}"
     echo -e "${RED}$failed_count files failed${RESET}"
+    exit $failed_count
 else
     echo "Usage:"
     echo "$0 <filename.zkasm>         - Process a specific file."
