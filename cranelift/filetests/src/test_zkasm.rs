@@ -109,7 +109,7 @@ mod tests {
         lines
     }
 
-    fn test_module(name: &str) {
+    fn generate_zkasm(wasm_module: &[u8]) -> String {
         // TODO: Replace "sparc" with "zkasm" when
         // https://github.com/bytecodealliance/target-lexicon/pull/94 lands.
         let flag_builder = settings::builder();
@@ -118,8 +118,7 @@ mod tests {
             .finish(settings::Flags::new(flag_builder))
             .unwrap();
         let mut dummy_environ = DummyEnvironment::new(isa.frontend_config());
-        let module_binary = wat::parse_file(format!("zkasm_data/{name}.wat")).unwrap();
-        translate_module(&module_binary, &mut dummy_environ).unwrap();
+        translate_module(wasm_module, &mut dummy_environ).unwrap();
 
         let mut program: Vec<String> = Vec::new();
         let start_func = dummy_environ
@@ -155,9 +154,13 @@ mod tests {
         }
 
         program.append(&mut generate_postamble());
+        program.join("\n")
+    }
 
+    fn test_module(name: &str) {
+        let module_binary = wat::parse_file(format!("zkasm_data/{name}.wat")).unwrap();
+        let program = generate_zkasm(&module_binary);
         let expected = expect_test::expect_file![format!("../zkasm_data/generated/{name}.zkasm")];
-        let program = program.join("\n");
         expected.assert_eq(&program);
     }
 
