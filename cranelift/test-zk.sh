@@ -75,6 +75,14 @@ if [ "$ALL_FILES" = true ]; then
 
     echo -e "\n${GREEN}$PASSED files passed${NC}, ${RED}$FAILED files failed${NC}"
 
+    # If we used the temporary installation mode, remove the cloned directory
+    if [ "$INSTALL_MODE" = "temporary" ]; then
+        echo "Removing temporary installation of zkevm-proverjs..."
+        rm -rf /tmp/zkevm-proverjs
+    fi
+
+    exit $FAILED
+
 else
     zkasm_file="$BASE_DIR/$1"
     if [ ! -f "$zkasm_file" ]; then
@@ -94,10 +102,10 @@ else
     fi
 
     node test/zkasmtest.js $zkasm_file
-fi
 
-# If we used the temporary installation mode, remove the cloned directory
-if [ "$INSTALL_MODE" = "temporary" ]; then
-    echo "Removing temporary installation of zkevm-proverjs..."
-    rm -rf /tmp/zkevm-proverjs
+    # If we used the temporary installation mode, remove the cloned directory
+    if [ "$INSTALL_MODE" = "temporary" ]; then
+        echo "Removing temporary installation of zkevm-proverjs..."
+        rm -rf /tmp/zkevm-proverjs
+    fi
 fi
