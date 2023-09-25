@@ -46,7 +46,8 @@ jobs:
       with:
         submodules: true
     - run: cd cranelift
-    - run: ./test-zk.sh --install-zkwasm --all
+    - run: ls
+    - run: ../ci/test-zk.sh --install-zkwasm --all
 
   rustfmt:
     name: Rustfmt

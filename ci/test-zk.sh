@@ -41,11 +41,13 @@ case $INSTALL_MODE in
         echo "Cloning zkevm-rom into ../../ directory..."
         git clone https://github.com/0xPolygonHermez/zkevm-rom/ ../../zkevm-rom > /dev/null 2>&1
         cd ../../zkevm-rom
+        npm install
         ;;
     "temporary")
         echo "Cloning zkevm-rom into /tmp directory..."
         git clone https://github.com/0xPolygonHermez/zkevm-rom/ ./tmp/zkevm-rom > /dev/null 2>&1
         cd ./tmp/zkevm-rom
+        npm install
         BASE_DIR="../../"
         ;;
     "preinstalled")
@@ -53,7 +55,7 @@ case $INSTALL_MODE in
         ;;
 esac
 
-npm install
+
 
 if [ "$ALL_FILES" = true ]; then
 
