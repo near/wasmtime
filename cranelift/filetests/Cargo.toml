@@ -10,6 +10,7 @@ publish = false
 edition.workspace = true
 
 [dependencies]
+# TODO(nearcore/#9569): Add "zkasm" feature to top-level crate.
 cranelift-codegen = { workspace = true, features = ["disas", "zkasm"] }
 cranelift-frontend = { workspace = true }
 cranelift-interpreter = { workspace = true }
