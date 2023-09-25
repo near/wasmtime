@@ -19,8 +19,8 @@ while [[ "$#" -gt 0 ]]; do
             echo "Usage: $0 [OPTIONS] [filename.zkasm]"
             echo "Options:"
             echo "  --all                           Test all zkasm files"
-            echo "  --install-zkwasm                Temporarily install and use zkevm-proverjs"
-            echo "  --install-zkwasm-permanent      Permanently install zkevm-proverjs"
+            echo "  --install-zkwasm                Temporarily install and use zkevm-rom"
+            echo "  --install-zkwasm-permanent      Permanently install zkevm-rom"
             echo "  --help                          Show this message"
             exit 0
             ;;
@@ -38,83 +38,50 @@ BASE_DIR="../wasmtime/cranelift"
 
 case $INSTALL_MODE in
     "permanent")
-        echo "Cloning zkevm-proverjs into ../../ directory..."
-        git clone https://github.com/0xPolygonHermez/zkevm-proverjs/ ../../zkevm-proverjs > /dev/null 2>&1
-        cd ../../zkevm-proverjs
+        echo "Cloning zkevm-rom into ../../ directory..."
+        git clone https://github.com/0xPolygonHermez/zkevm-rom/ ../../zkevm-rom > /dev/null 2>&1
+        cd ../../zkevm-rom
         ;;
     "temporary")
-        echo "Cloning zkevm-proverjs into /tmp directory..."
-        git clone https://github.com/0xPolygonHermez/zkevm-proverjs/ ./tmp/zkevm-proverjs > /dev/null 2>&1
-        cd ./tmp/zkevm-proverjs
+        echo "Cloning zkevm-rom into /tmp directory..."
+        git clone https://github.com/0xPolygonHermez/zkevm-rom/ ./tmp/zkevm-rom > /dev/null 2>&1
+        cd ./tmp/zkevm-rom
         BASE_DIR="../../"
         ;;
     "preinstalled")
-        cd ../../zkevm-proverjs
+        cd ../../zkevm-rom
         ;;
 esac
 
-git checkout training > /dev/null 2>&1
+npm install
 
 if [ "$ALL_FILES" = true ]; then
-    PASSED=0
-    FAILED=0
 
-    for zkasm_file in $BASE_DIR/data/*.zkasm; do
-        FILENAME=$(basename $zkasm_file)
-        echo -n "Testing $FILENAME... "
+    node tools/run-tests-zkasm.js $BASE_DIR/zkasm_data/generated
 
-        OUTPUT=$(node test/zkasmtest.js $zkasm_file 2>&1)
-        if echo "$OUTPUT" | grep -q "cntSteps: [0-9]\+"; then
-            echo -e "${GREEN}OK. cntSteps = $(echo "$OUTPUT" | grep "cntSteps: [0-9]\+" | awk '{print $2}')${NC}"
-            ((PASSED++))
-        else
-            echo -e "${RED}ZKWASM ERROR${NC}"
-            ((FAILED++))
-        fi
-    done
-
-    echo -e "\n${GREEN}$PASSED files passed${NC}, ${RED}$FAILED files failed${NC}"
+    exit_code=$?
 
     # If we used the temporary installation mode, remove the cloned directory
     if [ "$INSTALL_MODE" = "temporary" ]; then
-        echo "Removing temporary installation of zkevm-proverjs..."
-        rm -rf /tmp/zkevm-proverjs
+        echo "Removing temporary installation of zkevm-rom..."
+        rm -rf /tmp/zkevm-rom
     fi
 
-    exit $FAILED
+    exit $exit_code
 
 else
-
     zkasm_file="$BASE_DIR/$1"
-
     # Replace all "//" with "/"
     zkasm_file="${zkasm_file//\/\//\/}"
 
-    # debug
-    echo $zkasm_file
+    node tools/run-tests-zkasm.js $zkasm_file
 
-    if [ ! -f "$zkasm_file" ]; then
-        echo "File $zkasm_file does not exist!"
-
-        # debug
-        echo "Script executed from: ${PWD}"
-        B=$(dirname $0)
-        echo "Script location: ${B}"
-
-        # If we used the temporary installation mode, remove the cloned directory
-        if [ "$INSTALL_MODE" = "temporary" ]; then
-            echo "Removing temporary installation of zkevm-proverjs..."
-            rm -rf ./tmp
-        fi
-
-        exit 1
-    fi
-
-    node test/zkasmtest.js $zkasm_file
+    exit_code=$?
 
     # If we used the temporary installation mode, remove the cloned directory
     if [ "$INSTALL_MODE" = "temporary" ]; then
-        echo "Removing temporary installation of zkevm-proverjs..."
+        echo "Removing temporary installation of zkevm-rom..."
         rm -rf ./tmp
     fi
+    exit $exit_code
 fi
