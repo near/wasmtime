@@ -38,7 +38,7 @@ concurrency:
 
 jobs:
   # Check Code style quickly by running `rustfmt` over all code
-  test:
+  testpace:
     name: Test
     runs-on: ubuntu-latest
     steps:
