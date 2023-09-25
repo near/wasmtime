@@ -44,8 +44,8 @@ case $INSTALL_MODE in
         ;;
     "temporary")
         echo "Cloning zkevm-proverjs into /tmp directory..."
-        git clone https://github.com/0xPolygonHermez/zkevm-proverjs/ /tmp/zkevm-proverjs > /dev/null 2>&1
-        cd /tmp/zkevm-proverjs
+        git clone https://github.com/0xPolygonHermez/zkevm-proverjs/ ./tmp/zkevm-proverjs > /dev/null 2>&1
+        cd ./tmp/zkevm-proverjs
         BASE_DIR="../../"
         ;;
     "preinstalled")
@@ -84,18 +84,27 @@ if [ "$ALL_FILES" = true ]; then
     exit $FAILED
 
 else
+
     zkasm_file="$BASE_DIR/$1"
+
+    # Replace all "//" with "/"
+    zkasm_file="${zkasm_file//\/\//\/}"
+
+    # debug
+    echo $zkasm_file
+
     if [ ! -f "$zkasm_file" ]; then
         echo "File $zkasm_file does not exist!"
-        echo "Script executed from: ${PWD}"
 
+        # debug
+        echo "Script executed from: ${PWD}"
         B=$(dirname $0)
         echo "Script location: ${B}"
 
         # If we used the temporary installation mode, remove the cloned directory
         if [ "$INSTALL_MODE" = "temporary" ]; then
             echo "Removing temporary installation of zkevm-proverjs..."
-            rm -rf /tmp/zkevm-proverjs
+            rm -rf ./tmp
         fi
 
         exit 1
@@ -106,6 +115,6 @@ else
     # If we used the temporary installation mode, remove the cloned directory
     if [ "$INSTALL_MODE" = "temporary" ]; then
         echo "Removing temporary installation of zkevm-proverjs..."
-        rm -rf /tmp/zkevm-proverjs
+        rm -rf ./tmp
     fi
 fi
