@@ -168,7 +168,8 @@ mod tests {
     fn test_module(name: &str) {
         let module_binary = wat::parse_file(format!("../zkasm_data/{name}.wat")).unwrap();
         let program = generate_zkasm(&module_binary);
-        let expected = expect_test::expect_file![format!("../../zkasm_data/generated/{name}.zkasm")];
+        let expected =
+            expect_test::expect_file![format!("../../zkasm_data/generated/{name}.zkasm")];
         expected.assert_eq(&program);
     }
 
