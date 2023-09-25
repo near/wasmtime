@@ -34,7 +34,7 @@ if [ "$ALL_FILES" = false ] && [ -z "$1" ]; then
 fi
 
 
-BASE_DIR="../wasmtime/cranelift"
+BASE_DIR="../wasmtime"
 
 case $INSTALL_MODE in
     "permanent")
@@ -59,7 +59,7 @@ esac
 
 if [ "$ALL_FILES" = true ]; then
 
-    node tools/run-tests-zkasm.js $BASE_DIR/zkasm_data/generated
+    node tools/run-tests-zkasm.js $BASE_DIR/cranelift/zkasm_data/generated
 
     exit_code=$?
 
