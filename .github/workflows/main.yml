@@ -37,7 +37,6 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  # Check Code style quickly by running `rustfmt` over all code
   test_zkasm:
     name: Test generated zkAsm
     runs-on: ubuntu-latest
