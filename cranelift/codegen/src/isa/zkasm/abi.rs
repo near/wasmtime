@@ -1,4 +1,4 @@
-//! Implementation of a standard Riscv64 ABI.
+//! Implementation of a standard zkASM ABI.
 
 use std::sync::OnceLock;
 
@@ -16,7 +16,7 @@ use crate::machinst::*;
 use crate::ir::types::I8;
 use crate::ir::LibCall;
 use crate::ir::Signature;
-use crate::isa::zkasm::settings::Flags as RiscvFlags;
+use crate::isa::zkasm::settings::Flags;
 use crate::settings;
 use crate::CodegenError;
 use crate::CodegenResult;
@@ -27,60 +27,26 @@ use regs::{create_reg_environment, x_reg};
 
 use smallvec::{smallvec, SmallVec};
 
-/// Support for the Riscv64 ABI from the callee side (within a function body).
-pub(crate) type Riscv64Callee = Callee<Riscv64MachineDeps>;
+/// Support for the zkASM ABI from the callee side (within a function body).
+pub(crate) type ZkAsmCallee = Callee<ZkAsmMachineDeps>;
 
-/// Support for the Riscv64 ABI from the caller side (at a callsite).
-pub(crate) type Riscv64ABICallSite = CallSite<Riscv64MachineDeps>;
+/// Support for the zkASM ABI from the caller side (at a callsite).
+pub(crate) type ZkAsmABICallSite = CallSite<ZkAsmMachineDeps>;
 
 /// This is the limit for the size of argument and return-value areas on the
 /// stack. We place a reasonable limit here to avoid integer overflow issues
 /// with 32-bit arithmetic: for now, 128 MB.
 static STACK_ARG_RET_SIZE_LIMIT: u32 = 128 * 1024 * 1024;
 
-/// Riscv64-specific ABI behavior. This struct just serves as an implementation
+/// zkASM-specific ABI behavior. This struct just serves as an implementation
 /// point for the trait; it is never actually instantiated.
-pub struct Riscv64MachineDeps;
+pub struct ZkAsmMachineDeps;
 
-impl IsaFlags for RiscvFlags {}
+impl IsaFlags for Flags {}
 
-impl RiscvFlags {
-    pub(crate) fn min_vec_reg_size(&self) -> u64 {
-        let entries = [
-            (self.has_zvl65536b(), 65536),
-            (self.has_zvl32768b(), 32768),
-            (self.has_zvl16384b(), 16384),
-            (self.has_zvl8192b(), 8192),
-            (self.has_zvl4096b(), 4096),
-            (self.has_zvl2048b(), 2048),
-            (self.has_zvl1024b(), 1024),
-            (self.has_zvl512b(), 512),
-            (self.has_zvl256b(), 256),
-            // In order to claim the Application Profile V extension, a minimum
-            // register size of 128 is required. i.e. V implies Zvl128b.
-            (self.has_v(), 128),
-            (self.has_zvl128b(), 128),
-            (self.has_zvl64b(), 64),
-            (self.has_zvl32b(), 32),
-        ];
-
-        for (has_flag, size) in entries.into_iter() {
-            if !has_flag {
-                continue;
-            }
-
-            // Due to a limitation in regalloc2, we can't support types
-            // larger than 1024 bytes. So limit that here.
-            return std::cmp::min(size, 1024);
-        }
-
-        return 0;
-    }
-}
-
-impl ABIMachineSpec for Riscv64MachineDeps {
+impl ABIMachineSpec for ZkAsmMachineDeps {
     type I = Inst;
-    type F = RiscvFlags;
+    type F = Flags;
 
     fn word_bits() -> u32 {
         64
@@ -668,13 +634,13 @@ impl ABIMachineSpec for Riscv64MachineDeps {
     fn get_number_of_spillslots_for_value(
         rc: RegClass,
         _target_vector_bytes: u32,
-        isa_flags: &RiscvFlags,
+        _isa_flags: &Flags,
     ) -> u32 {
         // We allocate in terms of 8-byte slots.
         match rc {
             RegClass::Int => 1,
             RegClass::Float => 1,
-            RegClass::Vector => (isa_flags.min_vec_reg_size() / 8) as u32,
+            RegClass::Vector => todo!(),
         }
     }
 
@@ -712,7 +678,7 @@ impl ABIMachineSpec for Riscv64MachineDeps {
     }
 }
 
-impl Riscv64ABICallSite {
+impl ZkAsmABICallSite {
     pub fn emit_return_call(mut self, ctx: &mut Lower<Inst>, args: isle::ValueSlice) {
         let (new_stack_arg_size, old_stack_arg_size) =
             self.emit_temporary_tail_call_frame(ctx, args);
@@ -980,7 +946,7 @@ const fn tail_clobbers() -> PRegSet {
 
 const TAIL_CLOBBERS: PRegSet = tail_clobbers();
 
-impl Riscv64MachineDeps {
+impl ZkAsmMachineDeps {
     fn gen_probestack_unroll(insts: &mut SmallInstVec<Inst>, guard_size: u32, probe_count: u32) {
         insts.reserve(probe_count as usize);
         for i in 0..probe_count {

@@ -1,4 +1,4 @@
-//! Riscv64 ISA: binary code emission.
+//! zkASM ISA: binary code emission.
 
 use crate::binemit::StackMap;
 use crate::ir::{self, RelSourceLoc, TrapCode};
@@ -139,7 +139,7 @@ impl EmitState {
 
 impl MachInstEmitState<Inst> for EmitState {
     fn new(
-        abi: &Callee<crate::isa::zkasm::abi::Riscv64MachineDeps>,
+        abi: &Callee<crate::isa::zkasm::abi::ZkAsmMachineDeps>,
         ctrl_plane: ControlPlane,
     ) -> Self {
         EmitState {

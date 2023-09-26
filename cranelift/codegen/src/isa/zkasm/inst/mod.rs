@@ -35,7 +35,7 @@ pub mod encode;
 pub use self::encode::*;
 pub mod unwind;
 
-use crate::isa::zkasm::abi::Riscv64MachineDeps;
+use crate::isa::zkasm::abi::ZkAsmMachineDeps;
 
 #[cfg(test)]
 mod emit_tests;
@@ -522,10 +522,9 @@ fn zkasm_get_operands<F: Fn(VReg) -> VReg>(inst: &Inst, collector: &mut OperandC
 
 impl MachInst for Inst {
     type LabelUse = LabelUse;
-    type ABIMachineSpec = Riscv64MachineDeps;
+    type ABIMachineSpec = ZkAsmMachineDeps;
 
-    // https://github.com/riscv/riscv-isa-manual/issues/850
-    // all zero will cause invalid opcode.
+    // TODO:
     const TRAP_OPCODE: &'static [u8] = &[0; 4];
 
     fn gen_dummy_use(reg: Reg) -> Self {
@@ -1241,9 +1240,7 @@ pub enum LabelUse {
 }
 
 impl MachInstLabelUse for LabelUse {
-    /// Alignment for veneer code. Every Riscv64 instruction must be
-    /// 4-byte-aligned.
-    const ALIGN: CodeOffset = 4;
+    const ALIGN: CodeOffset = 1;
 
     /// Maximum PC-relative range (positive), inclusive.
     fn max_pos_range(self) -> CodeOffset {
@@ -1258,52 +1255,41 @@ impl MachInstLabelUse for LabelUse {
 
     /// Maximum PC-relative range (negative).
     fn max_neg_range(self) -> CodeOffset {
-        match self {
-            LabelUse::PCRel32 => Inst::imm_min().abs() as CodeOffset,
-            _ => self.max_pos_range() + 2,
-        }
+        CodeOffset::MAX
     }
 
     /// Size of window into code needed to do the patch.
     fn patch_size(self) -> CodeOffset {
-        match self {
-            LabelUse::Jal20 | LabelUse::B12 | LabelUse::PCRelHi20 | LabelUse::PCRelLo12I => 4,
-            LabelUse::PCRel32 => 8,
-        }
+        todo!()
     }
 
     /// Perform the patch.
     fn patch(self, buffer: &mut [u8], use_offset: CodeOffset, label_offset: CodeOffset) {
-        assert!(use_offset % 4 == 0);
-        assert!(label_offset % 4 == 0);
-        let offset = (label_offset as i64) - (use_offset as i64);
+        todo!()
+        // assert!(use_offset % 4 == 0);
+        // assert!(label_offset % 4 == 0);
+        // let offset = (label_offset as i64) - (use_offset as i64);
 
-        // re-check range
-        assert!(
-            offset >= -(self.max_neg_range() as i64) && offset <= (self.max_pos_range() as i64),
-            "{:?} offset '{}' use_offset:'{}' label_offset:'{}'  must not exceed max range.",
-            self,
-            offset,
-            use_offset,
-            label_offset,
-        );
-        self.patch_raw_offset(buffer, offset);
+        // // re-check range
+        // assert!(
+        //     offset >= -(self.max_neg_range() as i64) && offset <= (self.max_pos_range() as i64),
+        //     "{:?} offset '{}' use_offset:'{}' label_offset:'{}'  must not exceed max range.",
+        //     self,
+        //     offset,
+        //     use_offset,
+        //     label_offset,
+        // );
+        // self.patch_raw_offset(buffer, offset);
     }
 
     /// Is a veneer supported for this label reference type?
     fn supports_veneer(self) -> bool {
-        match self {
-            Self::Jal20 | Self::B12 => true,
-            _ => false,
-        }
+        todo!()
     }
 
     /// How large is the veneer, if supported?
     fn veneer_size(self) -> CodeOffset {
-        match self {
-            Self::B12 | Self::Jal20 => 8,
-            _ => unreachable!(),
-        }
+        todo!()
     }
 
     /// Generate a veneer into the buffer, given that this veneer is at `veneer_offset`, and return
@@ -1313,27 +1299,27 @@ impl MachInstLabelUse for LabelUse {
         buffer: &mut [u8],
         veneer_offset: CodeOffset,
     ) -> (CodeOffset, LabelUse) {
-        let base = writable_spilltmp_reg();
-        {
-            let x = enc_auipc(base, Imm20::from_bits(0)).to_le_bytes();
-            buffer[0] = x[0];
-            buffer[1] = x[1];
-            buffer[2] = x[2];
-            buffer[3] = x[3];
-        }
-        {
-            let x = enc_jalr(writable_zero_reg(), base.to_reg(), Imm12::from_bits(0)).to_le_bytes();
-            buffer[4] = x[0];
-            buffer[5] = x[1];
-            buffer[6] = x[2];
-            buffer[7] = x[3];
-        }
-        (veneer_offset, Self::PCRel32)
+        todo!()
+        // let base = writable_spilltmp_reg();
+        // {
+        //     let x = enc_auipc(base, Imm20::from_bits(0)).to_le_bytes();
+        //     buffer[0] = x[0];
+        //     buffer[1] = x[1];
+        //     buffer[2] = x[2];
+        //     buffer[3] = x[3];
+        // }
+        // {
+        //     let x = enc_jalr(writable_zero_reg(), base.to_reg(), Imm12::from_bits(0)).to_le_bytes();
+        //     buffer[4] = x[0];
+        //     buffer[5] = x[1];
+        //     buffer[6] = x[2];
+        //     buffer[7] = x[3];
+        // }
+        // (veneer_offset, Self::PCRel32)
     }
 
     fn from_reloc(reloc: Reloc, addend: Addend) -> Option<LabelUse> {
         match (reloc, addend) {
-            (Reloc::RiscvCall, _) => Some(Self::PCRel32),
             _ => None,
         }
     }
@@ -1345,92 +1331,81 @@ impl MachInstLabelUse for LabelUse {
 
 impl LabelUse {
     fn offset_in_range(self, offset: i64) -> bool {
-        let min = -(self.max_neg_range() as i64);
-        let max = self.max_pos_range() as i64;
-        offset >= min && offset <= max
+        true
+        // let min = -(self.max_neg_range() as i64);
+        // let max = self.max_pos_range() as i64;
+        // offset >= min && offset <= max
     }
 
     fn patch_raw_offset(self, buffer: &mut [u8], offset: i64) {
-        let insn = u32::from_le_bytes([buffer[0], buffer[1], buffer[2], buffer[3]]);
-        match self {
-            LabelUse::Jal20 => {
-                let offset = offset as u32;
-                let v = ((offset >> 12 & 0b1111_1111) << 12)
-                    | ((offset >> 11 & 0b1) << 20)
-                    | ((offset >> 1 & 0b11_1111_1111) << 21)
-                    | ((offset >> 20 & 0b1) << 31);
-                buffer[0..4].clone_from_slice(&u32::to_le_bytes(insn | v));
-            }
-            LabelUse::PCRel32 => {
-                let insn2 = u32::from_le_bytes([buffer[4], buffer[5], buffer[6], buffer[7]]);
-                Inst::generate_imm(offset as u64, |imm20, imm12| {
-                    let imm20 = imm20.unwrap_or_default();
-                    let imm12 = imm12.unwrap_or_default();
-                    // Encode the OR-ed-in value with zero_reg(). The
-                    // register parameter must be in the original
-                    // encoded instruction and or'ing in zeroes does not
-                    // change it.
-                    buffer[0..4].clone_from_slice(&u32::to_le_bytes(
-                        insn | enc_auipc(writable_zero_reg(), imm20),
-                    ));
-                    buffer[4..8].clone_from_slice(&u32::to_le_bytes(
-                        insn2 | enc_jalr(writable_zero_reg(), zero_reg(), imm12),
-                    ));
-                })
-                // expect make sure we handled.
-                .expect("we have check the range before,this is a compiler error.");
-            }
+        todo!()
+        // let insn = u32::from_le_bytes([buffer[0], buffer[1], buffer[2], buffer[3]]);
+        // match self {
+        //     LabelUse::Jal20 => {
+        //         let offset = offset as u32;
+        //         let v = ((offset >> 12 & 0b1111_1111) << 12)
+        //             | ((offset >> 11 & 0b1) << 20)
+        //             | ((offset >> 1 & 0b11_1111_1111) << 21)
+        //             | ((offset >> 20 & 0b1) << 31);
+        //         buffer[0..4].clone_from_slice(&u32::to_le_bytes(insn | v));
+        //     }
+        //     LabelUse::PCRel32 => {
+        //         let insn2 = u32::from_le_bytes([buffer[4], buffer[5], buffer[6], buffer[7]]);
+        //         Inst::generate_imm(offset as u64, |imm20, imm12| {
+        //             let imm20 = imm20.unwrap_or_default();
+        //             let imm12 = imm12.unwrap_or_default();
+        //             // Encode the OR-ed-in value with zero_reg(). The
+        //             // register parameter must be in the original
+        //             // encoded instruction and or'ing in zeroes does not
+        //             // change it.
+        //             buffer[0..4].clone_from_slice(&u32::to_le_bytes(
+        //                 insn | enc_auipc(writable_zero_reg(), imm20),
+        //             ));
+        //             buffer[4..8].clone_from_slice(&u32::to_le_bytes(
+        //                 insn2 | enc_jalr(writable_zero_reg(), zero_reg(), imm12),
+        //             ));
+        //         })
+        //         // expect make sure we handled.
+        //         .expect("we have check the range before,this is a compiler error.");
+        //     }
 
-            LabelUse::B12 => {
-                let offset = offset as u32;
-                let v = ((offset >> 11 & 0b1) << 7)
-                    | ((offset >> 1 & 0b1111) << 8)
-                    | ((offset >> 5 & 0b11_1111) << 25)
-                    | ((offset >> 12 & 0b1) << 31);
-                buffer[0..4].clone_from_slice(&u32::to_le_bytes(insn | v));
-            }
+        //     LabelUse::B12 => {
+        //         let offset = offset as u32;
+        //         let v = ((offset >> 11 & 0b1) << 7)
+        //             | ((offset >> 1 & 0b1111) << 8)
+        //             | ((offset >> 5 & 0b11_1111) << 25)
+        //             | ((offset >> 12 & 0b1) << 31);
+        //         buffer[0..4].clone_from_slice(&u32::to_le_bytes(insn | v));
+        //     }
 
-            LabelUse::PCRelHi20 => {
-                // See https://github.com/riscv-non-isa/riscv-elf-psabi-doc/blob/master/riscv-elf.adoc#pc-relative-symbol-addresses
-                //
-                // We need to add 0x800 to ensure that we land at the next page as soon as it goes out of range for the
-                // Lo12 relocation. That relocation is signed and has a maximum range of -2048..2047. So when we get an
-                // offset of 2048, we need to land at the next page and subtract instead.
-                let offset = offset as u32;
-                let hi20 = offset.wrapping_add(0x800) >> 12;
-                let insn = (insn & 0xFFF) | (hi20 << 12);
-                buffer[0..4].clone_from_slice(&u32::to_le_bytes(insn));
-            }
+        //     LabelUse::PCRelHi20 => {
+        //         // See https://github.com/riscv-non-isa/riscv-elf-psabi-doc/blob/master/riscv-elf.adoc#pc-relative-symbol-addresses
+        //         //
+        //         // We need to add 0x800 to ensure that we land at the next page as soon as it goes out of range for the
+        //         // Lo12 relocation. That relocation is signed and has a maximum range of -2048..2047. So when we get an
+        //         // offset of 2048, we need to land at the next page and subtract instead.
+        //         let offset = offset as u32;
+        //         let hi20 = offset.wrapping_add(0x800) >> 12;
+        //         let insn = (insn & 0xFFF) | (hi20 << 12);
+        //         buffer[0..4].clone_from_slice(&u32::to_le_bytes(insn));
+        //     }
 
-            LabelUse::PCRelLo12I => {
-                // `offset` is the offset from the current instruction to the target address.
-                //
-                // However we are trying to compute the offset to the target address from the previous instruction.
-                // The previous instruction should be the one that contains the PCRelHi20 relocation and
-                // stores/references the program counter (`auipc` usually).
-                //
-                // Since we are trying to compute the offset from the previous instruction, we can
-                // represent it as offset = target_address - (current_instruction_address - 4)
-                // which is equivalent to offset = target_address - current_instruction_address + 4.
-                //
-                // Thus we need to add 4 to the offset here.
-                let lo12 = (offset + 4) as u32 & 0xFFF;
-                let insn = (insn & 0xFFFFF) | (lo12 << 20);
-                buffer[0..4].clone_from_slice(&u32::to_le_bytes(insn));
-            }
-        }
-    }
-}
-
-#[cfg(test)]
-mod test {
-    use super::*;
-    #[test]
-    fn label_use_max_range() {
-        assert!(LabelUse::B12.max_neg_range() == LabelUse::B12.max_pos_range() + 2);
-        assert!(LabelUse::Jal20.max_neg_range() == LabelUse::Jal20.max_pos_range() + 2);
-        assert!(LabelUse::PCRel32.max_pos_range() == (Inst::imm_max() as CodeOffset));
-        assert!(LabelUse::PCRel32.max_neg_range() == (Inst::imm_min().abs() as CodeOffset));
-        assert!(LabelUse::B12.max_pos_range() == ((1 << 11) - 1) * 2);
+        //     LabelUse::PCRelLo12I => {
+        //         // `offset` is the offset from the current instruction to the target address.
+        //         //
+        //         // However we are trying to compute the offset to the target address from the previous instruction.
+        //         // The previous instruction should be the one that contains the PCRelHi20 relocation and
+        //         // stores/references the program counter (`auipc` usually).
+        //         //
+        //         // Since we are trying to compute the offset from the previous instruction, we can
+        //         // represent it as offset = target_address - (current_instruction_address - 4)
+        //         // which is equivalent to offset = target_address - current_instruction_address + 4.
+        //         //
+        //         // Thus we need to add 4 to the offset here.
+        //         let lo12 = (offset + 4) as u32 & 0xFFF;
+        //         let insn = (insn & 0xFFFFF) | (lo12 << 20);
+        //         buffer[0..4].clone_from_slice(&u32::to_le_bytes(insn));
+        //     }
+        // }
     }
 }
