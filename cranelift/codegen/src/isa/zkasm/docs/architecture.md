@@ -2,6 +2,16 @@
 
 This document described high-level architecture of zkAsm backend as well as how it fits into the rest of the pipeline that enables Zero-knowledge proofs for WASM programs.
 
+## Technical setup
+
+zkAsm backend is implementing a [new ISA](https://docs.rs/cranelift-codegen/latest/cranelift_codegen/isa/index.html) from Cranelift's point of view. It was originally based on [Riscv64 ISA](https://github.com/near/wasmtime/tree/main/cranelift/codegen/src/isa/riscv64), but is actively [being decoupled](https://github.com/near/wasmtime/issues/20) from it.
+
+This allows us to build the following pipeline:
+1. Convert WASM program to Cranelift IR using [cranelift_wasm](https://docs.rs/cranelift-wasm/latest/cranelift_wasm/)
+2. Optimize and compile Cranelift IR to zkAsm using [cranelift_codegen](https://docs.rs/cranelift-codegen/latest/cranelift_codegen/) and our zkAsm backend
+3. Compile zkAsm to PIL polynomials with [zkasmcom](https://github.com/0xPolygonHermez/zkasmcom)
+4. Generate the proof using [zkevm-prover](https://github.com/0xPolygonHermez/zkevm-prover)
+
 ![End-to-end pipeline](./images/endtoend.png)
 
 ## Design constraints
@@ -11,9 +21,10 @@ We care about both backend-independent compiler optimizations as well as optimiz
 
 We do not care about compilation speed and ready to trade it off for higher compilation quality, as the intended usecases will repeatedly prove the result of execution of a small set of programs and the compilation cost will be paid only once and will likely be negligible compared to the proving costs.
 
-## zkASM
+## zkAsm
 
-zkASM is a register machine with memory that is programmed in a [textual assembly language](https://wiki.polygon.technology/docs/zkevm/zkASM/basic-syntax/).
+zkAsm is a register machine with memory that is programmed in a [textual assembly language](https://wiki.polygon.technology/docs/zkevm/zkASM/basic-syntax/).
+It has around [30 instructions](https://github.com/0xPolygonHermez/zkasmcom/blob/main/instructions.md) and a formal [machine spec](https://github.com/0xPolygonHermez/zkevm-techdocs/blob/main/zkevm-architecture/v.1.1/zkevm-architecture.pdf).
 
 It has some notable differences from traditional ISAs:
 - ZK processor is [fully defined in software](https://github.com/0xPolygonHermez/zkevm-proverjs/blob/main/pil/main.pil) in a language called [PIL](https://github.com/0xPolygonHermez/zkevm-techdocs/blob/main/pil/v.1.0/pil.pdf) which is well suited for generating ZK proofs. As a consequence, we have a lot of freedom to change it as we see fit (as long as it is still cheap to prove)
@@ -21,13 +32,9 @@ It has some notable differences from traditional ISAs:
     - Bitwise operations (AND, OR, XOR, NOT) are 4-16 times more expensive than arithmetic operations (ADD, SUB, NEG)
     - Random memory access is cheap
 
-zkASM has around [30 instructions](https://github.com/0xPolygonHermez/zkasmcom/blob/main/instructions.md).
-
-Some relevant tooling to work with zkASM:
+Some relevant tooling to work with zkAsm:
 - Simulators in [JavaScript](https://github.com/0xPolygonHermez/zkevm-proverjs) and [C++](https://github.com/0xPolygonHermez/zkevm-prover)
 - [Text Assembly Parser](https://github.com/0xPolygonHermez/zkasmcom)
-
-For more details, see the [machine spec](https://github.com/0xPolygonHermez/zkevm-techdocs/blob/main/zkevm-architecture/v.1.1/zkevm-architecture.pdf).
 
 ## Why Cranelift and alternatives considered
 
