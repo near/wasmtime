@@ -6,18 +6,10 @@ This document described high-level architecture of zkAsm backend as well as how 
 
 ## Design constraints
 
-On a high-level, we’re looking for a tech stack that would allow us to translate WASM modules into a DSL called zk Assembly (ZK ASM) (see an example below).
-The quality of the translation is very important, as some ZK ASM programs are much more efficient to prove than others. We care about both backend-independent compiler optimizations as well as optimizations during lowering.
+The quality of the generated code is very important, as some zkAsm programs are much more efficient to prove than others.
+We care about both backend-independent compiler optimizations as well as optimizations during lowering.
 
 We do not care about compilation speed and ready to trade it off for higher compilation quality, as the intended usecases will repeatedly prove the result of execution of a small set of programs and the compilation cost will be paid only once and will likely be negligible compared to the proving costs.
-
-The reasoning is the following:
-
-- Cranelift -> WASM is a well-supported path with high-quality optimization passes, WASM -> RiscV is still experimental
-- We can tweak ZK ASM VM for our needs to make it a better compilation target, while RiscV ISA is externally defined (which is both good and bad thing)
-- Cranelift provides a very flexible model for writing lowering rules from generic Cranelift IR to target ISA which would allow us to incrementally improve the quality of generated code
-- Cranelift supports tools for formal verification of lowering rules which is super important in ZK context
-https://www.cs.cornell.edu/~avh/veri-isle-preprint.pdf
 
 ## zkASM
 
@@ -37,16 +29,24 @@ Some relevant tooling to work with zkASM:
 
 For more details, see the [machine spec](https://github.com/0xPolygonHermez/zkevm-techdocs/blob/main/zkevm-architecture/v.1.1/zkevm-architecture.pdf).
 
-## Alternatives considered
+## Why Cranelift and alternatives considered
 
-### Direct WASM -> ZK ASM compilation
+Here are the qualities of Cranelift compiler make it a good fit for this task:
+- Cranelift -> WASM is a well-supported path with high-quality optimization passes
+- Cranelift provides a very flexible model for writing lowering rules from generic Cranelift IR to target ISA which would allow us to incrementally improve the quality of generated code
+- Cranelift supports [tools for formal verification](https://www.cs.cornell.edu/~avh/veri-isle-preprint.pdf) of lowering rules which is especially important in ZK context
 
-We’ve built a prototype for this approach: https://github.com/akashin/zkwasm/
+We also considered a few other alternatives:
+
+### Direct WASM -> zkAsm compilation
+
+We’ve built a [prototype](https://github.com/akashin/zkwasm/) for this approach and discovered the following trade-offs:
 
 Pros:
 - Easy to work with, simple and small codebase
 Cons:
 - Hard to generate efficient code, need to implement all standard compiler optimizations
+- Larger instruction set to support: WASM is around 400 instructions today, while Cranelift IR is only 100
 
 ### LLVM
 
@@ -58,4 +58,4 @@ Cons:
 - Hard to work with (build times, complexity, C++)
 - No first-class support for WASM
 
-See [Zulip thread](https://near.zulipchat.com/#narrow/stream/295306-pagoda.2Fcontract-runtime/topic/llvm.20backend.20for.20zk/near/389232792) that discusses this approach.
+See [Zulip thread](https://near.zulipchat.com/#narrow/stream/295306-pagoda.2Fcontract-runtime/topic/llvm.20backend.20for.20zk/near/389232792) for the related discussion.
