@@ -40,7 +40,7 @@ Some relevant tooling to work with zkAsm:
 
 Here are the qualities of Cranelift compiler make it a good fit for this task:
 - Cranelift -> WASM is a well-supported path with high-quality optimization passes
-- Cranelift provides a very flexible model for writing lowering rules from generic Cranelift IR to target ISA which would allow us to incrementally improve the quality of generated code
+- Cranelift ISLE provides a flexible model for writing lowering rules which would allow us to incrementally improve the quality of generated code and experiment with different zkAsm architectures
 - Cranelift supports [tools for formal verification](https://www.cs.cornell.edu/~avh/veri-isle-preprint.pdf) of lowering rules which is especially important in ZK context
 
 We also considered a few other alternatives:
