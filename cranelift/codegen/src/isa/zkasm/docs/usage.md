@@ -1,7 +1,7 @@
 
-# Compiling `.wat` to `.zkasm` using Wasmtime
+# Compiling `.wat` to `.zkasm` using Cranelift
 
-In this guide, you'll learn how to use `wasmtime` to compile `.wat` files into `.zkasm` files.
+In this guide, you'll learn how to use `cranelift` to compile `.wat` files into `.zkasm` files.
 
 ## Getting Started
 
@@ -35,7 +35,7 @@ To compile a `.wat` file to `.zkasm`:
    }
    ```
 
-3. Execute the following command from the `wasmtime/` directory to compile your file to `.zkasm`:
+3. Execute the following command to compile your file to `.zkasm`:
 
    ```bash
    env UPDATE_EXPECT=1 cargo test --package cranelift-filetests --lib -- test_zkasm::tests::<filename> --exact --nocapture
