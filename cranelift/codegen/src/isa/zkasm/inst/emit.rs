@@ -433,18 +433,12 @@ impl MachInstEmit for Inst {
                         sink.put4(x); */
             }
             &Inst::LoadConst32 { rd, imm } => {
-                todo!() /* let rd = allocs.next_writable(rd);
-                        LoadConstant::U32(imm)
-                            .load_constant(rd, &mut |_| rd)
-                            .into_iter()
-                            .for_each(|inst| inst.emit(&[], sink, emit_info, state)); */
+                let rd = allocs.next_writable(rd);
+                put_string(&format!("{imm} => {}\n", reg_name(rd.to_reg())), sink);
             }
             &Inst::LoadConst64 { rd, imm } => {
-                todo!() /* let rd = allocs.next_writable(rd);
-                        LoadConstant::U64(imm)
-                            .load_constant(rd, &mut |_| rd)
-                            .into_iter()
-                            .for_each(|inst| inst.emit(&[], sink, emit_info, state)); */
+                let rd = allocs.next_writable(rd);
+                put_string(&format!("{imm} => {}\n", reg_name(rd.to_reg())), sink);
             }
             &Inst::Unwind { ref inst } => {
                 put_string(&format!("Unwind\n"), sink);

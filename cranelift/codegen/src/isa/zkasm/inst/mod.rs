@@ -187,43 +187,15 @@ impl Inst {
         todo!()
     }
 
-    /// Immediates can be loaded using lui and addi instructions.
-    fn load_const_imm<F: FnMut(Type) -> Writable<Reg>>(
-        rd: Writable<Reg>,
-        value: u64,
-        alloc_tmp: &mut F,
-    ) -> Option<SmallInstVec<Inst>> {
-        Inst::generate_imm(value, |imm20, imm12| {
-            let mut insts = SmallVec::new();
-
-            let rs = if let Some(imm) = imm20 {
-                let rd = if imm12.is_some() { alloc_tmp(I64) } else { rd };
-                insts.push(Inst::Lui { rd, imm });
-                rd.to_reg()
-            } else {
-                zero_reg()
-            };
-
-            if let Some(imm12) = imm12 {
-                todo!()
-            }
-
-            insts
-        })
-    }
-
     pub(crate) fn load_constant_u32<F: FnMut(Type) -> Writable<Reg>>(
         rd: Writable<Reg>,
         value: u64,
         alloc_tmp: &mut F,
     ) -> SmallInstVec<Inst> {
-        let insts = Inst::load_const_imm(rd, value, alloc_tmp);
-        insts.unwrap_or_else(|| {
-            smallvec![Inst::LoadConst32 {
-                rd,
-                imm: value as u32
-            }]
-        })
+        smallvec![Inst::LoadConst32 {
+            rd,
+            imm: value as u32
+        }]
     }
 
     pub fn load_constant_u64<F: FnMut(Type) -> Writable<Reg>>(
@@ -231,8 +203,7 @@ impl Inst {
         value: u64,
         alloc_tmp: &mut F,
     ) -> SmallInstVec<Inst> {
-        let insts = Inst::load_const_imm(rd, value, alloc_tmp);
-        insts.unwrap_or_else(|| smallvec![Inst::LoadConst64 { rd, imm: value }])
+        smallvec![Inst::LoadConst64 { rd, imm: value }]
     }
 
     pub(crate) fn construct_auipc_and_jalr(
