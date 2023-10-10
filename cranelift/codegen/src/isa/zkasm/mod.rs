@@ -19,8 +19,6 @@ mod abi;
 pub(crate) mod inst;
 mod lower;
 mod settings;
-#[cfg(feature = "unwind")]
-use crate::isa::unwind::systemv;
 
 use self::inst::EmitInfo;
 
@@ -116,39 +114,14 @@ impl TargetIsa for ZkAsmBackend {
     #[cfg(feature = "unwind")]
     fn emit_unwind_info(
         &self,
-        result: &CompiledCode,
-        kind: crate::isa::UnwindInfoKind,
+        _result: &CompiledCode,
+        _kind: crate::isa::UnwindInfoKind,
     ) -> CodegenResult<Option<crate::isa::unwind::UnwindInfo>> {
-        use crate::isa::unwind::UnwindInfo;
-        use crate::isa::UnwindInfoKind;
-        Ok(match kind {
-            UnwindInfoKind::SystemV => {
-                let mapper = self::inst::unwind::systemv::RegisterMapper;
-                Some(UnwindInfo::SystemV(
-                    crate::isa::unwind::systemv::create_unwind_info_from_insts(
-                        &result.buffer.unwind_info[..],
-                        result.buffer.data().len(),
-                        &mapper,
-                    )?,
-                ))
-            }
-            UnwindInfoKind::Windows => None,
-            _ => None,
-        })
-    }
-
-    #[cfg(feature = "unwind")]
-    fn create_systemv_cie(&self) -> Option<gimli::write::CommonInformationEntry> {
-        Some(inst::unwind::systemv::create_cie())
+        Ok(None)
     }
 
     fn text_section_builder(&self, num_funcs: usize) -> Box<dyn TextSectionBuilder> {
         Box::new(MachTextSectionBuilder::<inst::Inst>::new(num_funcs))
-    }
-
-    #[cfg(feature = "unwind")]
-    fn map_regalloc_reg_to_dwarf(&self, reg: Reg) -> Result<u16, systemv::RegisterMappingError> {
-        inst::unwind::systemv::map_reg(reg).map(|reg| reg.0)
     }
 
     fn function_alignment(&self) -> FunctionAlignment {

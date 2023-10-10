@@ -33,7 +33,6 @@ pub mod emit;
 pub use self::emit::*;
 pub mod encode;
 pub use self::encode::*;
-pub mod unwind;
 
 use crate::isa::zkasm::abi::ZkAsmMachineDeps;
 
