@@ -326,10 +326,7 @@ fn zkasm_get_operands<F: Fn(VReg) -> VReg>(inst: &Inst, collector: &mut OperandC
             collector.reg_use(rn);
             collector.reg_def(rd);
         }
-
-        &Inst::ReserveSp { .. } => {}
-        &Inst::ReleaseSp { .. } => {}
-
+        &Inst::AdjustSp { .. } => {}
         &Inst::Call { ref info } => {
             for u in &info.uses {
                 collector.reg_fixed_use(u.vreg, u.preg);
@@ -1034,16 +1031,10 @@ impl Inst {
                 ref rets,
                 stack_bytes_to_pop,
             } => {
-                let mut s = if stack_bytes_to_pop != 0 {
-                    format!(
-                        "  {}\n  :JMP(RR)",
-                        Inst::ReleaseSp {
-                            amount: stack_bytes_to_pop
-                        }
-                        .print_with_state(_state, allocs)
-                    )
-                } else {
+                let mut s = if stack_bytes_to_pop == 0 {
                     "  :JMP(RR)".to_string()
+                } else {
+                    format!("  SP - {stack_bytes_to_pop} => SP\n  :JMP(RR)")
                 };
 
                 let mut empty_allocs = AllocationConsumer::default();
@@ -1055,7 +1046,7 @@ impl Inst {
                 s
             }
 
-            &Inst::Extend {
+            &MInst::Extend {
                 rd,
                 rn,
                 signed,
@@ -1072,22 +1063,15 @@ impl Inst {
                     format!("slli {rd},{rn},{shift_bits}; {op} {rd},{rd},{shift_bits}")
                 };
             }
-            &Inst::ReserveSp { amount } => {
-                // FIXME: conversion methods
-                let amount = amount.checked_div(8).unwrap();
-                format!("  SP + {} => SP", amount)
+            &MInst::AdjustSp { amount } => {
+                format!("{} sp,{:+}", "add", amount)
             }
-            &Inst::ReleaseSp { amount } => {
-                // FIXME: conversion methods
-                let amount = amount.checked_div(8).unwrap();
-                format!("  SP - {} => SP", amount)
-            }
-            &Inst::Call { ref info } => format!("call {}", info.dest.display(None)),
-            &Inst::CallInd { ref info } => {
+            &MInst::Call { ref info } => format!("call {}", info.dest.display(None)),
+            &MInst::CallInd { ref info } => {
                 let rd = format_reg(info.rn, allocs);
                 format!("callind {}", rd)
             }
-            &Inst::ReturnCall {
+            &MInst::ReturnCall {
                 ref callee,
                 ref info,
             } => {
@@ -1102,7 +1086,7 @@ impl Inst {
                 }
                 s
             }
-            &Inst::ReturnCallInd { callee, ref info } => {
+            &MInst::ReturnCallInd { callee, ref info } => {
                 let callee = format_reg(callee, allocs);
                 let mut s = format!(
                     "return_call_ind {callee} old_stack_arg_size:{} new_stack_arg_size:{}",
@@ -1115,10 +1099,10 @@ impl Inst {
                 }
                 s
             }
-            &Inst::TrapIf { test, trap_code } => {
+            &MInst::TrapIf { test, trap_code } => {
                 format!("trap_if {},{}", format_reg(test, allocs), trap_code,)
             }
-            &Inst::TrapIfC {
+            &MInst::TrapIfC {
                 rs1,
                 rs2,
                 cc,
@@ -1128,10 +1112,10 @@ impl Inst {
                 let rs2 = format_reg(rs2, allocs);
                 format!("trap_ifc {}##({} {} {})", trap_code, rs1, cc, rs2)
             }
-            &Inst::Jal { dest, .. } => {
+            &MInst::Jal { dest, .. } => {
                 format!("{} {}", "j", dest)
             }
-            &Inst::CondBr {
+            &MInst::CondBr {
                 taken,
                 not_taken,
                 kind,
@@ -1154,7 +1138,7 @@ impl Inst {
                     x
                 }
             }
-            &Inst::LoadExtName {
+            &MInst::LoadExtName {
                 rd,
                 ref name,
                 offset,
@@ -1162,26 +1146,26 @@ impl Inst {
                 let rd = format_reg(rd.to_reg(), allocs);
                 format!("load_sym {},{}{:+}", rd, name.display(None), offset)
             }
-            &Inst::LoadAddr { ref rd, ref mem } => {
+            &MInst::LoadAddr { ref rd, ref mem } => {
                 let rs = mem.to_string_with_alloc(allocs);
                 let rd = format_reg(rd.to_reg(), allocs);
                 format!("load_addr {},{}", rd, rs)
             }
-            &Inst::VirtualSPOffsetAdj { amount } => {
+            &MInst::VirtualSPOffsetAdj { amount } => {
                 format!("virtual_sp_offset_adj {:+}", amount)
             }
-            &Inst::Mov { rd, rm, ty } => {
+            &MInst::Mov { rd, rm, ty } => {
                 let rd = format_reg(rd.to_reg(), allocs);
                 let rm = format_reg(rm, allocs);
                 format!("{rm} => {rd}")
             }
-            &Inst::MovFromPReg { rd, rm } => {
+            &MInst::MovFromPReg { rd, rm } => {
                 let rd = format_reg(rd.to_reg(), allocs);
                 debug_assert!([px_reg(2), px_reg(8)].contains(&rm));
                 let rm = reg_name(Reg::from(rm));
                 format!("mv {},{}", rd, rm)
             }
-            &Inst::Select {
+            &MInst::Select {
                 ref dst,
                 condition,
                 ref x,
@@ -1195,9 +1179,9 @@ impl Inst {
                 let dst = format_regs(&dst[..], allocs);
                 format!("select_{} {},{},{}##condition={}", ty, dst, x, y, condition)
             }
-            &Inst::Udf { trap_code } => format!("udf##trap_code={}", trap_code),
-            &Inst::EBreak {} => String::from("ebreak"),
-            &Inst::ECall {} => String::from("ecall"),
+            &MInst::Udf { trap_code } => format!("udf##trap_code={}", trap_code),
+            &MInst::EBreak {} => String::from("ebreak"),
+            &MInst::ECall {} => String::from("ecall"),
         }
     }
 }
