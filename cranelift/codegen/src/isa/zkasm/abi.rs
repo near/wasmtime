@@ -294,8 +294,15 @@ impl ABIMachineSpec for ZkAsmMachineDeps {
         if amount == 0 {
             return insts;
         }
-        insts.push(Inst::AdjustSp {
-            amount: amount as i64,
+        // FIXME: is this right/sufficient for stack growing up
+        insts.push(if amount < 0 {
+            Inst::ReserveSp {
+                amount: -amount as u64,
+            }
+        } else {
+            Inst::ReleaseSp {
+                amount: amount as u64,
+            }
         });
         insts
     }
@@ -330,13 +337,14 @@ impl ABIMachineSpec for ZkAsmMachineDeps {
         // Compute linkage frame size.
         let setup_area_size = if flags.preserve_frame_pointers()
             || !is_leaf
+            // FIXME: we don’t currently maintain a frame pointer?
             // The function arguments that are passed on the stack are addressed
             // relative to the Frame Pointer.
             || stack_args_size > 0
             || clobber_size > 0
             || fixed_frame_storage_size > 0
         {
-            16 // FP, LR
+            8 // RR
         } else {
             0
         };
@@ -362,11 +370,9 @@ impl ABIMachineSpec for ZkAsmMachineDeps {
         let mut insts = SmallVec::new();
 
         if frame_layout.setup_area_size > 0 {
-            // add  sp,sp,-16    ;; alloc stack space for fp.
-            // sd   ra,8(sp)     ;; save ra.
-            // sd   fp,0(sp)     ;; store old fp.
-            // mv   fp,sp        ;; set fp to sp.
-            insts.push(Inst::AdjustSp { amount: -1 });
+            insts.push(Inst::ReserveSp {
+                amount: frame_layout.setup_area_size.into(),
+            });
             insts.push(Self::gen_store_stack(
                 StackAMode::SPOffset(0, I64),
                 link_reg(),
@@ -377,19 +383,6 @@ impl ABIMachineSpec for ZkAsmMachineDeps {
             //     fp_reg(),
             //     I64,
             // ));
-
-            // if flags.unwind_info() {
-            //     insts.push(Inst::Unwind {
-            //         inst: UnwindInst::PushFrameRegs {
-            //             offset_upward_to_caller_sp: frame_layout.setup_area_size,
-            //         },
-            //     });
-            // }
-            // insts.push(Inst::Mov {
-            //     rd: writable_fp_reg(),
-            //     rm: stack_reg(),
-            //     ty: I64,
-            // });
         }
 
         insts
@@ -414,7 +407,9 @@ impl ABIMachineSpec for ZkAsmMachineDeps {
             //     writable_fp_reg(),
             //     I64,
             // ));
-            insts.push(Inst::AdjustSp { amount: 1 });
+            insts.push(Inst::ReleaseSp {
+                amount: frame_layout.setup_area_size.into(),
+            });
         }
 
         if call_conv == isa::CallConv::Tail && frame_layout.stack_args_size > 0 {
@@ -473,25 +468,16 @@ impl ABIMachineSpec for ZkAsmMachineDeps {
 
     fn gen_clobber_save(
         _call_conv: isa::CallConv,
-        flags: &settings::Flags,
+        _flags: &settings::Flags,
         frame_layout: &FrameLayout,
     ) -> SmallVec<[Self::I; 16]> {
         let mut insts = SmallVec::new();
-        // Adjust the stack pointer downward for clobbers and the function fixed
+        // Adjust the stack pointer upward for clobbers and the function fixed
         // frame (spillslots and storage slots).
         let stack_size = frame_layout.fixed_frame_storage_size + frame_layout.clobber_size;
-        // Each stack slot is 64 bit and can fit a u8 value.
+        // The stack (and memory in general) in zkASM is addressed in slots, rather than bytes.
+        // Adjust accordingly.
         let stack_size = stack_size / 8;
-        if flags.unwind_info() && frame_layout.setup_area_size > 0 {
-            // The *unwind* frame (but not the actual frame) starts at the
-            // clobbers, just below the saved FP/LR pair.
-            // insts.push(Inst::Unwind {
-            //     inst: UnwindInst::DefineNewFrame {
-            //         offset_downward_to_clobbers: frame_layout.clobber_size,
-            //         offset_upward_to_caller_sp: frame_layout.setup_area_size,
-            //     },
-            // });
-        }
         // Store each clobbered register in order at offsets from SP,
         // placing them above the fixed frame slots.
         if stack_size > 0 {
@@ -504,14 +490,6 @@ impl ABIMachineSpec for ZkAsmMachineDeps {
                     RegClass::Float => F64,
                     RegClass::Vector => unimplemented!("Vector Clobber Saves"),
                 };
-                if flags.unwind_info() {
-                    // insts.push(Inst::Unwind {
-                    //     inst: UnwindInst::SaveReg {
-                    //         clobber_offset: frame_layout.clobber_size - cur_offset,
-                    //         reg: r_reg,
-                    //     },
-                    // });
-                }
                 insts.push(Self::gen_store_stack(
                     StackAMode::SPOffset(-(cur_offset as i64), ty),
                     real_reg_to_reg(reg.to_reg()),
@@ -519,8 +497,8 @@ impl ABIMachineSpec for ZkAsmMachineDeps {
                 ));
                 cur_offset += 1
             }
-            insts.push(Inst::AdjustSp {
-                amount: -(stack_size as i64),
+            insts.push(Inst::ReserveSp {
+                amount: stack_size.into(),
             });
         }
         insts
@@ -534,10 +512,11 @@ impl ABIMachineSpec for ZkAsmMachineDeps {
         let mut insts = SmallVec::new();
         let stack_size = frame_layout.fixed_frame_storage_size + frame_layout.clobber_size;
         // Each stack slot is 64 bit and can fit a u8 value.
+        // FIXME(nagisa): WHAT DOES THIS MEAA~~~AAAN????
         let stack_size = stack_size / 8;
         if stack_size > 0 {
-            insts.push(Inst::AdjustSp {
-                amount: stack_size as i64,
+            insts.push(Inst::ReleaseSp {
+                amount: stack_size.into(),
             });
         }
         let mut cur_offset = 1;
