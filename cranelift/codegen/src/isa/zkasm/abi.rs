@@ -53,7 +53,7 @@ impl ABIMachineSpec for ZkAsmMachineDeps {
 
     /// Return required stack alignment in bytes.
     fn stack_align(_call_conv: isa::CallConv) -> u32 {
-        1
+        8
     }
 
     fn compute_arg_locs<'a, I>(
