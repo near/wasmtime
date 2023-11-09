@@ -434,7 +434,8 @@ impl MachInstEmit for Inst {
             }
             &Inst::LoadConst32 { rd, imm } => {
                 let rd = allocs.next_writable(rd);
-                put_string(&format!("{imm} => {}\n", reg_name(rd.to_reg())), sink);
+                let shifted = (imm as u64) << 32;
+                put_string(&format!("{shifted}n => {}\n", reg_name(rd.to_reg())), sink);
             }
             &Inst::LoadConst64 { rd, imm } => {
                 let rd = allocs.next_writable(rd);
@@ -455,29 +456,50 @@ impl MachInstEmit for Inst {
                     sink,
                 );
             }
+            &Inst::MulArith32 { rd, rs1, rs2 } => {
+                let rs1 = allocs.next(rs1);
+                let rs2 = allocs.next(rs2);
+                debug_assert_eq!(rs1, b0());
+                debug_assert_eq!(rs2, e0());
+                let rd = allocs.next_writable(rd);
+                // B * E => rd
+
+                // Didn't find way to avoid stack usage, because in time of ARITH 
+                // registers are:
+                // C and D must be set to 0
+                // A and B: one must be 2 ** 32, second -- result of rs2 / 2 ** 32
+                // E: rs1 here
+                // no register to store rs2 =(
+                put_string("B :MSTORE(SP)\n", sink);
+                // E / 2 ** 32 => A
+                put_string("0 => D\n", sink);
+                put_string("0 => C\n", sink);
+                put_string("4294967296n => B\n", sink);
+                put_string("$${var _divArith = E / B}\n", sink);
+                // Intentionnaly ignore rem here because if rem != 0 mean something goes wrong
+                put_string("${_divArith} => A\n", sink);
+                put_string("E:ARITH\n", sink);
+                
+                put_string("$ => B :MLOAD(SP)\n", sink);
+
+                put_string("$${var _mulArith = A * B}\n", sink);
+                put_string(
+                    &format!("${{_mulArith}} => {} :ARITH\n", reg_name(rd.to_reg())),
+                    sink,
+                );
+            }
             &Inst::MulArith { rd, rs1, rs2 } => {
                 let rs1 = allocs.next(rs1);
                 let rs2 = allocs.next(rs2);
                 debug_assert_eq!(rs1, a0());
                 debug_assert_eq!(rs2, b0());
                 let rd = allocs.next_writable(rd);
-                // Arith asserts that A * B + C = op + 2^256 * D.
-                // Now ZKVM is 256-bit and wasm max type is 64 bit, so it would never be
-                // 256 bit overflow. But in future we will need here something like:
-                // put_string(
-                //   &format!("${{_mulArith / (2 ** 64)}} => D :ARITH\n", reg_name(rd.to_reg())),
-                //    sink,
-                //);
-                // put_string(
-                //   &format!("${{_mulArith % (2 ** 64)}} => {} :ARITH\n", reg_name(rd.to_reg())),
-                //    sink,
-                //);
-                // For now we will just clear D in case it was something in it
                 put_string("0 => D\n", sink);
                 put_string("0 => C\n", sink);
                 put_string("$${var _mulArith = A * B}\n", sink);
+                put_string("${_mulArith / 18446744073709551616} => D\n", sink);
                 put_string(
-                    &format!("${{_mulArith}} => {} :ARITH\n", reg_name(rd.to_reg())),
+                    &format!("${{_mulArith % 18446744073709551616}} => {} :ARITH\n", reg_name(rd.to_reg())),
                     sink,
                 );
             }

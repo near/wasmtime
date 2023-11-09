@@ -71,7 +71,7 @@
   (zk_mul x y))
 
 (rule 1 (lower (has_type (fits_in_32 (ty_int ty)) (imul x y)))
-  (zk_mul x y))
+  (zk_mul_32 x y))
 
 ;; for I128
 (rule 2 (lower (has_type $I128 (imul x y)))

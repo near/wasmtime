@@ -40,6 +40,11 @@
       (rs1 Reg)
       (rs2 Reg))
 
+    (MulArith32
+      (rd WritableReg)
+      (rs1 Reg)
+      (rs2 Reg))
+
     ;;Division via Arith
     (DivArith
       (rd WritableReg)
@@ -690,6 +695,12 @@
 (rule (zk_mul rs1 rs2)
       (let ((dst WritableXReg (temp_writable_xreg))
             (_ Unit (emit (MInst.MulArith dst rs1 rs2))))
+        dst))
+
+(decl zk_mul_32 (XReg XReg) XReg)
+(rule (zk_mul_32 rs1 rs2)
+      (let ((dst WritableXReg (temp_writable_xreg))
+            (_ Unit (emit (MInst.MulArith32 dst rs1 rs2))))
         dst))
 
 ;; Helper for emitting the `mulh` ("Multiply High Signed Signed") instruction.

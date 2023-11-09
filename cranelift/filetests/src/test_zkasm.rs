@@ -212,5 +212,8 @@ mod tests {
         i32_const,
         i64_const,
         rem,
+        i32_add_overflows,
+        i32_mul_overflows,
+        i64_mul_overflows,
     }
 }
