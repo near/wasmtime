@@ -7,17 +7,17 @@ function_1:
   RR :MSTORE(SP - 1)
   SP + 2 => SP
   B :MSTORE(SP - 1)
-  0 => A
+  0n => A
   :JMP(L1_1)
 L1_1:
-  1 => B
+  4294967296n => B
   $ => A :ADD
-  10 => B
+  42949672960n => B
   $ => B :EQ
   B :JMPNZ(L1_3)
   :JMP(L1_1)
 L1_3:
-  10 => B
+  42949672960n => B
   B :ASSERT
   $ => B :MLOAD(SP - 1)
   SP - 2 => SP

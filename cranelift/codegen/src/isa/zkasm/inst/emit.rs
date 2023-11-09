@@ -464,7 +464,7 @@ impl MachInstEmit for Inst {
                 let rd = allocs.next_writable(rd);
                 // B * E => rd
 
-                // Didn't find way to avoid stack usage, because in time of ARITH 
+                // Didn't find way to avoid stack usage, because in time of ARITH
                 // registers are:
                 // C and D must be set to 0
                 // A and B: one must be 2 ** 32, second -- result of rs2 / 2 ** 32
@@ -475,16 +475,14 @@ impl MachInstEmit for Inst {
                 put_string("0 => D\n", sink);
                 put_string("0 => C\n", sink);
                 put_string("4294967296n => B\n", sink);
-                put_string("$${var _divArith = E / B}\n", sink);
                 // Intentionnaly ignore rem here because if rem != 0 mean something goes wrong
-                put_string("${_divArith} => A\n", sink);
+                put_string("${E / B} => A\n", sink);
                 put_string("E:ARITH\n", sink);
-                
+
                 put_string("$ => B :MLOAD(SP)\n", sink);
 
-                put_string("$${var _mulArith = A * B}\n", sink);
                 put_string(
-                    &format!("${{_mulArith}} => {} :ARITH\n", reg_name(rd.to_reg())),
+                    &format!("${{A * B}} => {} :ARITH\n", reg_name(rd.to_reg())),
                     sink,
                 );
             }
@@ -499,9 +497,32 @@ impl MachInstEmit for Inst {
                 put_string("$${var _mulArith = A * B}\n", sink);
                 put_string("${_mulArith / 18446744073709551616} => D\n", sink);
                 put_string(
-                    &format!("${{_mulArith % 18446744073709551616}} => {} :ARITH\n", reg_name(rd.to_reg())),
+                    &format!(
+                        "${{_mulArith % 18446744073709551616}} => {} :ARITH\n",
+                        reg_name(rd.to_reg())
+                    ),
                     sink,
                 );
+            }
+            &Inst::DivArith32 { rd, rs1, rs2 } => {
+                let rs1 = allocs.next(rs1);
+                let rs2 = allocs.next(rs2);
+                debug_assert_eq!(rs1, e0());
+                debug_assert_eq!(rs2, b0());
+                let rd = allocs.next_writable(rd);
+                // E / B => A
+                put_string("0 => D\n", sink);
+                put_string("${E / B} => A\n", sink);
+                put_string("${E % B} => C\n", sink);
+                put_string("E:ARITH\n", sink);
+
+                // A *= 2 ** 32
+                put_string("4294967296n => B\n", sink);
+                put_string("0 => C\n", sink);
+                // Intentionnaly ignore 64-bit overflow here
+                // (don't write _mulArith / 2 ** 64 => D)
+                // because if it is non-zero something is not OK
+                put_string("${A * B} => A :ARITH\n", sink);
             }
             &Inst::DivArith { rd, rs1, rs2 } => {
                 let rs1 = allocs.next(rs1);
@@ -509,13 +530,56 @@ impl MachInstEmit for Inst {
                 debug_assert_eq!(rs1, e0());
                 debug_assert_eq!(rs2, b0());
                 let rd = allocs.next_writable(rd);
-                // Same as in MulArith about D register
                 put_string("0 => D\n", sink);
-                put_string("$${var _divArith = E / B}\n", sink);
-                put_string("$${var _remArith = E % B}\n", sink);
-                put_string("${_divArith} => A\n", sink);
-                put_string("${_remArith} => C\n", sink);
+                put_string("${E / B} => A\n", sink);
+                put_string("${E % B} => C\n", sink);
                 put_string("E:ARITH\n", sink);
+            }
+            // Rem32 is quite difficult opcode. Here we need calculate
+            // ((op1 / 2**32) % (op2 / 2**32)) * 2**32
+            &Inst::RemArith32 { rd, rs1, rs2 } => {
+                let rs1 = allocs.next(rs1);
+                let rs2 = allocs.next(rs2);
+                debug_assert_eq!(rs1, a0());
+                debug_assert_eq!(rs2, e0());
+                let rd = allocs.next_writable(rd);
+
+                // A % B => E
+
+                put_string("A :MSTORE(SP)\n", sink); // SP contains op1
+
+                // op2 / 2 ** 32 => A
+                put_string("0 => D\n", sink);
+                put_string("0 => C\n", sink);
+                put_string("4294967296n => B\n", sink);
+                put_string("${E / B} => A\n", sink);
+                put_string("E:ARITH\n", sink);
+
+                put_string("A :MSTORE(SP + 1)\n", sink); // SP + 1 contains op2 / 2 ** 32
+
+                // op1 => E
+                put_string("$ => E :MLOAD(SP)\n", sink);
+
+                // op1 / 2 ** 32 => A
+                put_string("${E / B} => A\n", sink);
+                put_string("E:ARITH\n", sink);
+
+                put_string("A => E\n", sink);
+                put_string("$ => B :MLOAD(SP + 1)\n", sink);
+
+                // now E = op1 / 2**32, B = op2 / 2**32
+                put_string("${E / B} => A\n", sink);
+                put_string("${E % B} => C\n", sink);
+                put_string("E:ARITH\n", sink);
+
+                // now C = res / 2 ** 32
+                put_string("C => A\n", sink);
+                put_string("4294967296n => B\n", sink);
+
+                put_string("0 => D\n", sink);
+                put_string("0 => C\n", sink);
+                put_string("${A * B} => E :ARITH\n", sink);
+                // now E = res
             }
             &Inst::RemArith { rd, rs1, rs2 } => {
                 let rs1 = allocs.next(rs1);
@@ -523,12 +587,9 @@ impl MachInstEmit for Inst {
                 debug_assert_eq!(rs1, e0());
                 debug_assert_eq!(rs2, b0());
                 let rd = allocs.next_writable(rd);
-                // Same as in MulArith about D register
                 put_string("0 => D\n", sink);
-                put_string("$${var _divArith = E / B}\n", sink);
-                put_string("$${var _remArith = E % B}\n", sink);
-                put_string("${_divArith} => A\n", sink);
-                put_string("${_remArith} => C\n", sink);
+                put_string("${E / B} => A\n", sink);
+                put_string("${E % B} => C\n", sink);
                 put_string("E:ARITH\n", sink);
             }
             &Inst::AluRRR {

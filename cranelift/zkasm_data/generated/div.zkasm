@@ -10,15 +10,16 @@ function_1:
   D :MSTORE(SP - 2)
   E :MSTORE(SP - 3)
   B :MSTORE(SP - 4)
-  5 => E
-  2 => B
+  21474836480n => E
+  8589934592n => B
   0 => D
-  $${var _divArith = E / B}
-  $${var _remArith = E % B}
-  ${_divArith} => A
-  ${_remArith} => C
+  ${E / B} => A
+  ${E % B} => C
   E:ARITH
-  2 => B
+  4294967296n => B
+  0 => C
+  ${A * B} => A :ARITH
+  8589934592n => B
   B :ASSERT
   $ => C :MLOAD(SP - 1)
   $ => D :MLOAD(SP - 2)

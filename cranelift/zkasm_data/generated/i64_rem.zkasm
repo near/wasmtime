@@ -5,40 +5,34 @@ start:
 function_1:
   SP + 1 => SP
   RR :MSTORE(SP - 1)
-  SP + 5 => SP
+  SP + 4 => SP
   C :MSTORE(SP - 1)
   D :MSTORE(SP - 2)
   E :MSTORE(SP - 3)
   B :MSTORE(SP - 4)
-  0n => A
-  A => D
-  0n => A
-  4294967296n => B
-  B :MSTORE(SP)
-  :JMP(L1_1)
-L1_1:
-  $ => A :ADD
-  A => C
-  B :MSTORE(SP)
-  4294967296n => B
-  D => A
-  $ => A :ADD
-  42949672960n => B
-  $ => E :EQ
-  E :JMPNZ(L1_3)
-  C => B
-  A => D
-  $ => A :MLOAD(SP)
-  :JMP(L1_1)
-L1_3:
-  382252089344n => B
+  5n => E
+  2n => B
+  0 => D
+  ${E / B} => A
+  ${E % B} => C
+  E:ARITH
   C => A
+  1n => B
+  B :ASSERT
+  8n => E
+  3n => B
+  0 => D
+  ${E / B} => A
+  ${E % B} => C
+  E:ARITH
+  C => A
+  2n => B
   B :ASSERT
   $ => C :MLOAD(SP - 1)
   $ => D :MLOAD(SP - 2)
   $ => E :MLOAD(SP - 3)
   $ => B :MLOAD(SP - 4)
-  SP - 5 => SP
+  SP - 4 => SP
   $ => RR :MLOAD(SP - 1)
   SP - 1 => SP
   :JMP(RR)

@@ -116,8 +116,11 @@
       (_ InstOutput (gen_div_by_zero y2)))
     (rv_divuw (zext x ty $I64) y2)))
 
-(rule (lower (sdiv x y))
-     (zk_div x y))
+(rule (lower (has_type $I64 (sdiv x y)))
+  (zk_div x y))
+
+(rule (lower (has_type $I32 (sdiv x y)))
+  (zk_div_32 x y))
 
 (rule (lower (has_type $I64 (udiv x y)))
   (let
@@ -126,8 +129,11 @@
 
 ;;;; Rules for `rem` ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(rule (lower (srem x y))
+(rule (lower (has_type $I64 (srem x y)))
   (zk_rem x y))
+
+(rule (lower (has_type $I32 (srem x y)))
+  (zk_rem_32 x y))
 
 (rule (lower (has_type $I32 (urem x y)))
   (let

@@ -8,7 +8,7 @@ function_1:
   SP + 2 => SP
   B :MSTORE(SP - 1)
   2 + 3 => A
-  5 => B
+  21474836480n => B
   B :ASSERT
   $ => B :MLOAD(SP - 1)
   SP - 2 => SP
