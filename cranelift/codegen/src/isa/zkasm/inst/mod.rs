@@ -472,14 +472,12 @@ fn zkasm_get_operands<F: Fn(VReg) -> VReg>(inst: &Inst, collector: &mut OperandC
                     .expect("Only support 1 register in comparison now"),
                 b0(),
             );
-            if cc == IntCC::NotEqual {
-                let mut clobbers = PRegSet::empty();
-                clobbers.add(b0().to_real_reg().unwrap().into());
-                collector.reg_clobbers(clobbers);
-                collector.reg_fixed_def(rd, a0());
-            } else {
-                collector.reg_def(rd);
-            }
+            let mut clobbered = PRegSet::empty();
+            clobbered.add(b0().to_real_reg().unwrap().into());
+            clobbered.add(c0().to_real_reg().unwrap().into());
+            clobbered.add(d0().to_real_reg().unwrap().into());
+            collector.reg_clobbers(clobbered);
+            collector.reg_fixed_def(rd, a0());
         }
         &Inst::SelectReg {
             rd,

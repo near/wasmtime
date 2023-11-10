@@ -451,8 +451,10 @@ impl MachInstEmit for Inst {
             &Inst::AddImm32 { rd, src1, src2 } => {
                 let rd = allocs.next(rd.to_reg());
                 // TODO(akashin): Should we have a function for `bits` field?
+                let val1 = (src1.bits as u64) << 32;
+                let val2 = (src2.bits as u64) << 32;
                 put_string(
-                    &format!("{} + {} => {}\n", src1.bits, src2.bits, reg_name(rd)),
+                    &format!("{}n + {}n => {}\n", val1, val2, reg_name(rd)),
                     sink,
                 );
             }
@@ -1369,6 +1371,13 @@ impl MachInstEmit for Inst {
                     put_string("1 => B\n", sink);
                     put_string(&format!("$ => {} :XOR\n", reg_name(rd.to_reg())), sink);
                 }
+
+                // Result of comparing operations in wasm for both i32 and i64
+                // is i32. So, we need to multiply it by 2**32
+                put_string("4294967296n => B\n", sink);
+                put_string("0 => D\n", sink);
+                put_string("0 => C\n", sink);
+                put_string("${A * B} => A :ARITH\n", sink);
 
                 /*
                 let label_true = sink.get_label();
