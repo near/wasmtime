@@ -60,6 +60,8 @@ fn is_isa_compatible(
 
     match (host_arch, requested_arch) {
         (host, requested) if host == requested => {}
+        // We can run zkASM code on any host that can run nodejs.
+        (_, Architecture::ZkAsm) => {}
         (Architecture::Riscv64(_), Architecture::Riscv64(_)) => {}
         _ => {
             return Err(format!(
@@ -121,9 +123,15 @@ fn compile_testfile(
     // about the operating system / calling convention / etc..
     //
     // Copy the requested ISA flags into the host ISA and use that.
-    let isa = build_host_isa(false, flags.clone(), isa.isa_flags());
-
-    let mut tfc = TestFileCompiler::new(isa);
+    let mut target_isa = build_host_isa(false, flags.clone(), isa.isa_flags());
+    // However if the architecture does not match, just use the provided isa anyway...
+    if target_isa.triple().architecture != isa.triple().architecture {
+        target_isa = cranelift_codegen::isa::lookup(isa.triple().clone())
+            .unwrap()
+            .finish(isa.flags().clone())
+            .unwrap();
+    };
+    let mut tfc = TestFileCompiler::new(target_isa);
     tfc.add_testfile(testfile)?;
     Ok(tfc.compile()?)
 }
