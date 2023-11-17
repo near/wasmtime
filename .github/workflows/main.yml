@@ -745,7 +745,7 @@ jobs:
     name: Record the result of testing and building steps
     runs-on: ubuntu-latest
     needs:
-      - test_zkasm_64
+      - test_zkasm
       - test
       - build
       - rustfmt
