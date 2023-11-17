@@ -3,13 +3,14 @@
 use crate::ir::pcc::*;
 use crate::ir::types::*;
 use crate::ir::Type;
+use crate::isa::x64::args::AvxOpcode;
 use crate::isa::x64::inst::args::{
     AluRmiROpcode, Amode, Gpr, Imm8Reg, RegMem, RegMemImm, ShiftKind, SyntheticAmode,
     ToWritableReg, CC,
 };
 use crate::isa::x64::inst::Inst;
 use crate::machinst::pcc::*;
-use crate::machinst::{InsnIndex, VCode};
+use crate::machinst::{InsnIndex, VCode, VCodeConstantData};
 use crate::machinst::{Reg, Writable};
 use crate::trace;
 
@@ -411,6 +412,20 @@ pub(crate) fn check(
         Inst::CmpRmiR {
             size, dst, ref src, ..
         } => match <&RegMemImm>::from(src) {
+            RegMemImm::Mem {
+                addr: SyntheticAmode::ConstantOffset(k),
+            } => {
+                match vcode.constants.get(*k) {
+                    VCodeConstantData::U64(bytes) => {
+                        let value = u64::from_le_bytes(*bytes);
+                        let lhs = get_fact_or_default(vcode, dst.to_reg(), 64);
+                        let rhs = Fact::constant(64, value);
+                        state.cmp_flags = Some((lhs, rhs));
+                    }
+                    _ => {}
+                }
+                Ok(())
+            }
             RegMemImm::Mem { ref addr } => {
                 if let Some(rhs) = check_load(ctx, None, addr, vcode, size.to_type(), 64)? {
                     let lhs = get_fact_or_default(vcode, dst.to_reg(), 64);
@@ -424,7 +439,12 @@ pub(crate) fn check(
                 state.cmp_flags = Some((lhs, rhs));
                 Ok(())
             }
-            RegMemImm::Imm { .. } => Ok(()),
+            RegMemImm::Imm { simm32 } => {
+                let lhs = get_fact_or_default(vcode, dst.to_reg(), 64);
+                let rhs = Fact::constant(64, (*simm32 as i32) as i64 as u64);
+                state.cmp_flags = Some((lhs, rhs));
+                Ok(())
+            }
         },
 
         Inst::Setcc { dst, .. } => undefined_result(ctx, vcode, dst, 64, 64),
@@ -443,19 +463,28 @@ pub(crate) fn check(
                 check_load(ctx, None, addr, vcode, size.to_type(), 64)?;
                 Ok(())
             }
-            RegMem::Reg { reg } if cc == CC::NB && cmp_flags.is_some() => {
+            RegMem::Reg { reg } if (cc == CC::NB || cc == CC::NBE) && cmp_flags.is_some() => {
                 let (cmp_lhs, cmp_rhs) = cmp_flags.unwrap();
                 trace!("lhs = {:?} rhs = {:?}", cmp_lhs, cmp_rhs);
                 let reg = *reg;
                 check_output(ctx, vcode, dst.to_writable_reg(), &[], |vcode| {
                     // See comments in aarch64::pcc CSel for more details on this.
                     let in_true = get_fact_or_default(vcode, reg, 64);
-                    let in_true =
-                        ctx.apply_inequality(&in_true, &cmp_lhs, &cmp_rhs, InequalityKind::Loose);
+                    let in_true_kind = match cc {
+                        CC::NB => InequalityKind::Loose,
+                        CC::NBE => InequalityKind::Strict,
+                        _ => unreachable!(),
+                    };
+                    let in_true = ctx.apply_inequality(&in_true, &cmp_lhs, &cmp_rhs, in_true_kind);
                     let in_false = get_fact_or_default(vcode, alternative.to_reg(), 64);
+                    let in_false_kind = match cc {
+                        CC::NB => InequalityKind::Strict,
+                        CC::NBE => InequalityKind::Loose,
+                        _ => unreachable!(),
+                    };
                     let in_false =
-                        ctx.apply_inequality(&in_false, &cmp_rhs, &cmp_lhs, InequalityKind::Strict);
-                    let union = Fact::union(&in_true, &in_false);
+                        ctx.apply_inequality(&in_false, &cmp_rhs, &cmp_lhs, in_false_kind);
+                    let union = ctx.union(&in_true, &in_false);
                     clamp_range(ctx, 64, 64, union)
                 })
             }
@@ -505,38 +534,69 @@ pub(crate) fn check(
             ensure_no_fact(vcode, dst.to_writable_reg().to_reg())
         }
 
+        // NOTE: it's assumed that all of these cases perform 128-bit loads, but this hasn't been
+        // verified. The effect of this will be spurious PCC failures when these instructions are
+        // involved.
         Inst::XmmRmRUnaligned { dst, ref src2, .. }
-        | Inst::XmmRmRImmVex { dst, ref src2, .. }
-        | Inst::XmmRmRVex3 {
-            dst,
-            src3: ref src2,
-            ..
-        }
-        | Inst::XmmRmRBlendVex { dst, ref src2, .. }
-        | Inst::XmmUnaryRmRVex {
-            dst, src: ref src2, ..
-        }
-        | Inst::XmmUnaryRmRImmVex {
-            dst, src: ref src2, ..
-        }
         | Inst::XmmRmREvex { dst, ref src2, .. }
         | Inst::XmmUnaryRmRImmEvex {
             dst, src: ref src2, ..
-        }
-        | Inst::XmmRmREvex3 {
-            dst,
-            src3: ref src2,
-            ..
         }
         | Inst::XmmUnaryRmRUnaligned {
             dst, src: ref src2, ..
         }
         | Inst::XmmUnaryRmREvex {
             dst, src: ref src2, ..
+        }
+        | Inst::XmmRmREvex3 {
+            dst,
+            src3: ref src2,
+            ..
         } => {
             match <&RegMem>::from(src2) {
                 RegMem::Mem { ref addr } => {
                     check_load(ctx, None, addr, vcode, I8X16, 128)?;
+                }
+                RegMem::Reg { .. } => {}
+            }
+            ensure_no_fact(vcode, dst.to_writable_reg().to_reg())
+        }
+
+        Inst::XmmRmRImmVex {
+            op, dst, ref src2, ..
+        }
+        | Inst::XmmRmRVex3 {
+            op,
+            dst,
+            src3: ref src2,
+            ..
+        }
+        | Inst::XmmRmRBlendVex {
+            op, dst, ref src2, ..
+        }
+        | Inst::XmmUnaryRmRVex {
+            op,
+            dst,
+            src: ref src2,
+            ..
+        }
+        | Inst::XmmUnaryRmRImmVex {
+            op,
+            dst,
+            src: ref src2,
+            ..
+        } => {
+            let size = match op {
+                AvxOpcode::Vmovss => 32,
+                AvxOpcode::Vmovsd => 64,
+
+                // We assume all other operations happen on 128-bit values.
+                _ => 128,
+            };
+
+            match <&RegMem>::from(src2) {
+                RegMem::Mem { ref addr } => {
+                    check_load(ctx, None, addr, vcode, I8X16, size)?;
                 }
                 RegMem::Reg { .. } => {}
             }

@@ -488,6 +488,24 @@ impl MachInstEmit for Inst {
                     sink,
                 );
             }
+            Inst::Ineg { rd, rs1 } => {
+                let rs = allocs.next(*rs1);
+                let rd = allocs.next(rd.to_reg());
+                // FIXME(#81): should this use a SUB?
+                put_string(
+                    &format!("0n - {} => {}\n", reg_name(rs), reg_name(rd)),
+                    sink,
+                );
+            }
+            Inst::Bnot { rd, rs1 } => {
+                let rs = allocs.next(*rs1);
+                let rd = allocs.next(rd.to_reg());
+                // FIXME(#81): should this use a SUB?
+                put_string(
+                    &format!("{}n - {} => {}\n", u64::MAX, reg_name(rs), reg_name(rd)),
+                    sink,
+                );
+            }
             &Inst::MulArith { rd, rs1, rs2 } => {
                 let rs1 = allocs.next(rs1);
                 let rs2 = allocs.next(rs2);

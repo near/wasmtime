@@ -1,7 +1,7 @@
 [package]
 authors = ["The Cranelift Project Developers"]
 name = "cranelift-codegen"
-version = "0.102.0"
+version = "0.103.0"
 description = "Low-level code generator library"
 license = "Apache-2.0 WITH LLVM-exception"
 documentation = "https://docs.rs/cranelift-codegen"
@@ -16,12 +16,12 @@ edition.workspace = true
 anyhow = { workspace = true, optional = true }
 bumpalo = "3"
 capstone = { workspace = true, optional = true }
-cranelift-codegen-shared = { path = "./shared", version = "0.102.0" }
+cranelift-codegen-shared = { path = "./shared", version = "0.103.0" }
 cranelift-entity = { workspace = true }
 cranelift-bforest = { workspace = true }
 cranelift-control = { workspace = true }
 hashbrown = { workspace = true, features = ["raw"] }
-target-lexicon = { workspace = true }
+target-lexicon = { workspace = true, features = [ "arch_zkasm" ] }
 log = { workspace = true }
 serde = { version = "1.0.188", optional = true }
 serde_derive = { version = "1.0.188", optional = true }
@@ -41,8 +41,8 @@ criterion = { version = "0.5.0", features = ["html_reports"] }
 similar = "2.1.0"
 
 [build-dependencies]
-cranelift-codegen-meta = { path = "meta", version = "0.102.0" }
-cranelift-isle = { path = "../isle/isle", version = "=0.102.0" }
+cranelift-codegen-meta = { path = "meta", version = "0.103.0" }
+cranelift-isle = { path = "../isle/isle", version = "=0.103.0" }
 
 [features]
 default = ["std", "unwind", "host-arch"]
@@ -74,7 +74,7 @@ x86 = []
 arm64 = []
 s390x = []
 riscv64 = []
-zkasm = []
+zkasm = [ ]
 # Enable the ISA target for the host machine
 host-arch = []
 

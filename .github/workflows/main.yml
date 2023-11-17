@@ -37,15 +37,17 @@ concurrency:
   cancel-in-progress: true
 
 jobs:  
-  test_zkasm_64:
-    name: Test generated zkAsm on 64-bit zk processor
+  test_zkasm:
+    name: Test generated zkAsm on the ZK processor
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
+      with:
+        submodules: true
     - uses: actions/setup-node@v3
       with:
         node-version: '20.8.0'
-    - run: ./ci/test-zk-64.sh --install-zkwasm --all
+    - run: ./ci/test-zkasm.sh --all
 
   rustfmt:
     name: Rustfmt
@@ -396,7 +398,7 @@ jobs:
     env:
       QEMU_BUILD_VERSION: 8.1.1
     strategy:
-      fail-fast: false
+      fail-fast: ${{ github.event_name != 'pull_request' }}
       matrix: ${{ fromJson(needs.determine.outputs.test-matrix) }}
     steps:
     - uses: actions/checkout@v3
@@ -682,7 +684,7 @@ jobs:
     name: Release build for ${{ matrix.build }}
     runs-on: ${{ matrix.os }}
     strategy:
-      fail-fast: false
+      fail-fast: ${{ github.event_name != 'pull_request' }}
       matrix: ${{ fromJson(needs.determine.outputs.build-matrix) }}
     steps:
     - uses: actions/checkout@v3

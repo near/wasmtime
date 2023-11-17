@@ -39,13 +39,13 @@ pub mod bindings {
         // can't support in these special core-wasm adapters.
         // Instead, we manually define the bindings for these functions in
         // terms of raw pointers.
-        skip: ["run", "get-environment", "poll-list"],
+        skip: ["run", "get-environment", "poll"],
     });
 
     #[cfg(feature = "reactor")]
     wit_bindgen::generate!({
         path: "../wasi/wit",
-        world: "wasmtime:wasi/preview1-adapter-reactor",
+        world: "wasi:cli/reactor",
         std_feature,
         raw_strings,
         // Automatically generated bindings for these functions will allocate
@@ -54,11 +54,11 @@ pub mod bindings {
         // can't support in these special core-wasm adapters.
         // Instead, we manually define the bindings for these functions in
         // terms of raw pointers.
-        skip: ["get-environment", "poll-list"],
+        skip: ["get-environment", "poll"],
     });
 }
 
-#[export_name = "wasi:cli/run@0.2.0-rc-2023-11-05#run"]
+#[export_name = "wasi:cli/run@0.2.0-rc-2023-11-10#run"]
 #[cfg(feature = "command")]
 pub unsafe extern "C" fn run() -> u32 {
     #[link(wasm_import_module = "__main_module__")]
@@ -91,6 +91,14 @@ impl<T, E> TrappingUnwrap<T> for Result<T, E> {
             Ok(t) => t,
             Err(_) => unreachable!(),
         }
+    }
+}
+
+#[no_mangle]
+pub unsafe extern "C" fn reset_adapter_state() {
+    let state = get_state_ptr();
+    if !state.is_null() {
+        State::init(state)
     }
 }
 
@@ -1448,7 +1456,6 @@ pub unsafe extern "C" fn path_open(
     let at_flags = at_flags_from_lookupflags(dirflags);
     let o_flags = o_flags_from_oflags(oflags);
     let flags = descriptor_flags_from_flags(fs_rights_base, fdflags);
-    let mode = filesystem::Modes::READABLE | filesystem::Modes::WRITABLE;
     let append = fdflags & wasi::FDFLAGS_APPEND == wasi::FDFLAGS_APPEND;
 
     State::with(|state| {
@@ -1456,7 +1463,7 @@ pub unsafe extern "C" fn path_open(
             .descriptors()
             .get_dir(fd)?
             .fd
-            .open_at(at_flags, path, o_flags, flags, mode)?;
+            .open_at(at_flags, path, o_flags, flags)?;
         let descriptor_type = result.get_type()?;
         let desc = Descriptor::Streams(Streams {
             input: OnceCell::new(),
@@ -1777,11 +1784,11 @@ pub unsafe extern "C" fn poll_oneoff(
             });
         }
 
-        #[link(wasm_import_module = "wasi:io/poll@0.2.0-rc-2023-11-05")]
+        #[link(wasm_import_module = "wasi:io/poll@0.2.0-rc-2023-11-10")]
         #[allow(improper_ctypes)] // FIXME(bytecodealliance/wit-bindgen#684)
         extern "C" {
-            #[link_name = "poll-list"]
-            fn poll_list_import(pollables: *const Pollable, len: usize, rval: *mut ReadyList);
+            #[link_name = "poll"]
+            fn poll_import(pollables: *const Pollable, len: usize, rval: *mut ReadyList);
         }
         let mut ready_list = ReadyList {
             base: std::ptr::null(),
@@ -1794,7 +1801,7 @@ pub unsafe extern "C" fn poll_oneoff(
                 .checked_mul(size_of::<u32>())
                 .trapping_unwrap(),
             || {
-                poll_list_import(
+                poll_import(
                     pollables.pointer,
                     pollables.length,
                     &mut ready_list as *mut _,
@@ -2385,8 +2392,8 @@ enum AllocationState {
 
 #[allow(improper_ctypes)]
 extern "C" {
-    fn get_state_ptr() -> *const State;
-    fn set_state_ptr(state: *const State);
+    fn get_state_ptr() -> *mut State;
+    fn set_state_ptr(state: *mut State);
     fn get_allocation_state() -> AllocationState;
     fn set_allocation_state(state: AllocationState);
 }
@@ -2415,7 +2422,7 @@ impl State {
     }
 
     #[cold]
-    fn new() -> &'static State {
+    fn new() -> *mut State {
         #[link(wasm_import_module = "__main_module__")]
         extern "C" {
             fn cabi_realloc(
@@ -2445,31 +2452,37 @@ impl State {
         unsafe { set_allocation_state(AllocationState::StateAllocated) };
 
         unsafe {
-            ret.write(State {
-                magic1: MAGIC,
-                magic2: MAGIC,
-                import_alloc: ImportAlloc::new(),
-                descriptors: RefCell::new(None),
-                path_buf: UnsafeCell::new(MaybeUninit::uninit()),
-                long_lived_arena: BumpArena::new(),
-                args: Cell::new(None),
-                env_vars: Cell::new(None),
-                dirent_cache: DirentCache {
-                    stream: Cell::new(None),
-                    for_fd: Cell::new(0),
-                    cookie: Cell::new(wasi::DIRCOOKIE_START),
-                    cached_dirent: Cell::new(wasi::Dirent {
-                        d_next: 0,
-                        d_ino: 0,
-                        d_type: FILETYPE_UNKNOWN,
-                        d_namlen: 0,
-                    }),
-                    path_data: UnsafeCell::new(MaybeUninit::uninit()),
-                },
-                dotdot: [UnsafeCell::new(b'.'), UnsafeCell::new(b'.')],
-            });
-            &*ret
+            Self::init(ret);
         }
+
+        ret
+    }
+
+    #[cold]
+    unsafe fn init(state: *mut State) {
+        state.write(State {
+            magic1: MAGIC,
+            magic2: MAGIC,
+            import_alloc: ImportAlloc::new(),
+            descriptors: RefCell::new(None),
+            path_buf: UnsafeCell::new(MaybeUninit::uninit()),
+            long_lived_arena: BumpArena::new(),
+            args: Cell::new(None),
+            env_vars: Cell::new(None),
+            dirent_cache: DirentCache {
+                stream: Cell::new(None),
+                for_fd: Cell::new(0),
+                cookie: Cell::new(wasi::DIRCOOKIE_START),
+                cached_dirent: Cell::new(wasi::Dirent {
+                    d_next: 0,
+                    d_ino: 0,
+                    d_type: FILETYPE_UNKNOWN,
+                    d_namlen: 0,
+                }),
+                path_data: UnsafeCell::new(MaybeUninit::uninit()),
+            },
+            dotdot: [UnsafeCell::new(b'.'), UnsafeCell::new(b'.')],
+        });
     }
 
     /// Accessor for the descriptors member that ensures it is properly initialized
@@ -2498,7 +2511,7 @@ impl State {
 
     fn get_environment(&self) -> &[StrTuple] {
         if self.env_vars.get().is_none() {
-            #[link(wasm_import_module = "wasi:cli/environment@0.2.0-rc-2023-11-05")]
+            #[link(wasm_import_module = "wasi:cli/environment@0.2.0-rc-2023-11-10")]
             extern "C" {
                 #[link_name = "get-environment"]
                 fn get_environment_import(rval: *mut StrTupleList);
@@ -2522,7 +2535,7 @@ impl State {
 
     fn get_args(&self) -> &[WasmStr] {
         if self.args.get().is_none() {
-            #[link(wasm_import_module = "wasi:cli/environment@0.2.0-rc-2023-11-05")]
+            #[link(wasm_import_module = "wasi:cli/environment@0.2.0-rc-2023-11-10")]
             extern "C" {
                 #[link_name = "get-arguments"]
                 fn get_args_import(rval: *mut WasmStrList);

@@ -3,12 +3,13 @@
 
 use crate::{
     bindings::http::types::{self, Method, Scheme},
-    body::{HostIncomingBodyBuilder, HyperIncomingBody, HyperOutgoingBody},
+    body::{HostIncomingBody, HyperIncomingBody, HyperOutgoingBody},
+    dns_error, hyper_request_error,
 };
-use anyhow::Context;
 use http_body_util::BodyExt;
 use hyper::header::HeaderName;
 use std::any::Any;
+use std::sync::Arc;
 use std::time::Duration;
 use tokio::net::TcpStream;
 use tokio::time::timeout;
@@ -34,23 +35,24 @@ pub trait WasiHttpView: Send {
     fn new_incoming_request(
         &mut self,
         req: hyper::Request<HyperIncomingBody>,
-    ) -> wasmtime::Result<Resource<HostIncomingRequest>> {
+    ) -> wasmtime::Result<Resource<HostIncomingRequest>>
+    where
+        Self: Sized,
+    {
         let (parts, body) = req.into_parts();
-        let body = HostIncomingBodyBuilder {
+        let body = HostIncomingBody::new(
             body,
             // TODO: this needs to be plumbed through
-            between_bytes_timeout: std::time::Duration::from_millis(600 * 1000),
-        };
-        Ok(self.table().push(HostIncomingRequest {
-            parts,
-            body: Some(body),
-        })?)
+            std::time::Duration::from_millis(600 * 1000),
+        );
+        let incoming_req = HostIncomingRequest::new(self, parts, Some(body));
+        Ok(self.table().push(incoming_req)?)
     }
 
     fn new_response_outparam(
         &mut self,
         result: tokio::sync::oneshot::Sender<
-            Result<hyper::Response<HyperOutgoingBody>, types::Error>,
+            Result<hyper::Response<HyperOutgoingBody>, types::ErrorCode>,
         >,
     ) -> wasmtime::Result<Resource<HostResponseOutparam>> {
         let id = self.table().push(HostResponseOutparam { result })?;
@@ -72,6 +74,41 @@ pub trait WasiHttpView: Send {
     }
 }
 
+/// Returns `true` when the header is forbidden according to this [`WasiHttpView`] implementation.
+pub(crate) fn is_forbidden_header(view: &mut dyn WasiHttpView, name: &HeaderName) -> bool {
+    static FORBIDDEN_HEADERS: [HeaderName; 9] = [
+        hyper::header::CONNECTION,
+        HeaderName::from_static("keep-alive"),
+        hyper::header::PROXY_AUTHENTICATE,
+        hyper::header::PROXY_AUTHORIZATION,
+        HeaderName::from_static("proxy-connection"),
+        hyper::header::TE,
+        hyper::header::TRANSFER_ENCODING,
+        hyper::header::UPGRADE,
+        HeaderName::from_static("http2-settings"),
+    ];
+
+    FORBIDDEN_HEADERS.contains(name) || view.is_forbidden_header(name)
+}
+
+/// Removes forbidden headers from a [`hyper::HeaderMap`].
+pub(crate) fn remove_forbidden_headers(
+    view: &mut dyn WasiHttpView,
+    headers: &mut hyper::HeaderMap,
+) {
+    let forbidden_keys = Vec::from_iter(headers.keys().filter_map(|name| {
+        if is_forbidden_header(view, name) {
+            Some(name.clone())
+        } else {
+            None
+        }
+    }));
+
+    for name in forbidden_keys {
+        headers.remove(name);
+    }
+}
+
 pub fn default_send_request(
     view: &mut dyn WasiHttpView,
     OutgoingRequest {
@@ -84,87 +121,16 @@ pub fn default_send_request(
     }: OutgoingRequest,
 ) -> wasmtime::Result<Resource<HostFutureIncomingResponse>> {
     let handle = preview2::spawn(async move {
-        let tcp_stream = TcpStream::connect(authority.clone())
-            .await
-            .map_err(invalid_url)?;
-
-        let (mut sender, worker) = if use_tls {
-            #[cfg(any(target_arch = "riscv64", target_arch = "s390x"))]
-            {
-                anyhow::bail!(crate::bindings::http::types::Error::UnexpectedError(
-                    "unsupported architecture for SSL".to_string(),
-                ));
-            }
-
-            #[cfg(not(any(target_arch = "riscv64", target_arch = "s390x")))]
-            {
-                use tokio_rustls::rustls::OwnedTrustAnchor;
-
-                // derived from https://github.com/tokio-rs/tls/blob/master/tokio-rustls/examples/client/src/main.rs
-                let mut root_cert_store = rustls::RootCertStore::empty();
-                root_cert_store.add_trust_anchors(webpki_roots::TLS_SERVER_ROOTS.iter().map(
-                    |ta| {
-                        OwnedTrustAnchor::from_subject_spki_name_constraints(
-                            ta.subject,
-                            ta.spki,
-                            ta.name_constraints,
-                        )
-                    },
-                ));
-                let config = rustls::ClientConfig::builder()
-                    .with_safe_defaults()
-                    .with_root_certificates(root_cert_store)
-                    .with_no_client_auth();
-                let connector = tokio_rustls::TlsConnector::from(std::sync::Arc::new(config));
-                let mut parts = authority.split(":");
-                let host = parts.next().unwrap_or(&authority);
-                let domain = rustls::ServerName::try_from(host)?;
-                let stream = connector.connect(domain, tcp_stream).await.map_err(|e| {
-                    crate::bindings::http::types::Error::ProtocolError(e.to_string())
-                })?;
-
-                let (sender, conn) = timeout(
-                    connect_timeout,
-                    hyper::client::conn::http1::handshake(stream),
-                )
-                .await
-                .map_err(|_| timeout_error("connection"))??;
-
-                let worker = preview2::spawn(async move {
-                    conn.await.context("hyper connection failed")?;
-                    Ok::<_, anyhow::Error>(())
-                });
-
-                (sender, worker)
-            }
-        } else {
-            let (sender, conn) = timeout(
-                connect_timeout,
-                // TODO: we should plumb the builder through the http context, and use it here
-                hyper::client::conn::http1::handshake(tcp_stream),
-            )
-            .await
-            .map_err(|_| timeout_error("connection"))??;
-
-            let worker = preview2::spawn(async move {
-                conn.await.context("hyper connection failed")?;
-                Ok::<_, anyhow::Error>(())
-            });
-
-            (sender, worker)
-        };
-
-        let resp = timeout(first_byte_timeout, sender.send_request(request))
-            .await
-            .map_err(|_| timeout_error("first byte"))?
-            .map_err(hyper_protocol_error)?
-            .map(|body| body.map_err(|e| anyhow::anyhow!(e)).boxed());
-
-        Ok(IncomingResponseInternal {
-            resp,
-            worker,
+        let resp = handler(
+            authority,
+            use_tls,
+            connect_timeout,
+            first_byte_timeout,
+            request,
             between_bytes_timeout,
-        })
+        )
+        .await;
+        Ok(resp)
     });
 
     let fut = view.table().push(HostFutureIncomingResponse::new(handle))?;
@@ -172,32 +138,121 @@ pub fn default_send_request(
     Ok(fut)
 }
 
-pub fn timeout_error(kind: &str) -> anyhow::Error {
-    anyhow::anyhow!(crate::bindings::http::types::Error::TimeoutError(format!(
-        "{kind} timed out"
-    )))
-}
+async fn handler(
+    authority: String,
+    use_tls: bool,
+    connect_timeout: Duration,
+    first_byte_timeout: Duration,
+    request: http::Request<HyperOutgoingBody>,
+    between_bytes_timeout: Duration,
+) -> Result<IncomingResponseInternal, types::ErrorCode> {
+    let tcp_stream = TcpStream::connect(authority.clone())
+        .await
+        .map_err(|e| match e.kind() {
+            std::io::ErrorKind::AddrNotAvailable => {
+                dns_error("address not available".to_string(), 0)
+            }
 
-pub fn http_protocol_error(e: http::Error) -> anyhow::Error {
-    anyhow::anyhow!(crate::bindings::http::types::Error::ProtocolError(
-        e.to_string()
-    ))
-}
+            _ => {
+                if e.to_string()
+                    .starts_with("failed to lookup address information")
+                {
+                    dns_error("address not available".to_string(), 0)
+                } else {
+                    types::ErrorCode::ConnectionRefused
+                }
+            }
+        })?;
 
-pub fn hyper_protocol_error(e: hyper::Error) -> anyhow::Error {
-    anyhow::anyhow!(crate::bindings::http::types::Error::ProtocolError(
-        e.to_string()
-    ))
-}
+    let (mut sender, worker) = if use_tls {
+        #[cfg(any(target_arch = "riscv64", target_arch = "s390x"))]
+        {
+            return Err(crate::bindings::http::types::ErrorCode::InternalError(
+                Some("unsupported architecture for SSL".to_string()),
+            ));
+        }
 
-fn invalid_url(e: std::io::Error) -> anyhow::Error {
-    // TODO: DNS errors show up as a Custom io error, what subset of errors should we consider for
-    // InvalidUrl here?
-    anyhow::anyhow!(crate::bindings::http::types::Error::InvalidUrl(
-        e.to_string()
-    ))
-}
+        #[cfg(not(any(target_arch = "riscv64", target_arch = "s390x")))]
+        {
+            use tokio_rustls::rustls::OwnedTrustAnchor;
 
+            // derived from https://github.com/tokio-rs/tls/blob/master/tokio-rustls/examples/client/src/main.rs
+            let mut root_cert_store = rustls::RootCertStore::empty();
+            root_cert_store.add_trust_anchors(webpki_roots::TLS_SERVER_ROOTS.iter().map(|ta| {
+                OwnedTrustAnchor::from_subject_spki_name_constraints(
+                    ta.subject,
+                    ta.spki,
+                    ta.name_constraints,
+                )
+            }));
+            let config = rustls::ClientConfig::builder()
+                .with_safe_defaults()
+                .with_root_certificates(root_cert_store)
+                .with_no_client_auth();
+            let connector = tokio_rustls::TlsConnector::from(std::sync::Arc::new(config));
+            let mut parts = authority.split(":");
+            let host = parts.next().unwrap_or(&authority);
+            let domain = rustls::ServerName::try_from(host).map_err(|e| {
+                tracing::warn!("dns lookup error: {e:?}");
+                dns_error("invalid dns name".to_string(), 0)
+            })?;
+            let stream = connector.connect(domain, tcp_stream).await.map_err(|e| {
+                tracing::warn!("tls protocol error: {e:?}");
+                types::ErrorCode::TlsProtocolError
+            })?;
+
+            let (sender, conn) = timeout(
+                connect_timeout,
+                hyper::client::conn::http1::handshake(stream),
+            )
+            .await
+            .map_err(|_| types::ErrorCode::ConnectionTimeout)?
+            .map_err(hyper_request_error)?;
+
+            let worker = preview2::spawn(async move {
+                match conn.await {
+                    Ok(()) => {}
+                    // TODO: shouldn't throw away this error and ideally should
+                    // surface somewhere.
+                    Err(e) => tracing::warn!("dropping error {e}"),
+                }
+            });
+
+            (sender, worker)
+        }
+    } else {
+        let (sender, conn) = timeout(
+            connect_timeout,
+            // TODO: we should plumb the builder through the http context, and use it here
+            hyper::client::conn::http1::handshake(tcp_stream),
+        )
+        .await
+        .map_err(|_| types::ErrorCode::ConnectionTimeout)?
+        .map_err(hyper_request_error)?;
+
+        let worker = preview2::spawn(async move {
+            match conn.await {
+                Ok(()) => {}
+                // TODO: same as above, shouldn't throw this error away.
+                Err(e) => tracing::warn!("dropping error {e}"),
+            }
+        });
+
+        (sender, worker)
+    };
+
+    let resp = timeout(first_byte_timeout, sender.send_request(request))
+        .await
+        .map_err(|_| types::ErrorCode::ConnectionReadTimeout)?
+        .map_err(hyper_request_error)?
+        .map(|body| body.map_err(hyper_request_error).boxed());
+
+    Ok(IncomingResponseInternal {
+        resp,
+        worker: Arc::new(worker),
+        between_bytes_timeout,
+    })
+}
 impl From<http::Method> for types::Method {
     fn from(method: http::Method) -> Self {
         if method == http::Method::GET {
@@ -244,13 +299,24 @@ impl TryInto<http::Method> for types::Method {
 }
 
 pub struct HostIncomingRequest {
-    pub parts: http::request::Parts,
-    pub body: Option<HostIncomingBodyBuilder>,
+    pub(crate) parts: http::request::Parts,
+    pub body: Option<HostIncomingBody>,
+}
+
+impl HostIncomingRequest {
+    pub fn new(
+        view: &mut dyn WasiHttpView,
+        mut parts: http::request::Parts,
+        body: Option<HostIncomingBody>,
+    ) -> Self {
+        remove_forbidden_headers(view, &mut parts.headers);
+        Self { parts, body }
+    }
 }
 
 pub struct HostResponseOutparam {
     pub result:
-        tokio::sync::oneshot::Sender<Result<hyper::Response<HyperOutgoingBody>, types::Error>>,
+        tokio::sync::oneshot::Sender<Result<hyper::Response<HyperOutgoingBody>, types::ErrorCode>>,
 }
 
 pub struct HostOutgoingRequest {
@@ -272,12 +338,12 @@ pub struct HostRequestOptions {
 pub struct HostIncomingResponse {
     pub status: u16,
     pub headers: FieldMap,
-    pub body: Option<HostIncomingBodyBuilder>,
-    pub worker: AbortOnDropJoinHandle<anyhow::Result<()>>,
+    pub body: Option<HostIncomingBody>,
+    pub worker: Arc<AbortOnDropJoinHandle<()>>,
 }
 
 pub struct HostOutgoingResponse {
-    pub status: u16,
+    pub status: http::StatusCode,
     pub headers: FieldMap,
     pub body: Option<HyperOutgoingBody>,
 }
@@ -298,7 +364,7 @@ impl TryFrom<HostOutgoingResponse> for hyper::Response<HyperOutgoingBody> {
             Some(body) => builder.body(body),
             None => builder.body(
                 Empty::<bytes::Bytes>::new()
-                    .map_err(|_| anyhow::anyhow!("empty error"))
+                    .map_err(|_| unreachable!("Infallible error"))
                     .boxed(),
             ),
         }
@@ -324,15 +390,16 @@ pub enum HostFields {
 
 pub struct IncomingResponseInternal {
     pub resp: hyper::Response<HyperIncomingBody>,
-    pub worker: AbortOnDropJoinHandle<anyhow::Result<()>>,
+    pub worker: Arc<AbortOnDropJoinHandle<()>>,
     pub between_bytes_timeout: std::time::Duration,
 }
 
-type FutureIncomingResponseHandle = AbortOnDropJoinHandle<anyhow::Result<IncomingResponseInternal>>;
+type FutureIncomingResponseHandle =
+    AbortOnDropJoinHandle<anyhow::Result<Result<IncomingResponseInternal, types::ErrorCode>>>;
 
 pub enum HostFutureIncomingResponse {
     Pending(FutureIncomingResponseHandle),
-    Ready(anyhow::Result<IncomingResponseInternal>),
+    Ready(anyhow::Result<Result<IncomingResponseInternal, types::ErrorCode>>),
     Consumed,
 }
 
@@ -345,7 +412,9 @@ impl HostFutureIncomingResponse {
         matches!(self, Self::Ready(_))
     }
 
-    pub fn unwrap_ready(self) -> anyhow::Result<IncomingResponseInternal> {
+    pub fn unwrap_ready(
+        self,
+    ) -> anyhow::Result<Result<IncomingResponseInternal, types::ErrorCode>> {
         match self {
             Self::Ready(res) => res,
             Self::Pending(_) | Self::Consumed => {

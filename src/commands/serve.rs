@@ -14,7 +14,9 @@ use wasmtime::{Engine, Store, StoreLimits};
 use wasmtime_wasi::preview2::{
     self, StreamError, StreamResult, Table, WasiCtx, WasiCtxBuilder, WasiView,
 };
-use wasmtime_wasi_http::{body::HyperOutgoingBody, WasiHttpCtx, WasiHttpView};
+use wasmtime_wasi_http::{
+    body::HyperOutgoingBody, hyper_response_error, WasiHttpCtx, WasiHttpView,
+};
 
 #[cfg(feature = "wasi-nn")]
 use wasmtime_wasi_nn::WasiNnCtx;
@@ -363,9 +365,9 @@ impl hyper::service::Service<Request> for ProxyHandler {
 
             let mut store = inner.cmd.new_store(&inner.engine, req_id)?;
 
-            let req = store.data_mut().new_incoming_request(
-                req.map(|body| body.map_err(|e| anyhow::anyhow!(e)).boxed()),
-            )?;
+            let req = store
+                .data_mut()
+                .new_incoming_request(req.map(|body| body.map_err(hyper_response_error).boxed()))?;
 
             let out = store.data_mut().new_response_outparam(sender)?;
 
@@ -373,12 +375,16 @@ impl hyper::service::Service<Request> for ProxyHandler {
                 wasmtime_wasi_http::proxy::Proxy::instantiate_pre(&mut store, &inner.instance_pre)
                     .await?;
 
-            proxy
+            if let Err(e) = proxy
                 .wasi_http_incoming_handler()
                 .call_handle(store, req, out)
-                .await?;
+                .await
+            {
+                log::error!("[{req_id}] :: {:#?}", e);
+                return Err(e);
+            }
 
-            Ok::<_, anyhow::Error>(())
+            Ok(())
         });
 
         Box::pin(async move {

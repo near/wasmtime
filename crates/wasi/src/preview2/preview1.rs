@@ -1893,14 +1893,7 @@ impl<
         };
         drop(t);
         let fd = self
-            .open_at(
-                dirfd,
-                dirflags.into(),
-                path,
-                oflags.into(),
-                flags,
-                filesystem::Modes::READABLE | filesystem::Modes::WRITABLE,
-            )
+            .open_at(dirfd, dirflags.into(), path, oflags.into(), flags)
             .await
             .map_err(|e| {
                 e.try_into()
@@ -2156,7 +2149,7 @@ impl<
             pollables.push(p);
         }
         let ready: HashSet<_> = self
-            .poll_list(pollables)
+            .poll(pollables)
             .await
             .context("failed to call `poll-oneoff`")
             .map_err(types::Error::trap)?

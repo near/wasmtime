@@ -68,9 +68,9 @@ pub mod bindings {
             wasmtime::component::bindgen!({
                 path: "wit",
                 interfaces: "
-                    import wasi:io/poll@0.2.0-rc-2023-11-05;
-                    import wasi:io/streams@0.2.0-rc-2023-11-05;
-                    import wasi:filesystem/types@0.2.0-rc-2023-11-05;
+                    import wasi:io/poll@0.2.0-rc-2023-11-10;
+                    import wasi:io/streams@0.2.0-rc-2023-11-10;
+                    import wasi:filesystem/types@0.2.0-rc-2023-11-10;
                 ",
                 tracing: true,
                 trappable_error_type: {
@@ -84,7 +84,7 @@ pub mod bindings {
                     "wasi:io/poll/pollable": super::super::io::poll::Pollable,
                     "wasi:io/streams/input-stream": super::super::io::streams::InputStream,
                     "wasi:io/streams/output-stream": super::super::io::streams::OutputStream,
-                    "wasi:io/streams/error": super::super::io::streams::Error,
+                    "wasi:io/error/error": super::super::io::error::Error,
                 }
             });
         }
@@ -148,8 +148,9 @@ pub mod bindings {
                 "[method]output-stream.blocking-write-and-flush",
                 "[method]output-stream.blocking-write-zeroes-and-flush",
                 "[method]directory-entry-stream.read-directory-entry",
-                "poll-list",
-                "poll-one",
+                "poll",
+                "[method]pollable.block",
+                "[method]pollable.ready",
             ],
         },
         trappable_error_type: {
@@ -168,7 +169,7 @@ pub mod bindings {
             "wasi:filesystem/types/descriptor": super::filesystem::Descriptor,
             "wasi:io/streams/input-stream": super::stream::InputStream,
             "wasi:io/streams/output-stream": super::stream::OutputStream,
-            "wasi:io/streams/error": super::stream::Error,
+            "wasi:io/error/error": super::stream::Error,
             "wasi:io/poll/pollable": super::poll::Pollable,
             "wasi:cli/terminal-input/terminal-input": super::stdio::TerminalInput,
             "wasi:cli/terminal-output/terminal-output": super::stdio::TerminalOutput,
@@ -290,7 +291,13 @@ pub fn in_tokio<F: Future>(f: F) -> F::Output {
     }
 }
 
-fn with_ambient_tokio_runtime<R>(f: impl FnOnce() -> R) -> R {
+/// Executes the closure `f` with an "ambient Tokio runtime" which basically
+/// means that if code in `f` tries to get a runtime `Handle` it'll succeed.
+///
+/// If a `Handle` is already available, e.g. in async contexts, then `f` is run
+/// immediately. Otherwise for synchronous contexts this crate's fallback
+/// runtime is configured and then `f` is executed.
+pub fn with_ambient_tokio_runtime<R>(f: impl FnOnce() -> R) -> R {
     match tokio::runtime::Handle::try_current() {
         Ok(_) => f(),
         Err(_) => {
@@ -300,7 +307,14 @@ fn with_ambient_tokio_runtime<R>(f: impl FnOnce() -> R) -> R {
     }
 }
 
-fn poll_noop<F>(future: Pin<&mut F>) -> Option<F::Output>
+/// Attempts to get the result of a `future`.
+///
+/// This function does not block and will poll the provided future once. If the
+/// result is here then `Some` is returned, otherwise `None` is returned.
+///
+/// Note that by polling `future` this means that `future` must be re-polled
+/// later if it's to wake up a task.
+pub fn poll_noop<F>(future: Pin<&mut F>) -> Option<F::Output>
 where
     F: Future,
 {

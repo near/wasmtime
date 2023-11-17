@@ -1,26 +1,51 @@
-use crate::bindings::http::types::{
-    self, Error, HeaderError, Headers, Method, Scheme, StatusCode, Trailers,
-};
-use crate::body::{FinishMessage, HostFutureTrailers, HostFutureTrailersState};
-use crate::types::{HostIncomingRequest, HostOutgoingResponse};
-use crate::WasiHttpView;
 use crate::{
-    body::{HostIncomingBody, HostIncomingBodyBuilder, HostOutgoingBody},
+    bindings::http::types::{self, Headers, Method, Scheme, StatusCode, Trailers},
+    body::{HostFutureTrailers, HostIncomingBody, HostOutgoingBody},
     types::{
-        FieldMap, HostFields, HostFutureIncomingResponse, HostIncomingResponse,
-        HostOutgoingRequest, HostResponseOutparam,
+        is_forbidden_header, remove_forbidden_headers, FieldMap, HostFields,
+        HostFutureIncomingResponse, HostIncomingRequest, HostIncomingResponse, HostOutgoingRequest,
+        HostOutgoingResponse, HostResponseOutparam,
     },
+    WasiHttpView,
 };
 use anyhow::Context;
-use hyper::header::HeaderName;
 use std::any::Any;
+use std::str::FromStr;
 use wasmtime::component::Resource;
 use wasmtime_wasi::preview2::{
     bindings::io::streams::{InputStream, OutputStream},
     Pollable, Table,
 };
 
-impl<T: WasiHttpView> crate::bindings::http::types::Host for T {}
+impl<T: WasiHttpView> crate::bindings::http::types::Host for T {
+    fn http_error_code(
+        &mut self,
+        err: wasmtime::component::Resource<types::IoError>,
+    ) -> wasmtime::Result<Option<types::ErrorCode>> {
+        let e = self.table().get(&err)?;
+        Ok(e.downcast_ref::<types::ErrorCode>().cloned())
+    }
+}
+
+/// Extract the `Content-Length` header value from a [`FieldMap`], returning `None` if it's not
+/// present. This function will return `Err` if it's not possible to parse the `Content-Length`
+/// header.
+fn get_content_length(fields: &FieldMap) -> Result<Option<u64>, ()> {
+    let header_val = match fields.get(hyper::header::CONTENT_LENGTH) {
+        Some(val) => val,
+        None => return Ok(None),
+    };
+
+    let header_str = match header_val.to_str() {
+        Ok(val) => val,
+        Err(_) => return Err(()),
+    };
+
+    match header_str.parse() {
+        Ok(len) => Ok(Some(len)),
+        Err(_) => Err(()),
+    }
+}
 
 /// Take ownership of the underlying [`FieldMap`] associated with this fields resource. If the
 /// fields resource references another fields, the returned [`FieldMap`] will be cloned.
@@ -35,10 +60,10 @@ fn move_fields(table: &mut Table, id: Resource<HostFields>) -> wasmtime::Result<
     }
 }
 
-fn get_fields_mut<'a>(
+fn get_fields<'a>(
     table: &'a mut Table,
     id: &Resource<HostFields>,
-) -> wasmtime::Result<&'a mut FieldMap> {
+) -> wasmtime::Result<&'a FieldMap> {
     let fields = table.get(&id)?;
     if let HostFields::Ref { parent, get_fields } = *fields {
         let entry = table.get_any_mut(parent)?;
@@ -54,20 +79,14 @@ fn get_fields_mut<'a>(
     }
 }
 
-fn is_forbidden_header<T: WasiHttpView>(view: &mut T, name: &HeaderName) -> bool {
-    static FORBIDDEN_HEADERS: [HeaderName; 9] = [
-        hyper::header::CONNECTION,
-        HeaderName::from_static("keep-alive"),
-        hyper::header::PROXY_AUTHENTICATE,
-        hyper::header::PROXY_AUTHORIZATION,
-        HeaderName::from_static("proxy-connection"),
-        hyper::header::TE,
-        hyper::header::TRANSFER_ENCODING,
-        hyper::header::UPGRADE,
-        HeaderName::from_static("http2-settings"),
-    ];
-
-    FORBIDDEN_HEADERS.contains(name) || view.is_forbidden_header(name)
+fn get_fields_mut<'a>(
+    table: &'a mut Table,
+    id: &Resource<HostFields>,
+) -> wasmtime::Result<Result<&'a mut FieldMap, types::HeaderError>> {
+    match table.get_mut(&id)? {
+        HostFields::Owned { fields } => Ok(Ok(fields)),
+        HostFields::Ref { .. } => Ok(Err(types::HeaderError::Immutable)),
+    }
 }
 
 impl<T: WasiHttpView> crate::bindings::http::types::HostFields for T {
@@ -85,30 +104,30 @@ impl<T: WasiHttpView> crate::bindings::http::types::HostFields for T {
     fn from_list(
         &mut self,
         entries: Vec<(String, Vec<u8>)>,
-    ) -> wasmtime::Result<Result<Resource<HostFields>, HeaderError>> {
-        let mut map = hyper::HeaderMap::new();
+    ) -> wasmtime::Result<Result<Resource<HostFields>, types::HeaderError>> {
+        let mut fields = hyper::HeaderMap::new();
 
         for (header, value) in entries {
             let header = match hyper::header::HeaderName::from_bytes(header.as_bytes()) {
                 Ok(header) => header,
-                Err(_) => return Ok(Err(HeaderError::InvalidSyntax)),
+                Err(_) => return Ok(Err(types::HeaderError::InvalidSyntax)),
             };
 
             if is_forbidden_header(self, &header) {
-                return Ok(Err(HeaderError::Forbidden));
+                return Ok(Err(types::HeaderError::Forbidden));
             }
 
             let value = match hyper::header::HeaderValue::from_bytes(&value) {
                 Ok(value) => value,
-                Err(_) => return Ok(Err(HeaderError::InvalidSyntax)),
+                Err(_) => return Ok(Err(types::HeaderError::InvalidSyntax)),
             };
 
-            map.append(header, value);
+            fields.append(header, value);
         }
 
         let id = self
             .table()
-            .push(HostFields::Owned { fields: map })
+            .push(HostFields::Owned { fields })
             .context("[new_fields] pushing fields")?;
 
         Ok(Ok(id))
@@ -131,7 +150,7 @@ impl<T: WasiHttpView> crate::bindings::http::types::HostFields for T {
             Err(_) => return Ok(vec![]),
         };
 
-        let res = get_fields_mut(self.table(), &fields)
+        let res = get_fields(self.table(), &fields)
             .context("[fields_get] getting fields")?
             .get_all(header)
             .into_iter()
@@ -145,43 +164,51 @@ impl<T: WasiHttpView> crate::bindings::http::types::HostFields for T {
         fields: Resource<HostFields>,
         name: String,
         byte_values: Vec<Vec<u8>>,
-    ) -> wasmtime::Result<Result<(), HeaderError>> {
+    ) -> wasmtime::Result<Result<(), types::HeaderError>> {
         let header = match hyper::header::HeaderName::from_bytes(name.as_bytes()) {
             Ok(header) => header,
-            Err(_) => return Ok(Err(HeaderError::InvalidSyntax)),
+            Err(_) => return Ok(Err(types::HeaderError::InvalidSyntax)),
         };
 
         if is_forbidden_header(self, &header) {
-            return Ok(Err(HeaderError::Forbidden));
+            return Ok(Err(types::HeaderError::Forbidden));
         }
 
         let mut values = Vec::with_capacity(byte_values.len());
         for value in byte_values {
             match hyper::header::HeaderValue::from_bytes(&value) {
                 Ok(value) => values.push(value),
-                Err(_) => return Ok(Err(HeaderError::InvalidSyntax)),
+                Err(_) => return Ok(Err(types::HeaderError::InvalidSyntax)),
             }
         }
 
-        let m =
-            get_fields_mut(self.table(), &fields).context("[fields_set] getting mutable fields")?;
-        m.remove(&header);
-        for value in values {
-            m.append(&header, value);
-        }
-
-        Ok(Ok(()))
+        Ok(get_fields_mut(self.table(), &fields)
+            .context("[fields_set] getting mutable fields")?
+            .map(|fields| {
+                fields.remove(&header);
+                for value in values {
+                    fields.append(&header, value);
+                }
+            }))
     }
 
-    fn delete(&mut self, fields: Resource<HostFields>, name: String) -> wasmtime::Result<()> {
+    fn delete(
+        &mut self,
+        fields: Resource<HostFields>,
+        name: String,
+    ) -> wasmtime::Result<Result<(), types::HeaderError>> {
         let header = match hyper::header::HeaderName::from_bytes(name.as_bytes()) {
             Ok(header) => header,
-            Err(_) => return Ok(()),
+            Err(_) => return Ok(Err(types::HeaderError::InvalidSyntax)),
         };
 
-        let m = get_fields_mut(self.table(), &fields)?;
-        m.remove(header);
-        Ok(())
+        if is_forbidden_header(self, &header) {
+            return Ok(Err(types::HeaderError::Forbidden));
+        }
+
+        Ok(get_fields_mut(self.table(), &fields)?.map(|fields| {
+            fields.remove(header);
+        }))
     }
 
     fn append(
@@ -189,42 +216,40 @@ impl<T: WasiHttpView> crate::bindings::http::types::HostFields for T {
         fields: Resource<HostFields>,
         name: String,
         value: Vec<u8>,
-    ) -> wasmtime::Result<Result<(), HeaderError>> {
+    ) -> wasmtime::Result<Result<(), types::HeaderError>> {
         let header = match hyper::header::HeaderName::from_bytes(name.as_bytes()) {
             Ok(header) => header,
-            Err(_) => return Ok(Err(HeaderError::InvalidSyntax)),
+            Err(_) => return Ok(Err(types::HeaderError::InvalidSyntax)),
         };
 
         if is_forbidden_header(self, &header) {
-            return Ok(Err(HeaderError::Forbidden));
+            return Ok(Err(types::HeaderError::Forbidden));
         }
 
         let value = match hyper::header::HeaderValue::from_bytes(&value) {
             Ok(value) => value,
-            Err(_) => return Ok(Err(HeaderError::InvalidSyntax)),
+            Err(_) => return Ok(Err(types::HeaderError::InvalidSyntax)),
         };
 
-        let m = get_fields_mut(self.table(), &fields)
-            .context("[fields_append] getting mutable fields")?;
-
-        m.append(header, value);
-        Ok(Ok(()))
+        Ok(get_fields_mut(self.table(), &fields)
+            .context("[fields_append] getting mutable fields")?
+            .map(|fields| {
+                fields.append(header, value);
+            }))
     }
 
     fn entries(
         &mut self,
         fields: Resource<HostFields>,
     ) -> wasmtime::Result<Vec<(String, Vec<u8>)>> {
-        let fields = get_fields_mut(self.table(), &fields)?;
-        let result = fields
+        Ok(get_fields(self.table(), &fields)?
             .iter()
             .map(|(name, value)| (name.as_str().to_owned(), value.as_bytes().to_owned()))
-            .collect();
-        Ok(result)
+            .collect())
     }
 
     fn clone(&mut self, fields: Resource<HostFields>) -> wasmtime::Result<Resource<HostFields>> {
-        let fields = get_fields_mut(self.table(), &fields)
+        let fields = get_fields(self.table(), &fields)
             .context("[fields_clone] getting fields")?
             .clone();
 
@@ -307,8 +332,8 @@ impl<T: WasiHttpView> crate::bindings::http::types::HostIncomingRequest for T {
     ) -> wasmtime::Result<Result<Resource<HostIncomingBody>, ()>> {
         let req = self.table().get_mut(&id)?;
         match req.body.take() {
-            Some(builder) => {
-                let id = self.table().push(builder.build())?;
+            Some(body) => {
+                let id = self.table().push(body)?;
                 Ok(Ok(id))
             }
 
@@ -325,21 +350,17 @@ impl<T: WasiHttpView> crate::bindings::http::types::HostIncomingRequest for T {
 impl<T: WasiHttpView> crate::bindings::http::types::HostOutgoingRequest for T {
     fn new(
         &mut self,
-        method: Method,
-        path_with_query: Option<String>,
-        scheme: Option<Scheme>,
-        authority: Option<String>,
         headers: Resource<Headers>,
     ) -> wasmtime::Result<Resource<HostOutgoingRequest>> {
         let headers = move_fields(self.table(), headers)?;
 
         self.table()
             .push(HostOutgoingRequest {
-                path_with_query,
-                authority,
-                method,
+                path_with_query: None,
+                authority: None,
+                method: types::Method::Get,
                 headers,
-                scheme,
+                scheme: None,
                 body: None,
             })
             .context("[new_outgoing_request] pushing request")
@@ -358,7 +379,12 @@ impl<T: WasiHttpView> crate::bindings::http::types::HostOutgoingRequest for T {
             return Ok(Err(()));
         }
 
-        let (host_body, hyper_body) = HostOutgoingBody::new();
+        let size = match get_content_length(&req.headers) {
+            Ok(size) => size,
+            Err(e) => return Ok(Err(e)),
+        };
+
+        let (host_body, hyper_body) = HostOutgoingBody::new(size);
 
         req.body = Some(hyper_body);
 
@@ -385,9 +411,18 @@ impl<T: WasiHttpView> crate::bindings::http::types::HostOutgoingRequest for T {
         &mut self,
         request: wasmtime::component::Resource<types::OutgoingRequest>,
         method: Method,
-    ) -> wasmtime::Result<()> {
-        self.table().get_mut(&request)?.method = method.into();
-        Ok(())
+    ) -> wasmtime::Result<Result<(), ()>> {
+        let req = self.table().get_mut(&request)?;
+
+        if let Method::Other(s) = &method {
+            if let Err(_) = http::Method::from_str(s) {
+                return Ok(Err(()));
+            }
+        }
+
+        req.method = method;
+
+        Ok(Ok(()))
     }
 
     fn path_with_query(
@@ -401,9 +436,18 @@ impl<T: WasiHttpView> crate::bindings::http::types::HostOutgoingRequest for T {
         &mut self,
         request: wasmtime::component::Resource<types::OutgoingRequest>,
         path_with_query: Option<String>,
-    ) -> wasmtime::Result<()> {
-        self.table().get_mut(&request)?.path_with_query = path_with_query;
-        Ok(())
+    ) -> wasmtime::Result<Result<(), ()>> {
+        let req = self.table().get_mut(&request)?;
+
+        if let Some(s) = path_with_query.as_ref() {
+            if let Err(_) = http::uri::PathAndQuery::from_str(s) {
+                return Ok(Err(()));
+            }
+        }
+
+        req.path_with_query = path_with_query;
+
+        Ok(Ok(()))
     }
 
     fn scheme(
@@ -417,9 +461,18 @@ impl<T: WasiHttpView> crate::bindings::http::types::HostOutgoingRequest for T {
         &mut self,
         request: wasmtime::component::Resource<types::OutgoingRequest>,
         scheme: Option<Scheme>,
-    ) -> wasmtime::Result<()> {
-        self.table().get_mut(&request)?.scheme = scheme;
-        Ok(())
+    ) -> wasmtime::Result<Result<(), ()>> {
+        let req = self.table().get_mut(&request)?;
+
+        if let Some(types::Scheme::Other(s)) = scheme.as_ref() {
+            if let Err(_) = http::uri::Scheme::from_str(s.as_str()) {
+                return Ok(Err(()));
+            }
+        }
+
+        req.scheme = scheme;
+
+        Ok(Ok(()))
     }
 
     fn authority(
@@ -433,9 +486,24 @@ impl<T: WasiHttpView> crate::bindings::http::types::HostOutgoingRequest for T {
         &mut self,
         request: wasmtime::component::Resource<types::OutgoingRequest>,
         authority: Option<String>,
-    ) -> wasmtime::Result<()> {
-        self.table().get_mut(&request)?.authority = authority;
-        Ok(())
+    ) -> wasmtime::Result<Result<(), ()>> {
+        let req = self.table().get_mut(&request)?;
+
+        if let Some(s) = authority.as_ref() {
+            println!("checking authority {s}");
+            let auth = match http::uri::Authority::from_str(s.as_str()) {
+                Ok(auth) => auth,
+                Err(_) => return Ok(Err(())),
+            };
+
+            if s.contains(':') && auth.port_u16().is_none() {
+                return Ok(Err(()));
+            }
+        }
+
+        req.authority = authority;
+
+        Ok(Ok(()))
     }
 
     fn headers(
@@ -474,7 +542,7 @@ impl<T: WasiHttpView> crate::bindings::http::types::HostResponseOutparam for T {
     fn set(
         &mut self,
         id: Resource<HostResponseOutparam>,
-        resp: Result<Resource<HostOutgoingResponse>, Error>,
+        resp: Result<Resource<HostOutgoingResponse>, types::ErrorCode>,
     ) -> wasmtime::Result<()> {
         let val = match resp {
             Ok(resp) => Ok(self.table().delete(resp)?.try_into()?),
@@ -540,8 +608,8 @@ impl<T: WasiHttpView> crate::bindings::http::types::HostIncomingResponse for T {
             .context("[incoming_response_consume] getting response")?;
 
         match r.body.take() {
-            Some(builder) => {
-                let id = self.table().push(builder.build())?;
+            Some(body) => {
+                let id = self.table().push(body)?;
                 Ok(Ok(id))
             }
 
@@ -569,19 +637,19 @@ impl<T: WasiHttpView> crate::bindings::http::types::HostFutureTrailers for T {
     fn get(
         &mut self,
         id: Resource<HostFutureTrailers>,
-    ) -> wasmtime::Result<Option<Result<Option<Resource<Trailers>>, Error>>> {
+    ) -> wasmtime::Result<Option<Result<Option<Resource<Trailers>>, types::ErrorCode>>> {
         let trailers = self.table().get_mut(&id)?;
-        match &trailers.state {
-            HostFutureTrailersState::Waiting(_) => return Ok(None),
-            HostFutureTrailersState::Done(Err(e)) => return Ok(Some(Err(e.clone()))),
-            HostFutureTrailersState::Done(Ok(None)) => return Ok(Some(Ok(None))),
-            HostFutureTrailersState::Done(Ok(Some(_))) => {}
+        match trailers {
+            HostFutureTrailers::Waiting(_) => return Ok(None),
+            HostFutureTrailers::Done(Err(e)) => return Ok(Some(Err(e.clone()))),
+            HostFutureTrailers::Done(Ok(None)) => return Ok(Some(Ok(None))),
+            HostFutureTrailers::Done(Ok(_)) => {}
         }
 
         fn get_fields(elem: &mut dyn Any) -> &mut FieldMap {
             let trailers = elem.downcast_mut::<HostFutureTrailers>().unwrap();
-            match &mut trailers.state {
-                HostFutureTrailersState::Done(Ok(Some(e))) => e,
+            match trailers {
+                HostFutureTrailers::Done(Ok(Some(e))) => e,
                 _ => unreachable!(),
             }
         }
@@ -605,7 +673,7 @@ impl<T: WasiHttpView> crate::bindings::http::types::HostIncomingBody for T {
     ) -> wasmtime::Result<Result<Resource<InputStream>, ()>> {
         let body = self.table().get_mut(&id)?;
 
-        if let Some(stream) = body.stream.take() {
+        if let Some(stream) = body.take_stream() {
             let stream = InputStream::Host(Box::new(stream));
             let stream = self.table().push_child(stream, &id)?;
             return Ok(Ok(stream));
@@ -632,13 +700,12 @@ impl<T: WasiHttpView> crate::bindings::http::types::HostIncomingBody for T {
 impl<T: WasiHttpView> crate::bindings::http::types::HostOutgoingResponse for T {
     fn new(
         &mut self,
-        status: StatusCode,
         headers: Resource<Headers>,
     ) -> wasmtime::Result<Resource<HostOutgoingResponse>> {
         let fields = move_fields(self.table(), headers)?;
 
         let id = self.table().push(HostOutgoingResponse {
-            status,
+            status: http::StatusCode::OK,
             headers: fields,
             body: None,
         })?;
@@ -656,7 +723,12 @@ impl<T: WasiHttpView> crate::bindings::http::types::HostOutgoingResponse for T {
             return Ok(Err(()));
         }
 
-        let (host, body) = HostOutgoingBody::new();
+        let size = match get_content_length(&resp.headers) {
+            Ok(size) => size,
+            Err(e) => return Ok(Err(e)),
+        };
+
+        let (host, body) = HostOutgoingBody::new(size);
 
         resp.body.replace(body);
 
@@ -669,16 +741,22 @@ impl<T: WasiHttpView> crate::bindings::http::types::HostOutgoingResponse for T {
         &mut self,
         id: Resource<HostOutgoingResponse>,
     ) -> wasmtime::Result<types::StatusCode> {
-        Ok(self.table().get(&id)?.status)
+        Ok(self.table().get(&id)?.status.into())
     }
 
     fn set_status_code(
         &mut self,
         id: Resource<HostOutgoingResponse>,
         status: types::StatusCode,
-    ) -> wasmtime::Result<()> {
-        self.table().get_mut(&id)?.status = status;
-        Ok(())
+    ) -> wasmtime::Result<Result<(), ()>> {
+        let resp = self.table().get_mut(&id)?;
+
+        match http::StatusCode::from_u16(status) {
+            Ok(status) => resp.status = status,
+            Err(_) => return Ok(Err(())),
+        };
+
+        Ok(Ok(()))
     }
 
     fn headers(
@@ -717,7 +795,9 @@ impl<T: WasiHttpView> crate::bindings::http::types::HostFutureIncomingResponse f
     fn get(
         &mut self,
         id: Resource<HostFutureIncomingResponse>,
-    ) -> wasmtime::Result<Option<Result<Result<Resource<HostIncomingResponse>, Error>, ()>>> {
+    ) -> wasmtime::Result<
+        Option<Result<Result<Resource<HostIncomingResponse>, types::ErrorCode>, ()>>,
+    > {
         let resp = self.table().get_mut(&id)?;
 
         match resp {
@@ -730,27 +810,32 @@ impl<T: WasiHttpView> crate::bindings::http::types::HostFutureIncomingResponse f
             match std::mem::replace(resp, HostFutureIncomingResponse::Consumed).unwrap_ready() {
                 Err(e) => {
                     // Trapping if it's not possible to downcast to an wasi-http error
-                    let e = e.downcast::<Error>()?;
+                    let e = e.downcast::<types::ErrorCode>()?;
                     return Ok(Some(Ok(Err(e))));
                 }
 
-                Ok(resp) => resp,
+                Ok(Ok(resp)) => resp,
+                Ok(Err(e)) => return Ok(Some(Ok(Err(e)))),
             };
 
-        let (parts, body) = resp.resp.into_parts();
+        let (mut parts, body) = resp.resp.into_parts();
+
+        remove_forbidden_headers(self, &mut parts.headers);
 
         let resp = self.table().push(HostIncomingResponse {
             status: parts.status.as_u16(),
-            headers: FieldMap::from(parts.headers),
-            body: Some(HostIncomingBodyBuilder {
-                body,
-                between_bytes_timeout: resp.between_bytes_timeout,
+            headers: parts.headers,
+            body: Some({
+                let mut body = HostIncomingBody::new(body, resp.between_bytes_timeout);
+                body.retain_worker(&resp.worker);
+                body
             }),
             worker: resp.worker,
         })?;
 
         Ok(Some(Ok(Ok(resp))))
     }
+
     fn subscribe(
         &mut self,
         id: Resource<HostFutureIncomingResponse>,
@@ -777,37 +862,20 @@ impl<T: WasiHttpView> crate::bindings::http::types::HostOutgoingBody for T {
         &mut self,
         id: Resource<HostOutgoingBody>,
         ts: Option<Resource<Trailers>>,
-    ) -> wasmtime::Result<()> {
-        let mut body = self.table().delete(id)?;
+    ) -> wasmtime::Result<Result<(), types::ErrorCode>> {
+        let body = self.table().delete(id)?;
 
-        let sender = body
-            .finish_sender
-            .take()
-            .expect("outgoing-body trailer_sender consumed by a non-owning function");
-
-        let message = if let Some(ts) = ts {
-            FinishMessage::Trailers(get_fields_mut(self.table(), &ts)?.clone().into())
+        let ts = if let Some(ts) = ts {
+            Some(move_fields(self.table(), ts)?)
         } else {
-            FinishMessage::Finished
+            None
         };
 
-        // Ignoring failure: receiver died sending body, but we can't report that here.
-        let _ = sender.send(message.into());
-
-        Ok(())
+        Ok(body.finish(ts))
     }
 
     fn drop(&mut self, id: Resource<HostOutgoingBody>) -> wasmtime::Result<()> {
-        let mut body = self.table().delete(id)?;
-
-        let sender = body
-            .finish_sender
-            .take()
-            .expect("outgoing-body trailer_sender consumed by a non-owning function");
-
-        // Ignoring failure: receiver died sending body, but we can't report that here.
-        let _ = sender.send(FinishMessage::Abort);
-
+        self.table().delete(id)?.abort();
         Ok(())
     }
 }

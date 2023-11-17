@@ -6,22 +6,19 @@
 # in same directory as wasmtime.
 
 set -o pipefail
-set -eox
+set -eux
 
 # Flags and default modes
-PREINSTALLED=true
 ALL_FILES=false
 
 # Parse flags
 while [[ "$#" -gt 0 ]]; do
     case $1 in
         --all) ALL_FILES=true; shift ;;
-        --install-zkwasm) PREINSTALLED=false; shift ;;
         --help)
             echo "Usage: $0 [OPTIONS] [filename.zkasm]"
             echo "Options:"
             echo "  --all                           Test all zkasm files"
-            echo "  --install-zkwasm                Temporarily install and use zkevm-rom"
             echo "  --help                          Show this message"
             exit 0
             ;;
@@ -34,17 +31,11 @@ if [ "$ALL_FILES" = false ] && [ -z "$1" ]; then
     exit 1
 fi
 
-BASE_DIR="../wasmtime"
+BASE_DIR="./../../"
+cd deps/zkevm-proverjs
+npm i
 
-if [ "$PREINSTALLED" = false ]; then
-    echo "Cloning zkevm-proverjs into /tmp directory..."
-    git clone https://github.com/0xPolygonHermez/zkevm-proverjs/ ./tmp/zkevm-proverjs > /dev/null 2>&1
-    cd ./tmp/zkevm-proverjs
-    npm install
-    BASE_DIR="../.."
-else
-    cd ../zkevm-proverjs
-fi
+NODE_CMD="node test/zkasmtest.js --rows 2**18"
 
 git checkout feature/64bits
 
@@ -63,7 +54,6 @@ for file in "$BASE_DIR/cranelift/zkasm_data/generated"/*; do
   # it seems like zkasmtest sets 1 if smth goes wrong but don't set 0
   # if everything is OK
   exit_code=0
-  
   if [[ $filename == $FAIL_PREFIX* ]]; then
     # If the file name starts with "_should_fail_", we should expect a non-zero exit code
     $NODE_CMD "$file" > /dev/null 2>&1 || exit_code=$?

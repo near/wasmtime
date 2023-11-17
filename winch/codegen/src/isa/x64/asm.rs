@@ -202,8 +202,14 @@ impl Assembler {
                 // instrunction.
                 let constant_data = pool.get(*c);
                 let data = VCodeConstantData::Pool(*c, constant_data.clone());
+                // If the constaant data is not marked as used, it will be
+                // inserted, therefore, it needs to be registered.
+                let needs_registration = !constants.pool_uses(&data);
                 let constant = constants.insert(VCodeConstantData::Pool(*c, constant_data.clone()));
-                buffer.register_constant(&constant, &data);
+
+                if needs_registration {
+                    buffer.register_constant(&constant, &data);
+                }
                 SyntheticAmode::ConstantOffset(constant)
             }
         }
@@ -773,7 +779,10 @@ impl Assembler {
     }
 
     pub fn popcnt(&mut self, src: Reg, size: OperandSize) {
-        assert!(self.isa_flags.has_popcnt(), "Requires has_popcnt flag");
+        assert!(
+            self.isa_flags.has_popcnt() && self.isa_flags.has_sse42(),
+            "Requires has_popcnt and has_sse42 flags"
+        );
         self.emit(Inst::UnaryRmR {
             size: size.into(),
             op: args::UnaryRmROpcode::Popcnt,
@@ -1092,6 +1101,17 @@ impl Assembler {
         self.emit(Inst::TrapIf {
             cc: cc.into(),
             trap_code,
+        });
+    }
+
+    /// Load effective address.
+    pub fn lea(&mut self, addr: &Address, dst: Reg, size: OperandSize) {
+        let addr =
+            Self::to_synthetic_amode(addr, &mut self.pool, &mut self.constants, &mut self.buffer);
+        self.emit(Inst::LoadEffectiveAddress {
+            addr,
+            dst: dst.into(),
+            size: size.into(),
         });
     }
 }
