@@ -1,18 +1,11 @@
 ;; Instruction formats.
 (type MInst
   (enum
-    ;; A no-op of zero size.
-    (Nop0)
-    (Nop4)
+    (Nop)
 
     ;; Label to output at the beginning of a block
     (Label
       (imm usize))
-
-    ;; load immediate
-    (Lui
-      (rd WritableReg)
-      (imm Imm20))
 
     (LoadConst32
       (rd WritableReg)
@@ -21,11 +14,6 @@
     (LoadConst64
       (rd WritableReg)
       (imm u64))
-
-     (Auipc
-      (rd WritableReg)
-      (imm Imm20))
-
 
     ;; An ALU operation with two register sources and a register destination.
     (AluRRR

@@ -251,8 +251,7 @@ impl Inst {
 //=============================================================================
 fn zkasm_get_operands<F: Fn(VReg) -> VReg>(inst: &Inst, collector: &mut OperandCollector<'_, F>) {
     match inst {
-        &Inst::Nop0 => {}
-        &Inst::Nop4 => {}
+        &Inst::Nop => {}
         &Inst::Label { .. } => {}
         &Inst::BrTable {
             index, tmp1, tmp2, ..
@@ -261,8 +260,6 @@ fn zkasm_get_operands<F: Fn(VReg) -> VReg>(inst: &Inst, collector: &mut OperandC
             collector.reg_early_def(tmp1);
             collector.reg_early_def(tmp2);
         }
-        &Inst::Auipc { rd, .. } => collector.reg_def(rd),
-        &Inst::Lui { rd, .. } => collector.reg_def(rd),
         &Inst::LoadConst32 { rd, .. } => collector.reg_def(rd),
         &Inst::LoadConst64 { rd, .. } => collector.reg_def(rd),
         &Inst::AluRRR { rd, rs1, rs2, .. } => {
@@ -648,12 +645,7 @@ impl MachInst for Inst {
     }
 
     fn gen_nop(preferred_size: usize) -> Inst {
-        if preferred_size == 0 {
-            return Inst::Nop0;
-        }
-        // We can't give a NOP (or any insn) < 4 bytes.
-        assert!(preferred_size >= 4);
-        Inst::Nop4
+        return Inst::Nop;
     }
 
     fn rc_for_type(ty: Type) -> CodegenResult<(&'static [RegClass], &'static [Type])> {
@@ -816,11 +808,8 @@ impl Inst {
 
         let mut empty_allocs = AllocationConsumer::default();
         match self {
-            &Inst::Nop0 => {
-                format!("##zero length nop")
-            }
-            &Inst::Nop4 => {
-                format!("##fixed 4-size nop")
+            &Inst::Nop => {
+                format!("NOP")
             }
             &Inst::Label { imm } => {
                 format!("")
@@ -976,21 +965,10 @@ impl Inst {
                     format_reg(tmp2.to_reg(), allocs),
                 )
             }
-            &Inst::Auipc { rd, imm } => {
-                format!(
-                    "{} {},{}",
-                    "auipc",
-                    format_reg(rd.to_reg(), allocs),
-                    imm.bits
-                )
-            }
             &Inst::Jalr { rd, base, offset } => {
                 let base = format_reg(base, allocs);
                 let rd = format_reg(rd.to_reg(), allocs);
                 format!("{} {},{}({})", "jalr", rd, offset.bits, base)
-            }
-            &Inst::Lui { rd, ref imm } => {
-                format!("{} {},{}", "lui", format_reg(rd.to_reg(), allocs), imm.bits)
             }
             &Inst::LoadConst32 { rd, imm } => {
                 let rd = format_reg(rd.to_reg(), allocs);

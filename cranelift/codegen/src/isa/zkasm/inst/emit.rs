@@ -402,19 +402,7 @@ impl MachInstEmit for Inst {
         // emitted following an `EmitIsland`.
         let mut start_off = sink.cur_offset();
         match self {
-            &Inst::Nop0 => {
-                // do nothing
-            }
-            // Addi x0, x0, 0
-            &Inst::Nop4 => {
-                todo!() /* let x = Inst::AluRRImm12 {
-                            alu_op: AluOPRRI::Addi,
-                            rd: Writable::from_reg(zero_reg()),
-                            rs: zero_reg(),
-                            imm12: Imm12::zero(),
-                        };
-                        x.emit(&[], sink, emit_info, state) */
-            }
+            &Inst::Nop => {}
             &Inst::Label { imm } => {
                 sink.put_data(format!("label_{imm}:\n").as_bytes());
             }
@@ -426,11 +414,6 @@ impl MachInstEmit for Inst {
                 // and we may exceed `Inst::worst_case_size`.
                 // for more information see https://github.com/bytecodealliance/wasmtime/pull/5612.
                 todo!() // sink.put_data(&data[..]);
-            }
-            &Inst::Lui { rd, ref imm } => {
-                todo!() /* let rd = allocs.next_writable(rd);
-                        let x: u32 = 0b0110111 | reg_to_gpr_num(rd.to_reg()) << 7 | (imm.as_u32() << 12);
-                        sink.put4(x); */
             }
             &Inst::LoadConst32 { rd, imm } => {
                 let rd = allocs.next_writable(rd);
@@ -1153,12 +1136,6 @@ impl MachInstEmit for Inst {
                         // Compute the jump table offset.
                         // We need to emit a PC relative offset,
 
-                        // Get the current PC.
-                        Inst::Auipc {
-                            rd: tmp1,
-                            imm: Imm20::from_bits(0),
-                        }
-                        .emit(&[], sink, emit_info, state);
 
                         // Multiply the index by 8, since that is the size in
                         // bytes of each jump table entry
@@ -1227,11 +1204,6 @@ impl MachInstEmit for Inst {
                 //     state.virtual_sp_offset + amount
                 //     );
                 // state.virtual_sp_offset += amount;
-            }
-            &Inst::Auipc { rd, imm } => {
-                todo!() /* let rd = allocs.next_writable(rd);
-                        let x = enc_auipc(rd, imm);
-                        sink.put4(x); */
             }
 
             &Inst::LoadAddr { rd, mem } => {

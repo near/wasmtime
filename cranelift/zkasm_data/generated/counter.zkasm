@@ -5,6 +5,7 @@ start:
 function_1:
   SP + 1 => SP
   RR :MSTORE(SP - 1)
+<<<<<<< HEAD
   SP + 4 => SP
   C :MSTORE(SP - 1)
   D :MSTORE(SP - 2)
@@ -29,6 +30,21 @@ L1_1:
 L1_3:
   42949672960n => B
   E => A
+=======
+  SP + 2 => SP
+  B :MSTORE(SP - 1)
+  0 => A
+  :JMP(label_1_1)
+label_1_1:
+  1 => B
+  $ => A :ADD
+  10 => B
+  $ => B :EQ
+  B :JMPNZ(label_1_3)
+  :JMP(label_1_1)
+label_1_3:
+  10 => B
+>>>>>>> main
   B :ASSERT
   $ => C :MLOAD(SP - 1)
   $ => D :MLOAD(SP - 2)

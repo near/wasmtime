@@ -15,28 +15,24 @@ function_1:
   0n => A
   4294967296n => B
   B :MSTORE(SP)
-  :JMP(L1_1)
-L1_1:
+  :JMP(label_1_1)
+label_1_1:
   $ => A :ADD
   B :MSTORE(SP)
   A :MSTORE(SP + 8)
   4294967296n => B
   E => A
   $ => A :ADD
-  A => E
-  42949672960n => B
-  $ => A :EQ
-  4294967296n => B
-  0 => D
-  0 => C
-  ${A * B} => A :ARITH
-  A :JMPNZ(L1_3)
+  10 => B
+  $ => E :EQ
+  E :JMPNZ(L1_3)
+  C => B
+  A => D
   $ => A :MLOAD(SP)
-  $ => B :MLOAD(SP + 8)
   :JMP(L1_1)
 L1_3:
-  382252089344n => B
-  $ => A :MLOAD(SP + 8)
+  89 => B
+  C => A
   B :ASSERT
   $ => C :MLOAD(SP - 1)
   $ => D :MLOAD(SP - 2)

@@ -2,6 +2,10 @@
 mod tests {
     use std::collections::HashMap;
 
+    use regex::Regex;
+    use std::fs::read_to_string;
+    use std::io::Error;
+
     use cranelift_codegen::entity::EntityRef;
     use cranelift_codegen::ir::function::FunctionParameters;
     use cranelift_codegen::ir::ExternalName;
@@ -71,6 +75,10 @@ mod tests {
 
     // TODO: Labels optimization already happens in `MachBuffer`, we need to find a way to leverage
     // it.
+    /// Label name is formatted as follows: <label_name>_<function_id>_<label_id>
+    /// Function id is unique through whole program while label id is unique only
+    /// inside given function.
+    /// Label name must begin from label_.
     fn optimize_labels(code: &[&str], func_index: usize) -> Vec<String> {
         let mut label_definition: HashMap<usize, usize> = HashMap::new();
         let mut label_uses: HashMap<usize, Vec<usize>> = HashMap::new();
@@ -78,18 +86,23 @@ mod tests {
         for (index, line) in code.iter().enumerate() {
             let mut line = line.to_string();
             if line.starts_with(&"label_") {
-                let label_index: usize = line[6..line.len() - 1]
+                // Handles lines with a label marker, e.g.:
+                //   <label_name>_XXX:
+                let index_begin = line.rfind("_").expect("Failed to parse label index") + 1;
+                let label_index: usize = line[index_begin..line.len() - 1]
                     .parse()
                     .expect("Failed to parse label index");
-                line = format!("L{func_index}_{label_index}:");
+                line.insert_str(index_begin - 1, &format!("_{}", func_index));
                 label_definition.insert(label_index, index);
             } else if line.contains(&"label_") {
-                let pos = line.find(&"label_").unwrap();
+                // Handles lines with a jump to label, e.g.:
+                // A : JMPNZ(<label_name>_XXX)
+                let pos = line.rfind(&"_").unwrap() + 1;
                 let pos_end = pos + line[pos..].find(&")").unwrap();
-                let label_index: usize = line[pos + 6..pos_end]
+                let label_index: usize = line[pos..pos_end]
                     .parse()
                     .expect("Failed to parse label index");
-                line.replace_range(pos..pos_end, &format!("L{func_index}_{label_index}"));
+                line.insert_str(pos - 1, &format!("_{}", func_index));
                 label_uses.entry(label_index).or_default().push(index);
             }
             lines.push(line);
@@ -173,6 +186,82 @@ mod tests {
         let expected =
             expect_test::expect_file![format!("../../zkasm_data/generated/{name}.zkasm")];
         expected.assert_eq(&program);
+    }
+
+    // This function asserts that none of tests generated from
+    // spectest has been changed.
+    fn check_spectests() -> Result<(), Error> {
+        let spectests_path = "../../tests/spec_testsuite/i64.wast";
+        let file_content = read_to_string(spectests_path)?;
+        let re = Regex::new(
+            r#"\(assert_return \(invoke \"(\w+)\"\s*((?:\([^\)]+\)\s*)+)\)\s*\(([^\)]+)\)\)"#,
+        )
+        .unwrap();
+        let mut test_counters = HashMap::new();
+        for cap in re.captures_iter(&file_content) {
+            let function_name = &cap[1];
+            let arguments = &cap[2];
+            let expected_result = &cap[3];
+            let assert_type = &expected_result[0..3];
+            let count = test_counters.entry(function_name.to_string()).or_insert(0);
+            *count += 1;
+            let mut testcase = String::new();
+            testcase.push_str(&format!("(module\n (import \"env\" \"assert_eq\" (func $assert_eq (param {}) (param {})))\n (func $main\n", assert_type, assert_type));
+            testcase.push_str(&format!(
+                "\t{}\n",
+                arguments
+                    .replace(") (", "\n\t")
+                    .replace("(", "")
+                    .replace(")", "")
+            ));
+            testcase.push_str(&format!("\ti64.{}\n", function_name));
+            testcase.push_str(&format!(
+                "\t{}\n\tcall $assert_eq)\n (start $main))\n",
+                expected_result.trim()
+            ));
+            let file_name = format!(
+                "../../zkasm_data/spectest/i64/{}_{}.wat",
+                function_name, count
+            );
+            let expected_test = expect_test::expect_file![file_name];
+            expected_test.assert_eq(&testcase);
+        }
+        Ok(())
+    }
+
+    #[test]
+    fn run_spectests() {
+        check_spectests().unwrap();
+        let path = "../zkasm_data/spectest/i64/";
+        let mut failures = 0;
+        let mut count = 0;
+        for entry in std::fs::read_dir(path).expect("Directory not found") {
+            let entry = entry.expect("Failed to read entry");
+            let file_name = entry.file_name();
+            if entry.path().extension().and_then(|s| s.to_str()) != Some("wat") {
+                continue;
+            }
+            if let Some(name) = std::path::Path::new(&file_name)
+                .file_stem()
+                .and_then(|s| s.to_str())
+            {
+                let module_binary =
+                    wat::parse_file(format!("../zkasm_data/spectest/i64/{name}.wat")).unwrap();
+                let expected = expect_test::expect_file![format!(
+                    "../../zkasm_data/spectest/i64/generated/{name}.zkasm"
+                )];
+                let result = std::panic::catch_unwind(|| {
+                    let program = generate_zkasm(&module_binary);
+                    expected.assert_eq(&program);
+                });
+                count += 1;
+                if let Err(err) = result {
+                    failures += 1;
+                    println!("{} fails with {:#?}", name, err);
+                }
+            }
+        }
+        println!("Failed {} spectests out of {}", failures, count);
     }
 
     macro_rules! testcases {
