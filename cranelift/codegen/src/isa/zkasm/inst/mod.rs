@@ -14,6 +14,8 @@ use crate::isa::{CallConv, FunctionAlignment};
 use crate::machinst::*;
 use crate::{settings, CodegenError, CodegenResult};
 
+pub use crate::ir::condcodes::FloatCC;
+
 use alloc::vec::Vec;
 use regalloc2::{PRegSet, RegClass, VReg};
 use smallvec::{smallvec, SmallVec};
