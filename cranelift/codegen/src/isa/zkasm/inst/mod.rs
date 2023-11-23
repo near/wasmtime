@@ -14,8 +14,6 @@ use crate::isa::{CallConv, FunctionAlignment};
 use crate::machinst::*;
 use crate::{settings, CodegenError, CodegenResult};
 
-pub use crate::ir::condcodes::FloatCC;
-
 use alloc::vec::Vec;
 use regalloc2::{PRegSet, RegClass, VReg};
 use smallvec::{smallvec, SmallVec};
@@ -632,23 +630,7 @@ impl MachInst for Inst {
             F64 => Ok((&[RegClass::Float], &[F64])),
             I128 => Ok((&[RegClass::Int, RegClass::Int], &[I64, I64])),
             _ if ty.is_vector() => {
-                debug_assert!(ty.bits() <= 512);
-
-                // Here we only need to return a SIMD type with the same size as `ty`.
-                // We use these types for spills and reloads, so prefer types with lanes <= 31
-                // since that fits in the immediate field of `vsetivli`.
-                const SIMD_TYPES: [[Type; 1]; 6] = [
-                    [types::I8X2],
-                    [types::I8X4],
-                    [types::I8X8],
-                    [types::I8X16],
-                    [types::I16X16],
-                    [types::I32X16],
-                ];
-                let idx = (ty.bytes().ilog2() - 1) as usize;
-                let ty = &SIMD_TYPES[idx][..];
-
-                Ok((&[RegClass::Vector], ty))
+                unimplemented!("vector register type")
             }
             _ => Err(CodegenError::Unsupported(format!(
                 "Unexpected SSA-value type: {}",
@@ -715,15 +697,8 @@ pub fn reg_name(reg: Reg) -> String {
                 28..=31 => format!("t{}", real.hw_enc() - 25),
                 _ => unreachable!(),
             },
-            RegClass::Float => match real.hw_enc() {
-                0..=7 => format!("ft{}", real.hw_enc() - 0),
-                8..=9 => format!("fs{}", real.hw_enc() - 8),
-                10..=17 => format!("fa{}", real.hw_enc() - 10),
-                18..=27 => format!("fs{}", real.hw_enc() - 16),
-                28..=31 => format!("ft{}", real.hw_enc() - 20),
-                _ => unreachable!(),
-            },
-            RegClass::Vector => format!("v{}", real.hw_enc()),
+            RegClass::Float => unimplemented!("floating register name"),
+            RegClass::Vector => unimplemented!("vector register name"),
         },
         None => {
             format!("{:?}", reg)
