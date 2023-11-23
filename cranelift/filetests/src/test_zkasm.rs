@@ -75,6 +75,10 @@ mod tests {
 
     // TODO: Labels optimization already happens in `MachBuffer`, we need to find a way to leverage
     // it.
+    /// Label name is formatted as follows: <label_name>_<function_id>_<label_id>
+    /// Function id is unique through whole program while label id is unique only
+    /// inside given function.
+    /// Label name must begin from label_.
     fn optimize_labels(code: &[&str], func_index: usize) -> Vec<String> {
         let mut label_definition: HashMap<usize, usize> = HashMap::new();
         let mut label_uses: HashMap<usize, Vec<usize>> = HashMap::new();
@@ -83,21 +87,22 @@ mod tests {
             let mut line = line.to_string();
             if line.starts_with(&"label_") {
                 // Handles lines with a label marker, e.g.:
-                //   label_XXX:
-                let label_index: usize = line[6..line.len() - 1]
+                //   <label_name>_XXX:
+                let index_begin = line.rfind("_").expect("Failed to parse label index") + 1;
+                let label_index: usize = line[index_begin..line.len() - 1]
                     .parse()
                     .expect("Failed to parse label index");
-                line = format!("L{func_index}_{label_index}:");
+                line.insert_str(index_begin - 1, &format!("_{}", func_index));
                 label_definition.insert(label_index, index);
             } else if line.contains(&"label_") {
                 // Handles lines with a jump to label, e.g.:
-                // A : JMPNZ(label_XXX)
-                let pos = line.find(&"label_").unwrap();
+                // A : JMPNZ(<label_name>_XXX)
+                let pos = line.rfind(&"_").unwrap() + 1;
                 let pos_end = pos + line[pos..].find(&")").unwrap();
-                let label_index: usize = line[pos + 6..pos_end]
+                let label_index: usize = line[pos..pos_end]
                     .parse()
                     .expect("Failed to parse label index");
-                line.replace_range(pos..pos_end, &format!("L{func_index}_{label_index}"));
+                line.insert_str(pos - 1, &format!("_{}", func_index));
                 label_uses.entry(label_index).or_default().push(index);
             }
             lines.push(line);
