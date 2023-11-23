@@ -7,7 +7,9 @@ function_1:
   RR :MSTORE(SP - 1)
   SP + 2 => SP
   B :MSTORE(SP - 1)
-  1 + 1 => A
+  1n => A
+  1n => B
+  $ => A :ADD
   2n => B
   B :ASSERT
   $ => B :MLOAD(SP - 1)

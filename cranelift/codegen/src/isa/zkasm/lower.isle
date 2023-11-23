@@ -31,8 +31,8 @@
 (rule 0 (lower (has_type (ty_int_ref_scalar_64 ty) (iadd x y)))
   (rv_add x y))
 
-(rule 1 (lower (iadd (imm32_from_value x) (imm32_from_value y)))
-  (zk_add x y))
+;; (rule 1 (lower (iadd (imm32_from_value x) (imm32_from_value y)))
+;;   (zk_add x y))
 
 ;; Fused Multiply Accumulate Rules `vmacc`
 ;;

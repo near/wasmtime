@@ -23,16 +23,23 @@ label_1_1:
   4294967296n => B
   E => A
   $ => A :ADD
-  10 => B
-  $ => E :EQ
-  E :JMPNZ(L1_3)
-  C => B
-  A => D
+  A => E
+  42949672960n => B
+  $ => A :EQ
+  4294967296n => B
+  0 => D
+  0 => C
+  ${A * B} => A :ARITH
+  A => B
+  0 => A
+  $ => A :EQ
+  A :JMPZ(label_1_3)
   $ => A :MLOAD(SP)
-  :JMP(L1_1)
-L1_3:
-  89 => B
-  C => A
+  $ => B :MLOAD(SP + 8)
+  :JMP(label_1_1)
+label_1_3:
+  382252089344n => B
+  $ => A :MLOAD(SP + 8)
   B :ASSERT
   $ => C :MLOAD(SP - 1)
   $ => D :MLOAD(SP - 2)

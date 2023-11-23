@@ -14,7 +14,8 @@ function_1:
   0 => D
   0 => C
   $${var _mulArith = A * B}
-  ${_mulArith} => A :ARITH
+  ${_mulArith / 18446744073709551616} => D
+  ${_mulArith % 18446744073709551616} => A :ARITH
   2465395958572223728n => B
   B :ASSERT
   $ => C :MLOAD(SP - 1)

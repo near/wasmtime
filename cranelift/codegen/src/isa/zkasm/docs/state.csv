@@ -3,7 +3,7 @@ add_1,pass
 add_2,pass
 add_3,pass
 add_4,pass
-add_5,runtime error
+add_5,pass
 add_6,pass
 add_7,pass
 add_8,pass
@@ -373,5 +373,5 @@ xor_6,pass
 xor_7,pass
 xor_8,pass
 xor_9,pass
-Total Passed,132
+Total Passed,133
 Amount of Tests,374

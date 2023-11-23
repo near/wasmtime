@@ -46,7 +46,10 @@ def assert_with_csv(status_map):
                 continue
             csv_dict[row[0]] = row[1]
         if csv_dict != status_map:
-            print(f"dict diff = {csv_dict ^ status_map}")
+            diff = set(csv_dict.items()) ^ set(status_map.items())
+            diff_keys = set(map(lambda x: x[0], diff))
+            for key in diff_keys:
+                print(f"Update for test {key}: {csv_dict[key]} => {status_map[key]}")
             return 1
     return 0
 

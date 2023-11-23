@@ -957,16 +957,15 @@ impl MachInstEmit for Inst {
                 assert_eq!(kind.rs2, zero_reg());
                 match taken {
                     BranchTarget::Label(label) => {
-                        put_string(
-                            &format!("{} :JMPNZ(label_{})\n", reg_name(kind.rs1), label.index()),
-                            sink,
-                        );
-
-                        // let code = kind.emit();
-                        // let code_inverse = kind.inverse().emit().to_le_bytes();
-                        // sink.use_label_at_offset(start_off, label, LabelUse::B12);
-                        // sink.add_cond_branch(start_off, start_off + 4, label, &code_inverse);
-                        // sink.put4(code);
+                        // WARNING: next two put_string MUST be in that order,
+                        // otherwise, if kind.rs1 == A it will lead to infinite loops.
+                        // Idk how to make kind.rs1 always not equal A.
+                        // At least, both A and B marked as clobbered in
+                        // mod.rs, so it will work.
+                        put_string(&format!("{} => B\n", reg_name(kind.rs1)), sink);
+                        put_string("0 => A\n", sink);
+                        put_string("$ => A :EQ\n", sink);
+                        put_string(&format!("A :JMPZ(label_{})\n", label.index()), sink);
                     }
                     BranchTarget::ResolvedOffset(offset) => {
                         assert!(offset != 0);
