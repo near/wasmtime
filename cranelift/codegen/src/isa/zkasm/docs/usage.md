@@ -51,36 +51,22 @@ To compile a `.wat` file to `.zkasm`:
 
 ## Testing `.zkasm` Files
 
-To test a `.zkasm` file:
-
-1. Clone the `zkevm-rom` repository in the same directory as `wasmtime`:
+Execute the following from the `wasmtime/` directory to run generated programs on ZK ASM processor:
 
    ```bash
-   git clone https://github.com/0xPolygonHermez/zkevm-rom
+   ./ci/test-zkasm.sh
    ```
 
-2. Install necessary packages in the `zkevm-rom` directory:
+   Or, for a specific folder or file:
 
    ```bash
-   npm install
-   ```
-
-3. Execute the following from the `wasmtime/` directory to test the zk-asm:
-
-   ```bash
-   ./ci/test-zkasm.sh --all
-   ```
-
-   Or, for a specific file:
-
-   ```bash
-   ./ci/test-zkasm.sh <filename>
+   ./ci/test-zkasm.sh <folder or filename>
    ```
 
    For example:
 
    ```bash
-   ./ci/test-zkasm.sh zkasm_data/generated/add.zkasm
+   ./ci/test-zkasm.sh cranelift/zkasm_data/generated/add.zkasm
    ```
 
 ## Logging during Compilation
