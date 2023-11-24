@@ -17,12 +17,14 @@ function_1:
   0 => D
   0 => C
   $${var _mulArith = A * B}
-  ${_mulArith} => B :ARITH
+  ${_mulArith / 18446744073709551616} => D
+  ${_mulArith % 18446744073709551616} => B :ARITH
   E => A
   0 => D
   0 => C
   $${var _mulArith = A * B}
-  ${_mulArith} => A :ARITH
+  ${_mulArith / 18446744073709551616} => D
+  ${_mulArith % 18446744073709551616} => A :ARITH
   A => E
   107374182n => A
   A :MSTORE(SP)
@@ -31,12 +33,14 @@ function_1:
   0 => D
   0 => C
   $${var _mulArith = A * B}
-  ${_mulArith} => B :ARITH
+  ${_mulArith / 18446744073709551616} => D
+  ${_mulArith % 18446744073709551616} => B :ARITH
   $ => A :MLOAD(SP)
   0 => D
   0 => C
   $${var _mulArith = A * B}
-  ${_mulArith} => B :ARITH
+  ${_mulArith / 18446744073709551616} => D
+  ${_mulArith % 18446744073709551616} => B :ARITH
   E => A
   B :ASSERT
   $ => C :MLOAD(SP - 1)

@@ -31,8 +31,8 @@
 (rule 0 (lower (has_type (ty_int_ref_scalar_64 ty) (iadd x y)))
   (rv_add x y))
 
-(rule 1 (lower (iadd (imm32_from_value x) (imm32_from_value y)))
-  (zk_add x y))
+;; (rule 1 (lower (iadd (imm32_from_value x) (imm32_from_value y)))
+;;   (zk_add x y))
 
 ;; Fused Multiply Accumulate Rules `vmacc`
 ;;
@@ -77,7 +77,7 @@
   (zk_mul x y))
 
 (rule 1 (lower (has_type (fits_in_32 (ty_int ty)) (imul x y)))
-  (zk_mul x y))
+  (zk_mul_32 x y))
 
 ;;;; Rules for `smulhi` ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (rule 0 (lower (has_type (ty_int_ref_scalar_64 ty) (smulhi x y)))
@@ -95,8 +95,11 @@
       (_ InstOutput (gen_div_by_zero y2)))
     (rv_divuw (zext x ty $I64) y2)))
 
-(rule (lower (sdiv x y))
-     (zk_div x y))
+(rule (lower (has_type $I64 (sdiv x y)))
+  (zk_div x y))
+
+(rule (lower (has_type $I32 (sdiv x y)))
+  (zk_div_32 x y))
 
 (rule (lower (has_type $I64 (udiv x y)))
   (let
@@ -105,8 +108,11 @@
 
 ;;;; Rules for `rem` ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(rule (lower (srem x y))
+(rule (lower (has_type $I64 (srem x y)))
   (zk_rem x y))
+
+(rule (lower (has_type $I32 (srem x y)))
+  (zk_rem_32 x y))
 
 (rule (lower (has_type $I32 (urem x y)))
   (let

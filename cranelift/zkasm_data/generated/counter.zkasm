@@ -5,22 +5,39 @@ start:
 function_1:
   SP + 1 => SP
   RR :MSTORE(SP - 1)
-  SP + 2 => SP
-  B :MSTORE(SP - 1)
-  0 => A
+  SP + 4 => SP
+  C :MSTORE(SP - 1)
+  D :MSTORE(SP - 2)
+  E :MSTORE(SP - 3)
+  B :MSTORE(SP - 4)
+  0n => A
+  A => E
   :JMP(label_1_1)
 label_1_1:
-  1 => B
+  4294967296n => B
+  E => A
   $ => A :ADD
-  10 => B
-  $ => B :EQ
-  B :JMPNZ(label_1_3)
+  A => E
+  42949672960n => B
+  $ => A :EQ
+  4294967296n => B
+  0 => D
+  0 => C
+  ${A * B} => A :ARITH
+  A => B
+  0 => A
+  $ => A :EQ
+  A :JMPZ(label_1_3)
   :JMP(label_1_1)
 label_1_3:
-  10 => B
+  42949672960n => B
+  E => A
   B :ASSERT
-  $ => B :MLOAD(SP - 1)
-  SP - 2 => SP
+  $ => C :MLOAD(SP - 1)
+  $ => D :MLOAD(SP - 2)
+  $ => E :MLOAD(SP - 3)
+  $ => B :MLOAD(SP - 4)
+  SP - 4 => SP
   $ => RR :MLOAD(SP - 1)
   SP - 1 => SP
   :JMP(RR)

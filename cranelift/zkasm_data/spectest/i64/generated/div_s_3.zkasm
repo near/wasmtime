@@ -13,10 +13,8 @@ function_1:
   0n => E
   18446744073709551615n => B
   0 => D
-  $${var _divArith = E / B}
-  $${var _remArith = E % B}
-  ${_divArith} => A
-  ${_remArith} => C
+  ${E / B} => A
+  ${E % B} => C
   E:ARITH
   0n => B
   B :ASSERT

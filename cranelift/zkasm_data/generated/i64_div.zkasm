@@ -17,18 +17,18 @@ function_1:
   0 => D
   0 => C
   $${var _mulArith = A * B}
-  ${_mulArith} => B :ARITH
+  ${_mulArith / 18446744073709551616} => D
+  ${_mulArith % 18446744073709551616} => B :ARITH
   E => A
   0 => D
   0 => C
   $${var _mulArith = A * B}
-  ${_mulArith} => E :ARITH
+  ${_mulArith / 18446744073709551616} => D
+  ${_mulArith % 18446744073709551616} => E :ARITH
   214748364n => B
   0 => D
-  $${var _divArith = E / B}
-  $${var _remArith = E % B}
-  ${_divArith} => A
-  ${_remArith} => C
+  ${E / B} => A
+  ${E % B} => C
   E:ARITH
   214748366n => B
   B :ASSERT

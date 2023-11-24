@@ -276,7 +276,26 @@ fn zkasm_get_operands<F: Fn(VReg) -> VReg>(inst: &Inst, collector: &mut OperandC
             collector.reg_clobbers(clobbered);
             collector.reg_def(rd);
         }
+        &Inst::MulArith32 { rd, rs1, rs2, .. } => {
+            collector.reg_fixed_use(rs1, b0());
+            collector.reg_fixed_use(rs2, e0());
+            let mut clobbered = PRegSet::empty();
+            clobbered.add(c0().to_real_reg().unwrap().into());
+            clobbered.add(d0().to_real_reg().unwrap().into());
+            clobbered.add(a0().to_real_reg().unwrap().into());
+            collector.reg_clobbers(clobbered);
+            collector.reg_def(rd);
+        }
         &Inst::DivArith { rd, rs1, rs2, .. } => {
+            collector.reg_fixed_use(rs1, e0());
+            collector.reg_fixed_use(rs2, b0());
+            let mut clobbered = PRegSet::empty();
+            clobbered.add(c0().to_real_reg().unwrap().into());
+            clobbered.add(d0().to_real_reg().unwrap().into());
+            collector.reg_clobbers(clobbered);
+            collector.reg_fixed_def(rd, a0());
+        }
+        &Inst::DivArith32 { rd, rs1, rs2, .. } => {
             collector.reg_fixed_use(rs1, e0());
             collector.reg_fixed_use(rs2, b0());
             let mut clobbered = PRegSet::empty();
@@ -293,6 +312,17 @@ fn zkasm_get_operands<F: Fn(VReg) -> VReg>(inst: &Inst, collector: &mut OperandC
             clobbered.add(d0().to_real_reg().unwrap().into());
             collector.reg_clobbers(clobbered);
             collector.reg_fixed_def(rd, c0());
+        }
+        &Inst::RemArith32 { rd, rs1, rs2, .. } => {
+            collector.reg_fixed_use(rs1, a0());
+            collector.reg_fixed_use(rs2, e0());
+            let mut clobbered = PRegSet::empty();
+            clobbered.add(a0().to_real_reg().unwrap().into());
+            clobbered.add(b0().to_real_reg().unwrap().into());
+            clobbered.add(c0().to_real_reg().unwrap().into());
+            clobbered.add(d0().to_real_reg().unwrap().into());
+            collector.reg_clobbers(clobbered);
+            collector.reg_fixed_def(rd, e0());
         }
         &Inst::Load { rd, from, .. } => {
             if let Some(r) = from.get_allocatable_register() {
@@ -371,6 +401,10 @@ fn zkasm_get_operands<F: Fn(VReg) -> VReg>(inst: &Inst, collector: &mut OperandC
         &Inst::CondBr { kind, .. } => {
             collector.reg_use(kind.rs1);
             collector.reg_use(kind.rs2);
+            let mut clobbered = PRegSet::empty();
+            clobbered.add(a0().to_real_reg().unwrap().into());
+            clobbered.add(b0().to_real_reg().unwrap().into());
+            collector.reg_clobbers(clobbered);
         }
         &Inst::LoadExtName { rd, .. } => {
             collector.reg_def(rd);
@@ -439,14 +473,12 @@ fn zkasm_get_operands<F: Fn(VReg) -> VReg>(inst: &Inst, collector: &mut OperandC
                     .expect("Only support 1 register in comparison now"),
                 b0(),
             );
-            if cc == IntCC::NotEqual {
-                let mut clobbers = PRegSet::empty();
-                clobbers.add(b0().to_real_reg().unwrap().into());
-                collector.reg_clobbers(clobbers);
-                collector.reg_fixed_def(rd, a0());
-            } else {
-                collector.reg_def(rd);
-            }
+            let mut clobbered = PRegSet::empty();
+            clobbered.add(b0().to_real_reg().unwrap().into());
+            clobbered.add(c0().to_real_reg().unwrap().into());
+            clobbered.add(d0().to_real_reg().unwrap().into());
+            collector.reg_clobbers(clobbered);
+            collector.reg_fixed_def(rd, a0());
         }
         &Inst::SelectReg {
             rd,
@@ -961,17 +993,35 @@ impl Inst {
                 let rd_s = format_reg(rd.to_reg(), allocs);
                 format!("MulArith rd = {}, rs1 = {}, rs2 = {}", rd_s, rs1_s, rs2_s)
             }
+            &Inst::MulArith32 { rd, rs1, rs2 } => {
+                let rs1_s = format_reg(rs1, allocs);
+                let rs2_s = format_reg(rs2, allocs);
+                let rd_s = format_reg(rd.to_reg(), allocs);
+                format!("MulArith32 rd = {}, rs1 = {}, rs2 = {}", rd_s, rs1_s, rs2_s)
+            }
             &Inst::DivArith { rd, rs1, rs2 } => {
                 let rs1_s = format_reg(rs1, allocs);
                 let rs2_s = format_reg(rs2, allocs);
                 let rd_s = format_reg(rd.to_reg(), allocs);
                 format!("DivArith rd = {}, rs1 = {}, rs2 = {}", rd_s, rs1_s, rs2_s)
             }
+            &Inst::DivArith32 { rd, rs1, rs2 } => {
+                let rs1_s = format_reg(rs1, allocs);
+                let rs2_s = format_reg(rs2, allocs);
+                let rd_s = format_reg(rd.to_reg(), allocs);
+                format!("DivArith32 rd = {}, rs1 = {}, rs2 = {}", rd_s, rs1_s, rs2_s)
+            }
             &Inst::RemArith { rd, rs1, rs2 } => {
                 let rs1_s = format_reg(rs1, allocs);
                 let rs2_s = format_reg(rs2, allocs);
                 let rd_s = format_reg(rd.to_reg(), allocs);
                 format!("RemArith rd = {}, rs1 = {}, rs2 = {}", rd_s, rs1_s, rs2_s)
+            }
+            &Inst::RemArith32 { rd, rs1, rs2 } => {
+                let rs1_s = format_reg(rs1, allocs);
+                let rs2_s = format_reg(rs2, allocs);
+                let rd_s = format_reg(rd.to_reg(), allocs);
+                format!("RemArith32 rd = {}, rs1 = {}, rs2 = {}", rd_s, rs1_s, rs2_s)
             }
             Inst::AddImm32 { rd, src1, src2 } => {
                 let rd = format_reg(rd.to_reg(), allocs);

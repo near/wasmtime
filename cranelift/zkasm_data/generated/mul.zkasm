@@ -8,18 +8,25 @@ function_1:
   SP + 4 => SP
   C :MSTORE(SP - 1)
   D :MSTORE(SP - 2)
-  B :MSTORE(SP - 3)
-  31 => A
-  64516129 => B
+  E :MSTORE(SP - 3)
+  B :MSTORE(SP - 4)
+  133143986176n => B
+  277094664119517184n => E
+  B :MSTORE(SP)
   0 => D
   0 => C
-  $${var _mulArith = A * B}
-  ${_mulArith} => A :ARITH
-  1999999999 => B
+  4294967296n => B
+  ${E / B} => A
+  E:ARITH
+  $ => B :MLOAD(SP)
+  ${A * B} => E :ARITH
+  E => A
+  8589934587705032704n => B
   B :ASSERT
   $ => C :MLOAD(SP - 1)
   $ => D :MLOAD(SP - 2)
-  $ => B :MLOAD(SP - 3)
+  $ => E :MLOAD(SP - 3)
+  $ => B :MLOAD(SP - 4)
   SP - 4 => SP
   $ => RR :MLOAD(SP - 1)
   SP - 1 => SP

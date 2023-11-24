@@ -417,7 +417,8 @@ impl MachInstEmit for Inst {
             }
             &Inst::LoadConst32 { rd, imm } => {
                 let rd = allocs.next_writable(rd);
-                put_string(&format!("{imm} => {}\n", reg_name(rd.to_reg())), sink);
+                let shifted = (imm as u64) << 32;
+                put_string(&format!("{shifted}n => {}\n", reg_name(rd.to_reg())), sink);
             }
             &Inst::LoadConst64 { rd, imm } => {
                 let rd = allocs.next_writable(rd);
@@ -433,8 +434,40 @@ impl MachInstEmit for Inst {
             &Inst::AddImm32 { rd, src1, src2 } => {
                 let rd = allocs.next(rd.to_reg());
                 // TODO(akashin): Should we have a function for `bits` field?
+                let val1 = (src1.bits as u64) << 32;
+                let val2 = (src2.bits as u64) << 32;
                 put_string(
-                    &format!("{} + {} => {}\n", src1.bits, src2.bits, reg_name(rd)),
+                    &format!("{}n + {}n => {}\n", val1, val2, reg_name(rd)),
+                    sink,
+                );
+            }
+            &Inst::MulArith32 { rd, rs1, rs2 } => {
+                let rs1 = allocs.next(rs1);
+                let rs2 = allocs.next(rs2);
+                debug_assert_eq!(rs1, b0());
+                debug_assert_eq!(rs2, e0());
+                let rd = allocs.next_writable(rd);
+                // B * E => rd
+
+                // Didn't find way to avoid stack usage, because in time of ARITH
+                // registers are:
+                // C and D must be set to 0
+                // A and B: one must be 2 ** 32, second -- result of rs2 / 2 ** 32
+                // E: rs1 here
+                // no register to store rs2 =(
+                put_string("B :MSTORE(SP)\n", sink);
+                // E / 2 ** 32 => A
+                put_string("0 => D\n", sink);
+                put_string("0 => C\n", sink);
+                put_string("4294967296n => B\n", sink);
+                // Intentionnaly ignore rem here because if rem != 0 mean something goes wrong
+                put_string("${E / B} => A\n", sink);
+                put_string("E:ARITH\n", sink);
+
+                put_string("$ => B :MLOAD(SP)\n", sink);
+
+                put_string(
+                    &format!("${{A * B}} => {} :ARITH\n", reg_name(rd.to_reg())),
                     sink,
                 );
             }
@@ -462,25 +495,37 @@ impl MachInstEmit for Inst {
                 debug_assert_eq!(rs1, a0());
                 debug_assert_eq!(rs2, b0());
                 let rd = allocs.next_writable(rd);
-                // Arith asserts that A * B + C = op + 2^256 * D.
-                // Now ZKVM is 256-bit and wasm max type is 64 bit, so it would never be
-                // 256 bit overflow. But in future we will need here something like:
-                // put_string(
-                //   &format!("${{_mulArith / (2 ** 64)}} => D :ARITH\n", reg_name(rd.to_reg())),
-                //    sink,
-                //);
-                // put_string(
-                //   &format!("${{_mulArith % (2 ** 64)}} => {} :ARITH\n", reg_name(rd.to_reg())),
-                //    sink,
-                //);
-                // For now we will just clear D in case it was something in it
                 put_string("0 => D\n", sink);
                 put_string("0 => C\n", sink);
                 put_string("$${var _mulArith = A * B}\n", sink);
+                put_string("${_mulArith / 18446744073709551616} => D\n", sink);
                 put_string(
-                    &format!("${{_mulArith}} => {} :ARITH\n", reg_name(rd.to_reg())),
+                    &format!(
+                        "${{_mulArith % 18446744073709551616}} => {} :ARITH\n",
+                        reg_name(rd.to_reg())
+                    ),
                     sink,
                 );
+            }
+            &Inst::DivArith32 { rd, rs1, rs2 } => {
+                let rs1 = allocs.next(rs1);
+                let rs2 = allocs.next(rs2);
+                debug_assert_eq!(rs1, e0());
+                debug_assert_eq!(rs2, b0());
+                let rd = allocs.next_writable(rd);
+                // E / B => A
+                put_string("0 => D\n", sink);
+                put_string("${E / B} => A\n", sink);
+                put_string("${E % B} => C\n", sink);
+                put_string("E:ARITH\n", sink);
+
+                // A *= 2 ** 32
+                put_string("4294967296n => B\n", sink);
+                put_string("0 => C\n", sink);
+                // Intentionnaly ignore 64-bit overflow here
+                // (don't write _mulArith / 2 ** 64 => D)
+                // because if it is non-zero something is not OK
+                put_string("${A * B} => A :ARITH\n", sink);
             }
             &Inst::DivArith { rd, rs1, rs2 } => {
                 let rs1 = allocs.next(rs1);
@@ -488,13 +533,56 @@ impl MachInstEmit for Inst {
                 debug_assert_eq!(rs1, e0());
                 debug_assert_eq!(rs2, b0());
                 let rd = allocs.next_writable(rd);
-                // Same as in MulArith about D register
                 put_string("0 => D\n", sink);
-                put_string("$${var _divArith = E / B}\n", sink);
-                put_string("$${var _remArith = E % B}\n", sink);
-                put_string("${_divArith} => A\n", sink);
-                put_string("${_remArith} => C\n", sink);
+                put_string("${E / B} => A\n", sink);
+                put_string("${E % B} => C\n", sink);
                 put_string("E:ARITH\n", sink);
+            }
+            // Rem32 is quite difficult opcode. Here we need calculate
+            // ((op1 / 2**32) % (op2 / 2**32)) * 2**32
+            &Inst::RemArith32 { rd, rs1, rs2 } => {
+                let rs1 = allocs.next(rs1);
+                let rs2 = allocs.next(rs2);
+                debug_assert_eq!(rs1, a0());
+                debug_assert_eq!(rs2, e0());
+                let rd = allocs.next_writable(rd);
+
+                // A % B => E
+
+                put_string("A :MSTORE(SP)\n", sink); // SP contains op1
+
+                // op2 / 2 ** 32 => A
+                put_string("0 => D\n", sink);
+                put_string("0 => C\n", sink);
+                put_string("4294967296n => B\n", sink);
+                put_string("${E / B} => A\n", sink);
+                put_string("E:ARITH\n", sink);
+
+                put_string("A :MSTORE(SP + 1)\n", sink); // SP + 1 contains op2 / 2 ** 32
+
+                // op1 => E
+                put_string("$ => E :MLOAD(SP)\n", sink);
+
+                // op1 / 2 ** 32 => A
+                put_string("${E / B} => A\n", sink);
+                put_string("E:ARITH\n", sink);
+
+                put_string("A => E\n", sink);
+                put_string("$ => B :MLOAD(SP + 1)\n", sink);
+
+                // now E = op1 / 2**32, B = op2 / 2**32
+                put_string("${E / B} => A\n", sink);
+                put_string("${E % B} => C\n", sink);
+                put_string("E:ARITH\n", sink);
+
+                // now C = res / 2 ** 32
+                put_string("C => A\n", sink);
+                put_string("4294967296n => B\n", sink);
+
+                put_string("0 => D\n", sink);
+                put_string("0 => C\n", sink);
+                put_string("${A * B} => E :ARITH\n", sink);
+                // now E = res
             }
             &Inst::RemArith { rd, rs1, rs2 } => {
                 let rs1 = allocs.next(rs1);
@@ -502,12 +590,9 @@ impl MachInstEmit for Inst {
                 debug_assert_eq!(rs1, e0());
                 debug_assert_eq!(rs2, b0());
                 let rd = allocs.next_writable(rd);
-                // Same as in MulArith about D register
                 put_string("0 => D\n", sink);
-                put_string("$${var _divArith = E / B}\n", sink);
-                put_string("$${var _remArith = E % B}\n", sink);
-                put_string("${_divArith} => A\n", sink);
-                put_string("${_remArith} => C\n", sink);
+                put_string("${E / B} => A\n", sink);
+                put_string("${E % B} => C\n", sink);
                 put_string("E:ARITH\n", sink);
             }
             &Inst::AluRRR {
@@ -872,16 +957,15 @@ impl MachInstEmit for Inst {
                 assert_eq!(kind.rs2, zero_reg());
                 match taken {
                     BranchTarget::Label(label) => {
-                        put_string(
-                            &format!("{} :JMPNZ(label_{})\n", reg_name(kind.rs1), label.index()),
-                            sink,
-                        );
-
-                        // let code = kind.emit();
-                        // let code_inverse = kind.inverse().emit().to_le_bytes();
-                        // sink.use_label_at_offset(start_off, label, LabelUse::B12);
-                        // sink.add_cond_branch(start_off, start_off + 4, label, &code_inverse);
-                        // sink.put4(code);
+                        // WARNING: next two put_string MUST be in that order,
+                        // otherwise, if kind.rs1 == A it will lead to infinite loops.
+                        // Idk how to make kind.rs1 always not equal A.
+                        // At least, both A and B marked as clobbered in
+                        // mod.rs, so it will work.
+                        put_string(&format!("{} => B\n", reg_name(kind.rs1)), sink);
+                        put_string("0 => A\n", sink);
+                        put_string("$ => A :EQ\n", sink);
+                        put_string(&format!("A :JMPZ(label_{})\n", label.index()), sink);
                     }
                     BranchTarget::ResolvedOffset(offset) => {
                         assert!(offset != 0);
@@ -1276,6 +1360,13 @@ impl MachInstEmit for Inst {
                     put_string("1 => B\n", sink);
                     put_string(&format!("$ => {} :XOR\n", reg_name(rd.to_reg())), sink);
                 }
+
+                // Result of comparing operations in wasm for both i32 and i64
+                // is i32. So, we need to multiply it by 2**32
+                put_string("4294967296n => B\n", sink);
+                put_string("0 => D\n", sink);
+                put_string("0 => C\n", sink);
+                put_string("${A * B} => A :ARITH\n", sink);
 
                 /*
                 let label_true = sink.get_label();
