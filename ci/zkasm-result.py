@@ -15,7 +15,7 @@ update = args.update
 
 tests_dir = f'cranelift/zkasm_data/spectest/i{bitness}'
 generated_dir = f'cranelift/zkasm_data/spectest/i{bitness}/generated'
-state_csv_path = f'cranelift/codegen/src/isa/zkasm/docs/spectests/i{bitness}.csv'
+state_csv_path = f'docs/zkasm/spectests/i{bitness}.csv'
 
 
 def check_compilation_status():
