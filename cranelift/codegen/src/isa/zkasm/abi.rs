@@ -438,7 +438,7 @@ impl ABIMachineSpec for ZkAsmMachineDeps {
                 let r_reg = reg.to_reg();
                 let ty = match r_reg.class() {
                     RegClass::Int => I64,
-                    RegClass::Float => F64,
+                    RegClass::Float => unimplemented!("Float Clobber Saves"),
                     RegClass::Vector => unimplemented!("Vector Clobber Saves"),
                 };
                 insts.push(Self::gen_store_stack(
@@ -465,7 +465,7 @@ impl ABIMachineSpec for ZkAsmMachineDeps {
                 let rreg = reg.to_reg();
                 let ty = match rreg.class() {
                     RegClass::Int => I64,
-                    RegClass::Float => F64,
+                    RegClass::Float => unimplemented!("Float Clobber Restores"),
                     RegClass::Vector => unimplemented!("Vector Clobber Restores"),
                 };
                 insts.push(Self::gen_load_stack(
@@ -572,8 +572,8 @@ impl ABIMachineSpec for ZkAsmMachineDeps {
         // We allocate in terms of 8-byte slots.
         match rc {
             RegClass::Int => 1,
-            RegClass::Float => 1,
-            RegClass::Vector => todo!(),
+            RegClass::Float => unimplemented!("Float number of spillslots"),
+            RegClass::Vector => unimplemented!("Vector number of spillslots"),
         }
     }
 
@@ -657,8 +657,8 @@ fn is_reg_saved_in_prologue(conv: CallConv, reg: RealReg) -> bool {
         // FIXME(#45): Register A for returns? Find where in the code is that defined.
         RegClass::Int if reg.hw_enc() == 10 => false,
         RegClass::Int => true,
-        RegClass::Float => todo!(),
-        RegClass::Vector => todo!(),
+        RegClass::Float => unimplemented!("Float reg saved in prologue"),
+        RegClass::Vector => unimplemented!("Vector reg saved in prologue"),
     }
 }
 
