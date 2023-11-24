@@ -31,6 +31,15 @@
 (rule 0 (lower (has_type (ty_int_ref_scalar_64 ty) (iadd x y)))
   (rv_add x y))
 
+;; TODO: restore it, disabled cause matches 1 as i64 but don't correspond our i32 
+;; representation.
+;; Hint 1: imm31 should work
+;; Hint 2:
+;; (rule 1 (lower (has_type (fits_in_32 (ty_int ty)) (imul x y)))
+;;   (gen_andi (zk_mul x y) 0xFFFFFFFF))
+;; Can work
+;;
+;;
 ;; (rule 1 (lower (iadd (imm32_from_value x) (imm32_from_value y)))
 ;;   (zk_add x y))
 
