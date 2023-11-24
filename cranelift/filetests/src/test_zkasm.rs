@@ -191,8 +191,8 @@ mod tests {
 
     // This function asserts that none of tests generated from
     // spectest has been changed.
-    fn check_spectests() -> Result<(), Error> {
-        let spectests_path = "../../tests/spec_testsuite/i64.wast";
+    fn check_spectests(bitness: i32) -> Result<(), Error> {
+        let spectests_path = &format!("../../tests/spec_testsuite/i{bitness}.wast");
         let file_content = read_to_string(spectests_path)?;
         let re = Regex::new(
             r#"\(assert_return \(invoke \"(\w+)\"\s*((?:\([^\)]+\)\s*)+)\)\s*\(([^\)]+)\)\)"#,
@@ -215,13 +215,13 @@ mod tests {
                     .replace("(", "")
                     .replace(")", "")
             ));
-            testcase.push_str(&format!("\ti64.{}\n", function_name));
+            testcase.push_str(&format!("\ti{bitness}.{}\n", function_name));
             testcase.push_str(&format!(
                 "\t{}\n\tcall $assert_eq)\n (start $main))\n",
                 expected_result.trim()
             ));
             let file_name = format!(
-                "../../zkasm_data/spectest/i64/{}_{}.wat",
+                "../../zkasm_data/spectest/i{bitness}/{}_{}.wat",
                 function_name, count
             );
             let expected_test = expect_test::expect_file![file_name];
@@ -230,10 +230,9 @@ mod tests {
         Ok(())
     }
 
-    #[test]
-    fn run_spectests() {
-        check_spectests().unwrap();
-        let path = "../zkasm_data/spectest/i64/";
+    fn run_spectests_with_bitness(bitness: i32) {
+        check_spectests(bitness).unwrap();
+        let path = &format!("../zkasm_data/spectest/i{bitness}/");
         let mut failures = 0;
         let mut count = 0;
         for entry in std::fs::read_dir(path).expect("Directory not found") {
@@ -247,9 +246,10 @@ mod tests {
                 .and_then(|s| s.to_str())
             {
                 let module_binary =
-                    wat::parse_file(format!("../zkasm_data/spectest/i64/{name}.wat")).unwrap();
+                    wat::parse_file(format!("../zkasm_data/spectest/i{bitness}/{name}.wat"))
+                        .unwrap();
                 let expected = expect_test::expect_file![format!(
-                    "../../zkasm_data/spectest/i64/generated/{name}.zkasm"
+                    "../../zkasm_data/spectest/i{bitness}/generated/{name}.zkasm"
                 )];
                 let result = std::panic::catch_unwind(|| {
                     let program = generate_zkasm(&module_binary);
@@ -263,6 +263,12 @@ mod tests {
             }
         }
         println!("Failed {} spectests out of {}", failures, count);
+    }
+
+    #[test]
+    fn run_spectests() {
+        run_spectests_with_bitness(32);
+        run_spectests_with_bitness(64);
     }
 
     macro_rules! testcases {

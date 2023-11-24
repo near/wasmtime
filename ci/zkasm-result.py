@@ -1,11 +1,21 @@
 import os
 import csv
 import sys
+import argparse
 
 
-tests_dir = 'cranelift/zkasm_data/spectest/i64'
-generated_dir = 'cranelift/zkasm_data/spectest/i64/generated'
-state_csv_path = 'cranelift/codegen/src/isa/zkasm/docs/state.csv'
+parser = argparse.ArgumentParser(description='Example script to demonstrate flag usage.')
+parser.add_argument('-b', type=int, help='An integer value for the -b flag')
+parser.add_argument('--update', action='store_true', help='Flag to specify update')
+args = parser.parse_args()
+bitness = args.b
+update = args.update
+
+
+
+tests_dir = f'cranelift/zkasm_data/spectest/i{bitness}'
+generated_dir = f'cranelift/zkasm_data/spectest/i{bitness}/generated'
+state_csv_path = f'cranelift/codegen/src/isa/zkasm/docs/spectests/i{bitness}.csv'
 
 
 def check_compilation_status():
@@ -57,7 +67,7 @@ def assert_with_csv(status_map):
 def main():
     status_map = check_compilation_status()
     update_status_from_stdin(status_map)
-    if '--update' in sys.argv:
+    if update:
         write_csv(status_map)
     else:
         if assert_with_csv(status_map) != 0:
