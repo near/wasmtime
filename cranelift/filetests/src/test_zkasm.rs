@@ -80,8 +80,8 @@ mod tests {
     /// inside given function.
     /// Label name must begin from label_.
     fn optimize_labels(code: &[&str], func_index: usize) -> Vec<String> {
-        let mut label_definition: HashMap<usize, usize> = HashMap::new();
-        let mut label_uses: HashMap<usize, Vec<usize>> = HashMap::new();
+        let mut label_definition: HashMap<String, usize> = HashMap::new();
+        let mut label_uses: HashMap<String, Vec<usize>> = HashMap::new();
         let mut lines = Vec::new();
         for (index, line) in code.iter().enumerate() {
             let mut line = line.to_string();
@@ -89,21 +89,22 @@ mod tests {
                 // Handles lines with a label marker, e.g.:
                 //   <label_name>_XXX:
                 let index_begin = line.rfind("_").expect("Failed to parse label index") + 1;
-                let label_index: usize = line[index_begin..line.len() - 1]
-                    .parse()
-                    .expect("Failed to parse label index");
+                let label_name: String = line[..line.len() - 1].to_string();
                 line.insert_str(index_begin - 1, &format!("_{}", func_index));
-                label_definition.insert(label_index, index);
+                label_definition.insert(label_name, index);
             } else if line.contains(&"label_") {
                 // Handles lines with a jump to label, e.g.:
                 // A : JMPNZ(<label_name>_XXX)
                 let pos = line.rfind(&"_").unwrap() + 1;
-                let pos_end = pos + line[pos..].find(&")").unwrap();
-                let label_index: usize = line[pos..pos_end]
-                    .parse()
-                    .expect("Failed to parse label index");
+                let label_name = line[line
+                    .find("label_")
+                    .expect(&format!("Error parsing label line '{}'", line))
+                    ..line
+                        .rfind(")")
+                        .expect(&format!("Error parsing label line '{}'", line))]
+                    .to_string();
                 line.insert_str(pos - 1, &format!("_{}", func_index));
-                label_uses.entry(label_index).or_default().push(index);
+                label_uses.entry(label_name).or_default().push(index);
             }
             lines.push(line);
         }
