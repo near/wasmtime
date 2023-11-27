@@ -10,4 +10,4 @@ if [ ! -d "tests/zkasm/node_modules" ]; then
 fi
 
 TEST_PATH=${1:-"cranelift/zkasm_data"}
-(npm test --prefix tests/zkasm "../../${TEST_PATH}/generated" || true) | python3 ci/zkasm-result.py $TEST_PATH
+npm test --prefix tests/zkasm "../../${TEST_PATH}/generated" | python3 ci/zkasm-result.py $TEST_PATH

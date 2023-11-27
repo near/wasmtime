@@ -2,6 +2,7 @@ import os
 import csv
 import sys
 import argparse
+import json
 
 
 parser = argparse.ArgumentParser(description='Example script to demonstrate flag usage.')
@@ -26,11 +27,13 @@ def check_compilation_status():
 
 
 def update_status_from_stdin(status_map):
-    for line in sys.stdin:
-        if "--> fail" in line or "--> pass" in line:
-            _, _, test_path = line.partition(' ')
-            test_name, _ = os.path.splitext(os.path.basename(test_path))
-            status_map[test_name] = 'pass' if 'pass' in line else 'runtime error'
+    # Skip first 4 lines that correspond to the nodejs run command message.
+    lines = sys.stdin.readlines()[4:]
+
+    for line in lines:
+        test_result = json.loads(line)
+        test_name, _ = os.path.splitext(os.path.basename(test_result["path"]))
+        status_map[test_name] = test_result["status"]
 
 
 def write_csv(status_map):

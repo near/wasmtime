@@ -3,7 +3,6 @@
 /* eslint-disable no-use-before-define */
 const path = require('path');
 const fs = require('fs');
-const chalk = require('chalk');
 const zkasm = require('@0xpolygonhermez/zkasmcom');
 const smMain = require('@0xpolygonhermez/zkevm-proverjs/src/sm/sm_main/sm_main');
 const {
@@ -14,18 +13,12 @@ const buildPoseidon = require('@0xpolygonhermez/zkevm-commonjs').getPoseidon;
 
 const emptyInput = require('@0xpolygonhermez/zkevm-proverjs/test/inputs/empty_input.json');
 
-const {
-    argv
-} = require('yargs')
-    .alias('v', 'verbose');
-
 // Global paths to build Main PIL to fill polynomials in tests
 const pathMainPil = path.join(__dirname, 'node_modules/@0xpolygonhermez/zkevm-proverjs/pil/main.pil');
 const fileCachePil = path.join(__dirname, 'node_modules/@0xpolygonhermez/zkevm-proverjs/cache-main-pil.json');
 
 async function main() {
     // Compile pil
-    console.log(chalk.yellow('--> Compile PIL'));
     const cmPols = await compilePil();
 
     // Get all zkasm files
@@ -35,22 +28,15 @@ async function main() {
     let unexpectedFailures = 0;
     let totalTests = 0;
     // Run all zkasm files
-    // eslint-disable-next-line no-restricted-syntax
-    console.log(chalk.yellow('--> Start running zkasm files'));
     for (const file of files) {
         if (file.includes('ignore'))
             continue;
-        
-        let shouldFail = file.split("/").pop().startsWith("_should_fail_");
-        let testFailed = await runTest(file, cmPols);
-        if ((testFailed && !shouldFail) || (shouldFail && !testFailed)) {
-            unexpectedFailures += 1;
-        }
-        totalTests += 1;
-    }
-    console.log('Failed', unexpectedFailures, 'tests out of ', totalTests);
-    if (unexpectedFailures > 0) {
-        process.exit(1);
+
+        const testResult = await runTest(file, cmPols);
+        const json = JSON.stringify(testResult, (key, value) =>
+            typeof value === "bigint" ? value.toString() : value
+        );
+        console.log(json);
     }
 }
 
@@ -104,27 +90,23 @@ async function runTest(pathTest, cmPols) {
         stepsN: 8388608,
         assertOutputs: false,
     };
-    let failed = false;
-    // execute zkasm tests
     try {
         const rom = await zkasm.compile(pathTest, null, configZkasm);
         const result = await smMain.execute(cmPols.Main, emptyInput, rom, config);
-        console.log(chalk.green('   --> pass'), pathTest);
-        if (argv.verbose) {
-            console.log(chalk.blue('   --> verbose'));
-            console.log(chalk.blue('        --> counters'));
-            console.log(result.counters);
-            console.log(chalk.blue('        --> outputs'));
-            console.log(result.output);
-            console.log(chalk.blue('        --> logs'));
-            console.log(result.logs);
+        return {
+            path: pathTest,
+            status: "pass",
+            counters: result.counters,
+            output: result.output,
+            logs: result.logs,
         }
     } catch (e) {
-        console.log(chalk.red('   --> fail'), pathTest);
-        console.log(e);
-        failed = true;
+        return {
+            path: pathTest,
+            status: "runtime error",
+            error: JSON.stringify(e, Object.getOwnPropertyNames(e)),
+        }
     }
-    return failed;
 }
 
 main();
