@@ -25,17 +25,21 @@ async function main() {
     const pathZkasm = path.join(process.cwd(), process.argv[2]);
     const files = await getTestFiles(pathZkasm);
 
-    let unexpectedFailures = 0;
-    let totalTests = 0;
     // Run all zkasm files
+    let testResults = [];
     for (const file of files) {
         if (file.includes('ignore'))
             continue;
 
-        const testResult = await runTest(file, cmPols);
-        const json = JSON.stringify(testResult, (key, value) =>
-            typeof value === "bigint" ? value.toString() : value
-        );
+        testResults.push(await runTest(file, cmPols));
+    }
+
+    const json = JSON.stringify(testResults, (key, value) =>
+        typeof value === "bigint" ? value.toString() : value
+    );
+    if (process.argv[3]) {
+        fs.writeFileSync(process.argv[3], json);
+    } else {
         console.log(json);
     }
 }

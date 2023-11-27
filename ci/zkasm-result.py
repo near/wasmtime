@@ -28,15 +28,9 @@ def check_compilation_status():
 
 
 def update_status_from_stdin(status_map):
-    # Skip first 4 lines that correspond to the nodejs run command message.
-    lines = sys.stdin.readlines()[4:]
-    try:
-        for line in lines:
-            test_result = json.loads(line)
-            test_name, _ = os.path.splitext(os.path.basename(test_result["path"]))
-            status_map[test_name] = test_result["status"]
-    except Exception as e:
-        logging.error("Failed to parse lines %s, error: %s", lines, e)
+    for test_result in json.load(sys.stdin):
+        test_name, _ = os.path.splitext(os.path.basename(test_result["path"]))
+        status_map[test_name] = test_result["status"]
 
 
 def write_csv(status_map):
