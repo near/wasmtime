@@ -539,7 +539,6 @@ impl MachInstEmit for Inst {
                 let rs2 = allocs.next(rs2);
                 debug_assert_eq!(rs1, a0());
                 debug_assert_eq!(rs2, e0());
-                let rd = allocs.next_writable(rd);
 
                 // E /= 2**32
                 put_string("A :MSTORE(SP)\n", sink);
