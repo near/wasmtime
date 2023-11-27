@@ -2,7 +2,13 @@ import os
 import csv
 import sys
 import argparse
+import json
+import logging
+from operator import countOf
 
+
+CSV_FIELD_NAMES = ['Test', 'Status']
+TEST_SUMMARY_FILE_PATH = "docs/zkasm/test_summary.csv"
 
 parser = argparse.ArgumentParser(description='Example script to demonstrate flag usage.')
 parser.add_argument('path', type=str, help='Path to a folder with tests')
@@ -26,36 +32,53 @@ def check_compilation_status():
 
 
 def update_status_from_stdin(status_map):
-    for line in sys.stdin:
-        if "--> fail" in line or "--> pass" in line:
-            _, _, test_path = line.partition(' ')
-            test_name, _ = os.path.splitext(os.path.basename(test_path))
-            status_map[test_name] = 'pass' if 'pass' in line else 'runtime error'
+    for test_result in json.load(sys.stdin):
+        test_name, _ = os.path.splitext(os.path.basename(test_result["path"]))
+        status_map[test_name] = test_result["status"]
+
+
+def read_summary(filepath):
+    with open(filepath, 'r', newline='') as csvfile:
+        reader = csv.DictReader(csvfile)
+        return {row['Suite path']: row for row in reader}
+
+
+def write_summary(filepath, summary):
+    with open(filepath, 'w', newline='') as csvfile:
+        writer = csv.DictWriter(csvfile, fieldnames = ['Suite path', 'Passing count', 'Total count'])
+        writer.writeheader()
+        for (path, value) in sorted(summary.items()):
+            writer.writerow({'Suite path': path, **value})
 
 
 def write_csv(status_map):
     with open(state_csv_path, 'w', newline='') as csvfile:
-        csvwriter = csv.writer(csvfile)
-        csvwriter.writerow(['Test', 'Status'])
-        status_list = sorted(status_map.items())
-        csvwriter.writerows(status_list)
-        csvwriter.writerow(['Total Passed', sum(1 for status in status_map.values() if status == 'pass')])
-        csvwriter.writerow(['Amount of Tests', len(status_map)])
+        writer = csv.DictWriter(csvfile, fieldnames = CSV_FIELD_NAMES)
+        writer.writeheader()
+        for (test_name, test_status) in sorted(status_map.items()):
+            writer.writerow({'Test': test_name, 'Status': test_status})
+
+    if os.path.exists(TEST_SUMMARY_FILE_PATH):
+        summary = read_summary(TEST_SUMMARY_FILE_PATH)
+    else:
+        summary = {}
+
+    summary[tests_path] = {
+        'Passing count': countOf(status_map.values(), "pass"),
+        'Total count': len(status_map),
+    }
+    write_summary(TEST_SUMMARY_FILE_PATH, summary)
 
 
 def assert_with_csv(status_map):
     with open(state_csv_path, newline='') as csvfile:
-        csvreader = csv.reader(csvfile)
-        csv_dict = {}
-        for row in csvreader:
-            if row[0] in ["Test", "Total Passed", "Amount of Tests"]:
-                continue
-            csv_dict[row[0]] = row[1]
-        if csv_dict != status_map:
-            diff = set(csv_dict.items()) ^ set(status_map.items())
+        reader = csv.DictReader(csvfile)
+        test_results = {row['Test']: row['Status'] for row in reader}
+        if test_results != status_map:
+            diff = set(test_results.items()) ^ set(status_map.items())
             diff_keys = set(map(lambda x: x[0], diff))
             for key in diff_keys:
-                print(f"Update for test {key}: {csv_dict[key]} => {status_map[key]}")
+                logging.info(f"Update for test {key}: {test_results[key]} => {status_map[key]}")
             return 1
     return 0
 
