@@ -176,9 +176,6 @@
 (rule 1 (lower (has_type $I64 (sextend (has_type $I32 (isub x y)))))
   (rv_subw x y))
 
-(rule 1 (lower (has_type $I64 (sextend (has_type $I32 (ishl x y)))))
-  (rv_sllw x (value_regs_get y 0)))
-
 (rule 1 (lower (has_type $I64 (sextend (has_type $I32 (ushr x y)))))
   (rv_srlw x (value_regs_get y 0)))
 
@@ -189,18 +186,11 @@
 
 ;;;; Rules for `ishl` ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;; 8/16 bit types need a mask on the shift amount
-; (rule 0 (lower (has_type (ty_int (ty_8_or_16 ty)) (ishl x y)))
-;   (if-let mask (u64_to_imm12 (shift_mask ty)))
-;   (rv_sllw x (rv_andi (value_regs_get y 0) mask)))
+(rule (lower (has_type $I64 (ishl x y)))
+  (zk_shl x y))
 
-;; Using the 32bit version of `sll` automatically masks the shift amount.
-(rule 1 (lower (has_type $I32 (ishl x y)))
-  (rv_sllw x (value_regs_get y 0)))
-
-;; Similarly, the 64bit version does the right thing.
-(rule 1 (lower (has_type $I64 (ishl x y)))
-  (rv_sll x (value_regs_get y 0)))
+(rule (lower (has_type $I32 (ishl x y)))
+  (zk_shl_32 x y))
 
 ;;;; Rules for `ushr` ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
