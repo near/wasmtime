@@ -28,6 +28,16 @@
       (rs1 Reg)
       (rs2 Reg))
 
+    (Shl64
+      (rd WritableReg)
+      (rs1 Reg)
+      (rs2 Reg))
+
+    (Shl32
+      (rd WritableReg)
+      (rs1 Reg)
+      (rs2 Reg))
+
     (MulArith32
       (rd WritableReg)
       (rs1 Reg)
@@ -663,6 +673,19 @@
 ;; RV32M Extension
 ;; TODO: Enable these instructions only when we have the M extension
 
+(decl zk_shl (XReg XReg) XReg)
+(rule (zk_shl rs1 rs2)
+      (let ((dst WritableXReg (temp_writable_xreg))
+            (_ Unit (emit (MInst.Shl64 dst rs1 rs2))))
+        dst))
+
+(decl zk_shl_32 (XReg XReg) XReg)
+(rule (zk_shl_32 rs1 rs2)
+      (let ((dst WritableXReg (temp_writable_xreg))
+            (_ Unit (emit (MInst.Shl32 dst rs1 rs2))))
+        dst))
+
+
 ;; Helper for emitting the `mul` instruction.
 ;; rd ← rs1 × rs2
 (decl zk_mul (XReg XReg) XReg)
@@ -670,6 +693,7 @@
       (let ((dst WritableXReg (temp_writable_xreg))
             (_ Unit (emit (MInst.MulArith dst rs1 rs2))))
         dst))
+
 
 (decl zk_mul_32 (XReg XReg) XReg)
 (rule (zk_mul_32 rs1 rs2)

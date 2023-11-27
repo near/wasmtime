@@ -507,6 +507,69 @@ impl MachInstEmit for Inst {
                     sink,
                 );
             }
+            &Inst::Shl64 { rd, rs1, rs2 } => {
+                let rs1 = allocs.next(rs1);
+                let rs2 = allocs.next(rs2);
+                debug_assert_eq!(rs1, a0());
+                debug_assert_eq!(rs2, e0());
+
+                put_string("A :MSTORE(SP)\n", sink);
+
+                put_string("64 => B\n", sink);
+                put_string("0 => D\n", sink);
+                put_string("${E / B} => A\n", sink);
+                put_string("${E % B} => C\n", sink);
+                put_string("E:ARITH\n", sink);
+
+                put_string("$ => A :MLOAD(SP)\n", sink);
+                put_string("C => E", sink);
+                // E -- shift amount.
+                // A -- number.
+                sink.put_data(format!(";;NEED_INCLUDE: 2-exp\n").as_bytes());
+                put_string("zkPC + 2 => RR\n", sink);
+                put_string("  :JMP(@two_power + E)\n", sink);
+                put_string("0 => D\n", sink);
+                put_string("0 => C\n", sink);
+                put_string("$${var _mulShlArith = A * B}\n", sink);
+                put_string("${_mulShlArith / 18446744073709551616} => D\n", sink);
+                put_string("${_mulShlArith % 18446744073709551616} => E :ARITH\n", sink);
+            }
+            &Inst::Shl32 { rd, rs1, rs2 } => {
+                let rs1 = allocs.next(rs1);
+                let rs2 = allocs.next(rs2);
+                debug_assert_eq!(rs1, a0());
+                debug_assert_eq!(rs2, e0());
+
+                // E /= 2**32
+                put_string("A :MSTORE(SP)\n", sink);
+                put_string("0 => D\n", sink);
+                put_string("4294967296n => B\n", sink);
+                put_string("${E / B} => A\n", sink);
+                put_string("${E % B} => C\n", sink);
+                put_string("E:ARITH\n", sink);
+                put_string("A => E\n", sink);
+
+                // E %= 32
+                put_string("32 => B\n", sink);
+                put_string("0 => D\n", sink);
+                put_string("${E / B} => A\n", sink);
+                put_string("${E % B} => C\n", sink);
+                put_string("E:ARITH\n", sink);
+                put_string("$ => A :MLOAD(SP)\n", sink);
+                put_string("C => E\n", sink);
+
+                // E -- shift amount.
+                // A -- number.
+                // E:= (A << E)
+                sink.put_data(format!(";;NEED_INCLUDE: 2-exp\n").as_bytes());
+                put_string("zkPC + 2 => RR\n", sink);
+                put_string("  :JMP(@two_power + E)\n", sink);
+                put_string("0 => D\n", sink);
+                put_string("0 => C\n", sink);
+                put_string("$${var _mulShlArith = A * B}\n", sink);
+                put_string("${_mulShlArith / 18446744073709551616} => D\n", sink);
+                put_string("${_mulShlArith % 18446744073709551616} => E :ARITH\n", sink);
+            }
             &Inst::DivArith32 { rd, rs1, rs2 } => {
                 let rs1 = allocs.next(rs1);
                 let rs2 = allocs.next(rs2);
