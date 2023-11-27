@@ -3,6 +3,7 @@ import csv
 import sys
 import argparse
 import json
+import logging
 
 
 parser = argparse.ArgumentParser(description='Example script to demonstrate flag usage.')
@@ -29,11 +30,13 @@ def check_compilation_status():
 def update_status_from_stdin(status_map):
     # Skip first 4 lines that correspond to the nodejs run command message.
     lines = sys.stdin.readlines()[4:]
-
-    for line in lines:
-        test_result = json.loads(line)
-        test_name, _ = os.path.splitext(os.path.basename(test_result["path"]))
-        status_map[test_name] = test_result["status"]
+    try:
+        for line in lines:
+            test_result = json.loads(line)
+            test_name, _ = os.path.splitext(os.path.basename(test_result["path"]))
+            status_map[test_name] = test_result["status"]
+    except Exception as e:
+        logging.error("Failed to parse lines %s, error: %s", lines, e)
 
 
 def write_csv(status_map):
@@ -58,7 +61,7 @@ def assert_with_csv(status_map):
             diff = set(csv_dict.items()) ^ set(status_map.items())
             diff_keys = set(map(lambda x: x[0], diff))
             for key in diff_keys:
-                print(f"Update for test {key}: {csv_dict[key]} => {status_map[key]}")
+                logging.info(f"Update for test {key}: {csv_dict[key]} => {status_map[key]}")
             return 1
     return 0
 
