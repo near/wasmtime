@@ -57,16 +57,16 @@ Execute the following from the `wasmtime/` directory to run generated programs o
    ./ci/test-zkasm.sh
    ```
 
-   Or, for a specific folder or file:
+   Or, for a specific folder:
 
    ```bash
-   ./ci/test-zkasm.sh <folder or filename>
+   ./ci/test-zkasm.sh <folder>
    ```
 
    For example:
 
    ```bash
-   ./ci/test-zkasm.sh cranelift/zkasm_data/generated/add.zkasm
+   ./ci/test-zkasm.sh cranelift/zkasm_data
    ```
 
 ## Logging during Compilation
