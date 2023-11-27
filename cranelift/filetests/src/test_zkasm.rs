@@ -35,6 +35,24 @@ mod tests {
         program.push("finalizeExecution:".to_string());
         program.push("  ${beforeLast()}  :JMPN(finalizeExecution)".to_string());
         program.push("                   :JMP(start)".to_string());
+        program.append(&mut generate_binpow());
+        program
+    }
+
+    // This function calculates 2^E and returns result at B.
+    // No registers are clobbered.
+    // Should be called as follows:
+    // zkPC + 2 => RR
+    //   :JMP(@two_power + E)
+    // It is useful for such instructions as shifts and rotations.
+    fn generate_binpow() -> Vec<String> {
+        let mut program: Vec<String> = Vec::new();
+        program.push("two_power:".to_string());
+        for deg in 0..63 {
+            program.push(
+                format!("  {:x}n => B                                                                :JMP(RR) ;2**{deg}", (2u64).pow(deg)).to_string()
+            )
+        }
         program
     }
 
