@@ -24,3 +24,4 @@ function_2:
 finalizeExecution:
   ${beforeLast()}  :JMPN(finalizeExecution)
                    :JMP(start)
+INCLUDE "helpers/2-exp.zkasm"

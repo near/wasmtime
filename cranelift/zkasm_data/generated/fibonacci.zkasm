@@ -52,3 +52,4 @@ label_1_3:
 finalizeExecution:
   ${beforeLast()}  :JMPN(finalizeExecution)
                    :JMP(start)
+INCLUDE "helpers/2-exp.zkasm"

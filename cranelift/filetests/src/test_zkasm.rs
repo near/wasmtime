@@ -35,6 +35,7 @@ mod tests {
         program.push("finalizeExecution:".to_string());
         program.push("  ${beforeLast()}  :JMPN(finalizeExecution)".to_string());
         program.push("                   :JMP(start)".to_string());
+        program.push("INCLUDE \"helpers/2-exp.zkasm\"".to_string());
         program
     }
 
