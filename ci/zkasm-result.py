@@ -5,22 +5,18 @@ import argparse
 
 
 parser = argparse.ArgumentParser(description='Example script to demonstrate flag usage.')
-parser.add_argument('-b', type=int, help='An integer value for the -b flag')
+parser.add_argument('path', type=str, help='Path to a folder with tests')
 parser.add_argument('--update', action='store_true', help='Flag to specify update')
 args = parser.parse_args()
-bitness = args.b
+tests_path = args.path
+generated_dir = f'{tests_path}/generated'
+state_csv_path = f'{tests_path}/state.csv'
 update = args.update
-
-
-
-tests_dir = f'cranelift/zkasm_data/spectest/i{bitness}'
-generated_dir = f'cranelift/zkasm_data/spectest/i{bitness}/generated'
-state_csv_path = f'docs/zkasm/spectests/i{bitness}.csv'
 
 
 def check_compilation_status():
     status_map = {}
-    for file in os.listdir(tests_dir):
+    for file in os.listdir(tests_path):
         if not file.endswith('.wat'):
             continue
         test_name = os.path.splitext(file)[0]

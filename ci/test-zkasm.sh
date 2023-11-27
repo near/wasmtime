@@ -8,5 +8,6 @@ set -eux
 if [ ! -d "tests/zkasm/node_modules" ]; then
 	npm install --prefix tests/zkasm
 fi
-TEST_PATH=../../${1:-"cranelift/zkasm_data/generated"}
-npm test --prefix tests/zkasm $TEST_PATH
+
+TEST_PATH=${1:-"cranelift/zkasm_data"}
+(npm test --prefix tests/zkasm "../../${TEST_PATH}/generated" || true) | python3 ci/zkasm-result.py $TEST_PATH

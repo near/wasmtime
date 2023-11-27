@@ -1,0 +1,29 @@
+Test,Status
+_should_fail_unreachable,runtime error
+add,pass
+add_func,pass
+and,pass
+counter,pass
+div,pass
+eqz,pass
+fibonacci,pass
+i32_add_overflows,pass
+i32_const,pass
+i32_mul_overflows,pass
+i64_const,pass
+i64_div,pass
+i64_mul,pass
+i64_mul_overflows,pass
+i64_rem,pass
+locals,pass
+locals_simple,pass
+lt_s,pass
+lt_u,pass
+mul,pass
+ne,pass
+nop,pass
+or,pass
+rem,pass
+xor,pass
+Total Passed,25
+Amount of Tests,26
