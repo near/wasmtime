@@ -301,17 +301,17 @@ rotr_6,compilation failed
 rotr_7,compilation failed
 rotr_8,compilation failed
 rotr_9,compilation failed
-shl_1,runtime error
-shl_10,runtime error
-shl_11,runtime error
-shl_2,runtime error
-shl_3,runtime error
-shl_4,runtime error
-shl_5,runtime error
-shl_6,runtime error
-shl_7,runtime error
-shl_8,runtime error
-shl_9,runtime error
+shl_1,pass
+shl_10,pass
+shl_11,pass
+shl_2,pass
+shl_3,pass
+shl_4,pass
+shl_5,pass
+shl_6,pass
+shl_7,pass
+shl_8,pass
+shl_9,pass
 shr_s_1,runtime error
 shr_s_10,runtime error
 shr_s_11,runtime error
@@ -363,5 +363,5 @@ xor_6,pass
 xor_7,pass
 xor_8,pass
 xor_9,pass
-Total Passed,127
+Total Passed,138
 Amount of Tests,364

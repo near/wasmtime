@@ -5,15 +5,43 @@ start:
 function_1:
   SP + 1 => SP
   RR :MSTORE(SP - 1)
-  SP + 2 => SP
-  B :MSTORE(SP - 1)
+  SP + 4 => SP
+  C :MSTORE(SP - 1)
+  D :MSTORE(SP - 2)
+  E :MSTORE(SP - 3)
+  B :MSTORE(SP - 4)
   4294967296n => A
-  0n => B
-  $ => A :sllw
+  0n => E
+  A :MSTORE(SP)
+  0 => D
+  4294967296n => B
+  ${E / B} => A
+  ${E % B} => C
+  E:ARITH
+  A => E
+  32 => B
+  0 => D
+  ${E / B} => A
+  ${E % B} => C
+  E:ARITH
+  $ => A :MLOAD(SP)
+  C => E
+;;NEED_INCLUDE: 2-exp
+  zkPC + 2 => RR
+    :JMP(@two_power + E)
+  0 => D
+  0 => C
+  $${var _mulShlArith = A * B}
+  ${_mulShlArith / 18446744073709551616} => D
+  ${_mulShlArith % 18446744073709551616} => E :ARITH
+  E => A
   4294967296n => B
   B :ASSERT
-  $ => B :MLOAD(SP - 1)
-  SP - 2 => SP
+  $ => C :MLOAD(SP - 1)
+  $ => D :MLOAD(SP - 2)
+  $ => E :MLOAD(SP - 3)
+  $ => B :MLOAD(SP - 4)
+  SP - 4 => SP
   $ => RR :MLOAD(SP - 1)
   SP - 1 => SP
   :JMP(RR)

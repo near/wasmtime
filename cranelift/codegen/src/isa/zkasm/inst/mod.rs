@@ -278,7 +278,14 @@ fn zkasm_get_operands<F: Fn(VReg) -> VReg>(inst: &Inst, collector: &mut OperandC
             collector.reg_fixed_def(rd, e0());
         }
         &Inst::Shl32 { rd, rs1, rs2, .. } => {
-            todo!();
+            collector.reg_fixed_use(rs1, a0());
+            collector.reg_fixed_use(rs2, e0());
+            let mut clobbered = PRegSet::empty();
+            clobbered.add(d0().to_real_reg().unwrap().into());
+            clobbered.add(c0().to_real_reg().unwrap().into());
+            clobbered.add(b0().to_real_reg().unwrap().into());
+            collector.reg_clobbers(clobbered);
+            collector.reg_fixed_def(rd, e0());
         }
         &Inst::MulArith { rd, rs1, rs2, .. } => {
             collector.reg_fixed_use(rs1, a0());
