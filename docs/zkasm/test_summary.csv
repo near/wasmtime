@@ -1,0 +1,4 @@
+Suite path,Passing count,Total count
+cranelift/zkasm_data,25,26
+cranelift/zkasm_data/spectest/i32,127,364
+cranelift/zkasm_data/spectest/i64,133,374
