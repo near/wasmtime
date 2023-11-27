@@ -48,9 +48,9 @@ mod tests {
     fn generate_binpow() -> Vec<String> {
         let mut program: Vec<String> = Vec::new();
         program.push("two_power:".to_string());
-        for deg in 0..63 {
+        for deg in 0..64 {
             program.push(
-                format!("  {:x}n => B                                                                :JMP(RR) ;2**{deg}", (2u64).pow(deg)).to_string()
+                format!("  0x{:x}n => B                                                                :JMP(RR) ;2**{deg}", (2u64).pow(deg)).to_string()
             )
         }
         program
