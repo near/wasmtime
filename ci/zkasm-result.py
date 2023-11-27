@@ -2,6 +2,8 @@ import os
 import csv
 import sys
 import argparse
+import json
+import logging
 
 
 parser = argparse.ArgumentParser(description='Example script to demonstrate flag usage.')
@@ -26,11 +28,9 @@ def check_compilation_status():
 
 
 def update_status_from_stdin(status_map):
-    for line in sys.stdin:
-        if "--> fail" in line or "--> pass" in line:
-            _, _, test_path = line.partition(' ')
-            test_name, _ = os.path.splitext(os.path.basename(test_path))
-            status_map[test_name] = 'pass' if 'pass' in line else 'runtime error'
+    for test_result in json.load(sys.stdin):
+        test_name, _ = os.path.splitext(os.path.basename(test_result["path"]))
+        status_map[test_name] = test_result["status"]
 
 
 def write_csv(status_map):
@@ -55,7 +55,7 @@ def assert_with_csv(status_map):
             diff = set(csv_dict.items()) ^ set(status_map.items())
             diff_keys = set(map(lambda x: x[0], diff))
             for key in diff_keys:
-                print(f"Update for test {key}: {csv_dict[key]} => {status_map[key]}")
+                logging.info(f"Update for test {key}: {csv_dict[key]} => {status_map[key]}")
             return 1
     return 0
 
