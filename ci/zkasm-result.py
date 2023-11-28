@@ -1,3 +1,4 @@
+import dataclasses
 import os
 import csv
 import sys
@@ -6,30 +7,68 @@ import json
 from operator import countOf
 
 
-CSV_FIELD_NAMES = ["Test", "Status"]
+CSV_FIELD_NAMES = ["Test", "Status", "Cycles"]
 TEST_SUMMARY_FILE_PATH = "docs/zkasm/test_summary.csv"
 
 
-def check_compilation_status(tests_path, generated_dir):
-    test_results = {}
+@dataclasses.dataclass(frozen=True)
+class TestResult:
+    # Name of the test.
+    test_name: str
+    # Execution status of the test.
+    status: str
+    # Number of cycles it took to execute the test if it was successful.
+    cycles: int | None
+
+    def to_csv_record(self):
+        return {
+            "Test": self.test_name,
+            "Status": self.status,
+            "Cycles": self.cycles,
+        }
+
+    @staticmethod
+    def from_csv_record(record):
+        if record["Cycles"]:
+            cycles = int(record["Cycles"])
+        else:
+            cycles = None
+
+        return TestResult(
+            test_name=record["Test"], status=record["Status"], cycles=cycles
+        )
+
+
+def record_failed_compilation_results(tests_path, generated_dir, test_results):
     for file in os.listdir(tests_path):
         if not file.endswith(".wat"):
             continue
 
         test_name = os.path.splitext(file)[0]
         zkasm_file = os.path.join(generated_dir, f"{test_name}.zkasm")
-        test_results[test_name] = (
-            "compilation success"
-            if os.path.exists(zkasm_file)
-            else "compilation failed"
-        )
+        if not os.path.exists(zkasm_file):
+            test_results[test_name] = TestResult(
+                test_name=test_name, status="compilation failed", cycles=None
+            )
+
+
+def parse_test_result(result_json):
+    test_name, _ = os.path.splitext(os.path.basename(result_json["path"]))
+    status = result_json["status"]
+    if status == "pass":
+        cycles = result_json["counters"]["cntSteps"]
+    else:
+        cycles = None
+
+    return TestResult(test_name=test_name, status=status, cycles=cycles)
+
+
+def read_test_execution_results(input_handle):
+    test_results = {}
+    for test_result_json in json.load(input_handle):
+        test_result = parse_test_result(test_result_json)
+        test_results[test_result.test_name] = test_result
     return test_results
-
-
-def update_test_results_from_stdin(test_results):
-    for test_result in json.load(sys.stdin):
-        test_name, _ = os.path.splitext(os.path.basename(test_result["path"]))
-        test_results[test_name] = test_result["status"]
 
 
 def read_summary(filepath):
@@ -41,7 +80,8 @@ def read_summary(filepath):
 def write_summary(filepath, summary):
     with open(filepath, "w", newline="") as csvfile:
         writer = csv.DictWriter(
-            csvfile, fieldnames=["Suite path", "Passing count", "Total count"]
+            csvfile,
+            fieldnames=["Suite path", "Passing count", "Total count", "Total cycles"],
         )
         writer.writeheader()
         for path, value in sorted(summary.items()):
@@ -51,15 +91,15 @@ def write_summary(filepath, summary):
 def read_test_results(test_results_path):
     with open(test_results_path, newline="") as csvfile:
         reader = csv.DictReader(csvfile)
-        return {row["Test"]: row["Status"] for row in reader}
+        return {row["Test"]: TestResult.from_csv_record(row) for row in reader}
 
 
 def write_test_results(test_results, test_results_path, tests_path):
     with open(test_results_path, "w", newline="") as csvfile:
         writer = csv.DictWriter(csvfile, fieldnames=CSV_FIELD_NAMES)
         writer.writeheader()
-        for test_name, test_status in sorted(test_results.items()):
-            writer.writerow({"Test": test_name, "Status": test_status})
+        for _, test_result in sorted(test_results.items()):
+            writer.writerow(test_result.to_csv_record())
 
     if os.path.exists(TEST_SUMMARY_FILE_PATH):
         summary = read_summary(TEST_SUMMARY_FILE_PATH)
@@ -67,8 +107,9 @@ def write_test_results(test_results, test_results_path, tests_path):
         summary = {}
 
     summary[tests_path] = {
-        "Passing count": countOf(test_results.values(), "pass"),
+        "Passing count": countOf((r.status for r in test_results.values()), "pass"),
         "Total count": len(test_results),
+        "Total cycles": sum((r.cycles or 0 for r in test_results.values())),
     }
     write_summary(TEST_SUMMARY_FILE_PATH, summary)
 
@@ -80,11 +121,11 @@ def assert_dict_equals(actual, expected):
     diff = set(actual.items()) ^ set(expected.items())
     diff_keys = set(key for (key, _) in diff)
     diff_messages = [
-        f"Update for test {key}: {expected[key]} => {actual[key]}\n"
-        for key in diff_keys
+        f"Update for test {key}: {expected[key]} => {actual[key]}" for key in diff_keys
     ]
+    diff_message = "\n".join(diff_messages)
     raise AssertionError(
-        f"Detected difference between the old and new state: {diff_messages}"
+        f"Detected difference between the old and new state:\n{diff_message}"
     )
 
 
@@ -101,8 +142,8 @@ def main():
     generated_dir = f"{tests_path}/generated"
     test_results_path = f"{tests_path}/state.csv"
 
-    test_results = check_compilation_status(tests_path, generated_dir)
-    update_test_results_from_stdin(test_results)
+    test_results = read_test_execution_results(sys.stdin)
+    record_failed_compilation_results(tests_path, generated_dir, test_results)
     if args.update:
         write_test_results(test_results, test_results_path, tests_path)
     else:
