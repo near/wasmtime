@@ -1,4 +1,4 @@
-Suite path,Passing count,Total count
-cranelift/zkasm_data,25,26
-cranelift/zkasm_data/spectest/i32,127,364
-cranelift/zkasm_data/spectest/i64,133,374
+Suite path,Passing count,Total count,Total cycles
+cranelift/zkasm_data,25,26,1023
+cranelift/zkasm_data/spectest/i32,138,364,3603
+cranelift/zkasm_data/spectest/i64,144,374,3396
