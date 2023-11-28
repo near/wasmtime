@@ -1,6 +1,7 @@
 #[cfg(test)]
 mod tests {
     use std::collections::HashMap;
+    use std::path::{Path, PathBuf};
 
     use regex::Regex;
     use std::fs::read_to_string;
@@ -231,39 +232,41 @@ mod tests {
         Ok(())
     }
 
-    fn run_spectests_with_bitness(bitness: i32) {
-        check_spectests(bitness).unwrap();
-        let path = &format!("../zkasm_data/spectest/i{bitness}/");
+    fn test_wat_in_directory(path: &Path) {
         let mut failures = 0;
         let mut count = 0;
-        for entry in std::fs::read_dir(path).expect("Directory not found") {
+        for entry in path.read_dir().expect("Directory not found") {
             let entry = entry.expect("Failed to read entry");
-            let file_name = entry.file_name();
             if entry.path().extension().and_then(|s| s.to_str()) != Some("wat") {
                 continue;
             }
-            if let Some(name) = std::path::Path::new(&file_name)
+
+            count += 1;
+            let name = entry
+                .path()
                 .file_stem()
                 .and_then(|s| s.to_str())
-            {
-                let module_binary =
-                    wat::parse_file(format!("../zkasm_data/spectest/i{bitness}/{name}.wat"))
-                        .unwrap();
-                let expected = expect_test::expect_file![format!(
-                    "../../zkasm_data/spectest/i{bitness}/generated/{name}.zkasm"
-                )];
-                let result = std::panic::catch_unwind(|| {
-                    let program = generate_zkasm(&module_binary);
-                    expected.assert_eq(&program);
-                });
-                count += 1;
-                if let Err(err) = result {
-                    failures += 1;
-                    println!("{} fails with {:#?}", name, err);
-                }
+                .unwrap()
+                .to_owned();
+            let module_binary = wat::parse_file(path.join(format!("{name}.wat"))).unwrap();
+            let expected = expect_test::expect_file![PathBuf::from("../")
+                .join(path)
+                .join(format!("generated/{name}.zkasm"))];
+            let result = std::panic::catch_unwind(|| {
+                let program = generate_zkasm(&module_binary);
+                expected.assert_eq(&program);
+            });
+            if let Err(err) = result {
+                failures += 1;
+                println!("{name} fails with {err:#?}");
             }
         }
-        println!("Failed {} spectests out of {}", failures, count);
+        println!("Failed {failures} tests out of {count}");
+    }
+
+    fn run_spectests_with_bitness(bitness: i32) {
+        check_spectests(bitness).unwrap();
+        test_wat_in_directory(Path::new(&format!("../zkasm_data/spectest/i{bitness}/")));
     }
 
     #[test]
