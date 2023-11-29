@@ -38,6 +38,16 @@
       (rs1 Reg)
       (rs2 Reg))
 
+    (Shru32
+      (rd WritableReg)
+      (rs1 Reg)
+      (rs2 Reg))
+
+    (Shru64
+      (rd WritableReg)
+      (rs1 Reg)
+      (rs2 Reg))
+
     (MulArith32
       (rd WritableReg)
       (rs1 Reg)
@@ -672,6 +682,18 @@
 
 ;; RV32M Extension
 ;; TODO: Enable these instructions only when we have the M extension
+
+(decl zk_shr_u (XReg XReg) XReg)
+(rule (zk_shr_u rs1 rs2)
+      (let ((dst WritableXReg (temp_writable_xreg))
+            (_ Unit (emit (MInst.Shru64 dst rs1 rs2))))
+        dst))
+
+(decl zk_shr_u_32 (XReg XReg) XReg)
+(rule (zk_shr_u_32 rs1 rs2)
+      (let ((dst WritableXReg (temp_writable_xreg))
+            (_ Unit (emit (MInst.Shru32 dst rs1 rs2))))
+        dst))
 
 (decl zk_shl (XReg XReg) XReg)
 (rule (zk_shl rs1 rs2)
