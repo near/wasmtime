@@ -339,23 +339,23 @@ shr_s_6,runtime error,
 shr_s_7,runtime error,
 shr_s_8,runtime error,
 shr_s_9,runtime error,
-shr_u_1,runtime error,
-shr_u_10,runtime error,
-shr_u_11,runtime error,
-shr_u_12,runtime error,
-shr_u_13,runtime error,
-shr_u_14,runtime error,
-shr_u_15,runtime error,
-shr_u_16,runtime error,
-shr_u_17,runtime error,
-shr_u_2,runtime error,
-shr_u_3,runtime error,
-shr_u_4,runtime error,
-shr_u_5,runtime error,
-shr_u_6,runtime error,
-shr_u_7,runtime error,
-shr_u_8,runtime error,
-shr_u_9,runtime error,
+shr_u_1,pass,38
+shr_u_10,pass,38
+shr_u_11,pass,38
+shr_u_12,pass,38
+shr_u_13,pass,38
+shr_u_14,pass,38
+shr_u_15,pass,38
+shr_u_16,pass,38
+shr_u_17,pass,38
+shr_u_2,pass,38
+shr_u_3,pass,38
+shr_u_4,pass,38
+shr_u_5,pass,38
+shr_u_6,pass,38
+shr_u_7,pass,38
+shr_u_8,pass,38
+shr_u_9,pass,38
 sub_1,runtime error,
 sub_2,runtime error,
 sub_3,runtime error,
