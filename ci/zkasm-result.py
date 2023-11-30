@@ -138,9 +138,9 @@ def main():
         "--update", action="store_true", help="Whether to update state CSVs"
     )
     args = parser.parse_args()
-    tests_path = args.path
-    generated_dir = f"{tests_path}/generated"
-    test_results_path = f"{tests_path}/state.csv"
+    tests_path = os.path.normpath(args.path)
+    generated_dir = os.path.join(tests_path, "generated")
+    test_results_path = os.path.join(tests_path, "state.csv")
 
     test_results = read_test_execution_results(sys.stdin)
     record_failed_compilation_results(tests_path, generated_dir, test_results)
