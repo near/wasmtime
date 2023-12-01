@@ -299,6 +299,11 @@ mod tests {
         run_spectest("conversions");
     }
 
+    #[test]
+    fn run_benchmarks() {
+        test_wat_in_directory(Path::new(&format!("../zkasm_data/benchmarks/fibonacci")));
+    }
+
     macro_rules! testcases {
         { $($name:ident,)* } => {
           $(
@@ -316,7 +321,6 @@ mod tests {
         locals,
         locals_simple,
         counter,
-        fibonacci,
         add_func,
         mul,
         i64_mul,

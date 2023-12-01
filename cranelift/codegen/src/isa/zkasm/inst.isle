@@ -79,7 +79,27 @@
       (rs1 Reg)
       (rs2 Reg))
 
+    (UDivArith32
+      (rd WritableReg)
+      (rs1 Reg)
+      (rs2 Reg))
+
+    (UDivArith
+      (rd WritableReg)
+      (rs1 Reg)
+      (rs2 Reg))
+
     (RemArith
+      (rd WritableReg)
+      (rs1 Reg)
+      (rs2 Reg))
+
+    (URemArith
+      (rd WritableReg)
+      (rs1 Reg)
+      (rs2 Reg))
+
+    (URemArith32
       (rd WritableReg)
       (rs1 Reg)
       (rs2 Reg))
@@ -746,6 +766,18 @@
             (_ Unit (emit (MInst.MulArith32 dst rs1 rs2))))
         dst))
 
+(decl zk_divu (XReg XReg) XReg)
+(rule (zk_divu rs1 rs2)
+      (let ((dst WritableXReg (temp_writable_xreg))
+            (_ Unit (emit (MInst.UDivArith dst rs1 rs2))))
+        dst))
+
+(decl zk_divu_32 (XReg XReg) XReg)
+(rule (zk_divu_32 rs1 rs2)
+      (let ((dst WritableXReg (temp_writable_xreg))
+            (_ Unit (emit (MInst.UDivArith32 dst rs1 rs2))))
+        dst))
+
 (decl zk_div_32 (XReg XReg) XReg)
 (rule (zk_div_32 rs1 rs2)
       (let ((dst WritableXReg (temp_writable_xreg))
@@ -756,6 +788,12 @@
 (rule (zk_rem_32 rs1 rs2)
       (let ((dst WritableXReg (temp_writable_xreg))
             (_ Unit (emit (MInst.RemArith32 dst rs1 rs2))))
+        dst))
+
+(decl zk_remu_32 (XReg XReg) XReg)
+(rule (zk_remu_32 rs1 rs2)
+      (let ((dst WritableXReg (temp_writable_xreg))
+            (_ Unit (emit (MInst.URemArith32 dst rs1 rs2))))
         dst))
 
 ;; Helper for emitting the `mulh` ("Multiply High Signed Signed") instruction.
@@ -784,6 +822,12 @@
 (rule (zk_rem rs1 rs2)
       (let ((dst WritableXReg (temp_writable_xreg))
             (_ Unit (emit (MInst.RemArith dst rs1 rs2))))
+        dst))
+
+(decl zk_remu (XReg XReg) XReg)
+(rule (zk_remu rs1 rs2)
+      (let ((dst WritableXReg (temp_writable_xreg))
+            (_ Unit (emit (MInst.URemArith dst rs1 rs2))))
         dst))
 
 ;; Helper for emitting the `divu` ("Divide Unsigned") instruction.
