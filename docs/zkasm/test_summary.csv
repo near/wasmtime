@@ -1,7 +1,4 @@
 Suite path,Passing count,Total count,Total cycles
-<<<<<<< HEAD,,,
-=======,,,
->>>>>>> main,,,
 cranelift/zkasm_data,25,26,1023
 cranelift/zkasm_data/benchmarks/fibonacci,1,2,190024
 cranelift/zkasm_data/spectest/conversions,3,24,45

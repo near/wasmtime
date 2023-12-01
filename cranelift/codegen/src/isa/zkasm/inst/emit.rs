@@ -508,7 +508,7 @@ impl MachInstEmit for Inst {
                 );
             }
             &Inst::Rotl64 { rd, rs1, rs2 } => {
-                todo!();
+                unimplemented!("Rotl64");
             }
             &Inst::Rotl32 { rd, rs1, rs2 } => {
                 // rotl(num, amount) = num << amount | num >> (bitness - amount)

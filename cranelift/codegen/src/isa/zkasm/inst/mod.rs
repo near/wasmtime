@@ -268,7 +268,7 @@ fn zkasm_get_operands<F: Fn(VReg) -> VReg>(inst: &Inst, collector: &mut OperandC
             collector.reg_def(rd);
         }
         &Inst::Rotl64 { rd, rs1, rs2, .. } => {
-            todo!();
+            unimplemented!("Rotl64");
             // collector.reg_fixed_use(rs1, a0());
             // collector.reg_fixed_use(rs2, e0());
             // let mut clobbered = PRegSet::empty();
