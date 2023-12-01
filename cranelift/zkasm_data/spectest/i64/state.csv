@@ -271,20 +271,20 @@ rem_s_6,runtime error,
 rem_s_7,pass,27
 rem_s_8,runtime error,
 rem_s_9,pass,27
-rem_u_1,compilation failed,
-rem_u_10,compilation failed,
-rem_u_11,compilation failed,
-rem_u_12,compilation failed,
-rem_u_13,compilation failed,
-rem_u_14,compilation failed,
-rem_u_2,compilation failed,
-rem_u_3,compilation failed,
-rem_u_4,compilation failed,
-rem_u_5,compilation failed,
-rem_u_6,compilation failed,
-rem_u_7,compilation failed,
-rem_u_8,compilation failed,
-rem_u_9,compilation failed,
+rem_u_1,pass,27
+rem_u_10,pass,27
+rem_u_11,pass,27
+rem_u_12,pass,27
+rem_u_13,pass,27
+rem_u_14,pass,27
+rem_u_2,pass,27
+rem_u_3,pass,27
+rem_u_4,pass,27
+rem_u_5,pass,27
+rem_u_6,pass,27
+rem_u_7,pass,27
+rem_u_8,pass,27
+rem_u_9,pass,27
 rotl_1,compilation failed,
 rotl_10,compilation failed,
 rotl_11,compilation failed,
@@ -356,13 +356,13 @@ shr_u_6,pass,38
 shr_u_7,pass,38
 shr_u_8,pass,38
 shr_u_9,pass,38
-sub_1,runtime error,
-sub_2,runtime error,
-sub_3,runtime error,
-sub_4,runtime error,
-sub_5,runtime error,
-sub_6,runtime error,
-sub_7,runtime error,
+sub_1,pass,17
+sub_2,pass,17
+sub_3,pass,17
+sub_4,pass,17
+sub_5,pass,17
+sub_6,pass,17
+sub_7,pass,17
 xor_1,pass,17
 xor_10,pass,17
 xor_2,pass,17

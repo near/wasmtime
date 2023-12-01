@@ -120,16 +120,11 @@
 (rule (lower (has_type $I32 (srem x y)))
   (zk_rem_32 x y))
 
-(rule (lower (has_type $I32 (urem x y)))
-  (let
-    ((y2 XReg (zext y $I32 $I64))
-        (_ InstOutput (gen_div_by_zero y2)))
-    (rv_remuw x y2)))
-
 (rule (lower (has_type $I64 (urem x y)))
-  (let
-    ((_ InstOutput (gen_div_by_zero y)))
-    (rv_remu x y)))
+  (zk_remu x y))
+
+(rule (lower (has_type $I32 (urem x y)))
+  (zk_remu_32 x y))
 
 ;;;; Rules for `and` ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (rule 0 (lower (has_type (ty_int ty) (band x y)))
