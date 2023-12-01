@@ -507,6 +507,69 @@ impl MachInstEmit for Inst {
                     sink,
                 );
             }
+            &Inst::Rotl64 { rd, rs1, rs2 } => {
+                todo!();
+            }
+            &Inst::Rotl32 { rd, rs1, rs2 } => {
+                // rotl(num, amount) = num << amount | num >> (bitness - amount)
+                let rs1 = allocs.next(rs1);
+                let rs2 = allocs.next(rs2);
+                debug_assert_eq!(rs1, a0());
+                debug_assert_eq!(rs2, e0());
+
+                // a (in A) -- number, e (in E) -- rot amount.
+                // It is important to do e := e % 32. Shifts we use here do it inside.
+
+                put_string("A :MSTORE(SP)\n", sink); // a on SP
+                put_string("E :MSTORE(SP + 1)\n", sink); // e on SP + 1
+
+                // Shl and shr also use stack, so we need increase SP
+                put_string("SP + 2 => SP\n", sink);
+
+                Inst::Shl32 {
+                    rd: Writable::from_reg(e0()),
+                    rs1: a0(),
+                    rs2: e0(),
+                }
+                .emit(&[], sink, emit_info, state); // now a << e in E.
+
+                put_string(";; shl\n", sink);
+
+                put_string("SP - 2 => SP\n", sink);
+
+                put_string("$ => C :MLOAD(SP)\n", sink); // a in C
+                put_string("E :MSTORE(SP)\n", sink); // (a << e) on SP
+                put_string("$ => E :MLOAD(SP + 1)\n", sink); // e in E
+
+                put_string("137438953472n => A\n", sink);
+                put_string("E => B\n", sink);
+                put_string("$ => E :SUB\n", sink); // 32 - e in E
+
+                put_string("C => A\n", sink); // a in A
+
+                put_string("SP + 1 => SP\n", sink);
+
+                Inst::Shru32 {
+                    rd: Writable::from_reg(a0()),
+                    rs1: a0(),
+                    rs2: e0(),
+                }
+                .emit(&[], sink, emit_info, state); // now a >> (32 - e) in A
+
+                put_string("SP - 1 => SP\n", sink);
+
+                put_string(";; shr\n", sink);
+
+                put_string("$ => B :MLOAD(SP)\n", sink); // (a << e) in B
+
+                Inst::AluRRR {
+                    alu_op: AluOPRRR::Or,
+                    rd: Writable::from_reg(a0()),
+                    rs1: a0(),
+                    rs2: b0(),
+                }
+                .emit(&[], sink, emit_info, state); // now a >> (32 - e) | (a << e) in A
+            }
             &Inst::Shru64 { rd, rs1, rs2 } => {
                 let rs1 = allocs.next(rs1);
                 let rs2 = allocs.next(rs2);

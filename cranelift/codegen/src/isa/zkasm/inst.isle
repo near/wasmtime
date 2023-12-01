@@ -28,6 +28,16 @@
       (rs1 Reg)
       (rs2 Reg))
 
+    (Rotl64
+      (rd WritableReg)
+      (rs1 Reg)
+      (rs2 Reg))
+
+    (Rotl32
+      (rd WritableReg)
+      (rs1 Reg)
+      (rs2 Reg))
+
     (Shl64
       (rd WritableReg)
       (rs1 Reg)
@@ -705,6 +715,19 @@
 (rule (zk_shl_32 rs1 rs2)
       (let ((dst WritableXReg (temp_writable_xreg))
             (_ Unit (emit (MInst.Shl32 dst rs1 rs2))))
+        dst))
+
+
+(decl zk_rotl (XReg XReg) XReg)
+(rule (zk_rotl rs1 rs2)
+      (let ((dst WritableXReg (temp_writable_xreg))
+            (_ Unit (emit (MInst.Rotl64 dst rs1 rs2))))
+        dst))
+
+(decl zk_rotl_32 (XReg XReg) XReg)
+(rule (zk_rotl_32 rs1 rs2)
+      (let ((dst WritableXReg (temp_writable_xreg))
+            (_ Unit (emit (MInst.Rotl32 dst rs1 rs2))))
         dst))
 
 
