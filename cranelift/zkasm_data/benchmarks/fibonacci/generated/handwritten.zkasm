@@ -1,0 +1,28 @@
+start:
+  10000 => A
+  :CALL(fib)
+fibEnd:
+  15574651946073070043n :ASSERT
+finalizeExecution:
+  ${beforeLast()}  :JMPN(finalizeExecution)
+                   :JMP(start)
+
+; Computes the fibonacci number for N stored in register A.
+; Stores the result in register A.
+; Uses registers: C, D.
+fib:
+  A :JMPZ(fibReturn)
+  ; Here A >= 1.
+
+  A => D
+  0 => A
+  1 => B
+fibLoop:
+  $ => C :ADD
+  B => A
+  C => B
+  D - 1 => D
+  D: JMPNZ(fibLoop)
+
+fibReturn:
+  :RETURN
