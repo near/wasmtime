@@ -209,8 +209,11 @@
   (rv_sra x (value_regs_get y 0)))
 
 ;;;; Rules for `rotl` ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(rule (lower (has_type (fits_in_64 ty) (rotl x y)))
-  (lower_rotl ty (zext x ty $I64) (value_regs_get y 0)))
+(rule (lower (has_type $I64 (rotl x y)))
+  (zk_rotl x y))
+
+(rule (lower (has_type $I32 (rotl x y)))
+  (zk_rotl_32 x y))
 
 ;;;; Rules for `rotr` ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (rule (lower (has_type (fits_in_64 ty) (rotr x y)))
