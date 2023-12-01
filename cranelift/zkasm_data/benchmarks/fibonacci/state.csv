@@ -1,0 +1,3 @@
+Test,Status,Cycles
+from_rust,compilation failed,
+handwritten_wat,pass,190024

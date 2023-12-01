@@ -1,0 +1,54 @@
+start:
+  zkPC + 2 => RR
+  :JMP(function_1)
+  :JMP(finalizeExecution)
+function_1:
+  SP + 1 => SP
+  RR :MSTORE(SP - 1)
+  SP + 6 => SP
+  C :MSTORE(SP - 1)
+  D :MSTORE(SP - 2)
+  E :MSTORE(SP - 3)
+  B :MSTORE(SP - 4)
+  0n => A
+  A :MSTORE(SP + 8)
+  0n => A
+  1n => D
+  D => B
+  :JMP(label_1_1)
+label_1_1:
+  $ => E :ADD
+  B :MSTORE(SP)
+  4294967296n => B
+  $ => A :MLOAD(SP + 8)
+  $ => A :ADD
+  A :MSTORE(SP + 8)
+  42949672960000n => B
+  $ => A :EQ
+  4294967296n => B
+  0 => D
+  0 => C
+  ${A * B} => A :ARITH
+  A => B
+  0 => A
+  $ => A :EQ
+  A :JMPZ(label_1_3)
+  $ => A :MLOAD(SP)
+  E => B
+  :JMP(label_1_1)
+label_1_3:
+  15574651946073070043n => B
+  $ => A :MLOAD(SP)
+  B :ASSERT
+  $ => C :MLOAD(SP - 1)
+  $ => D :MLOAD(SP - 2)
+  $ => E :MLOAD(SP - 3)
+  $ => B :MLOAD(SP - 4)
+  SP - 6 => SP
+  $ => RR :MLOAD(SP - 1)
+  SP - 1 => SP
+  :JMP(RR)
+finalizeExecution:
+  ${beforeLast()}  :JMPN(finalizeExecution)
+                   :JMP(start)
+INCLUDE "helpers/2-exp.zkasm"
