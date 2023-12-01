@@ -45,20 +45,20 @@ div_s_6,runtime error,
 div_s_7,pass,29
 div_s_8,runtime error,
 div_s_9,runtime error,
-div_u_1,compilation failed,
-div_u_10,compilation failed,
-div_u_11,compilation failed,
-div_u_12,compilation failed,
-div_u_13,compilation failed,
-div_u_14,compilation failed,
-div_u_2,compilation failed,
-div_u_3,compilation failed,
-div_u_4,compilation failed,
-div_u_5,compilation failed,
-div_u_6,compilation failed,
-div_u_7,compilation failed,
-div_u_8,compilation failed,
-div_u_9,compilation failed,
+div_u_1,pass,29
+div_u_10,pass,29
+div_u_11,pass,29
+div_u_12,pass,29
+div_u_13,pass,29
+div_u_14,pass,29
+div_u_2,pass,29
+div_u_3,pass,29
+div_u_4,pass,29
+div_u_5,pass,29
+div_u_6,pass,29
+div_u_7,pass,29
+div_u_8,pass,29
+div_u_9,pass,29
 eq_1,pass,25
 eq_10,pass,25
 eq_11,pass,25
