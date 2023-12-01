@@ -321,6 +321,7 @@ mod tests {
         add,
         locals,
         locals_simple,
+        memory,
         counter,
         add_func,
         mul,

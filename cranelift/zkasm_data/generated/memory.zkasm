@@ -1,0 +1,45 @@
+start:
+  zkPC + 2 => RR
+  :JMP(function_1)
+  :JMP(finalizeExecution)
+function_1:
+  SP + 1 => SP
+  RR :MSTORE(SP - 1)
+  SP + 4 => SP
+  D :MSTORE(SP - 1)
+  E :MSTORE(SP - 2)
+  B :MSTORE(SP - 3)
+  0n => B
+  8589934592n => D
+  $ => A :MLOAD(CTX)
+  $ => E :ADD
+  D :MSTORE(E)
+  34359738368n => B
+  12884901888n => E
+  $ => A :MLOAD(CTX)
+  $ => A :ADD
+  E :MSTORE(A)
+  0n => B
+  $ => A :MLOAD(CTX)
+  $ => A :ADD
+  $ => A :MLOAD(A)
+  A => E
+  34359738368n => B
+  $ => A :MLOAD(CTX)
+  $ => A :ADD
+  $ => B :MLOAD(A)
+  E => A
+  $ => A :ADD
+  21474836480n => B
+  B :ASSERT
+  $ => D :MLOAD(SP - 1)
+  $ => E :MLOAD(SP - 2)
+  $ => B :MLOAD(SP - 3)
+  SP - 4 => SP
+  $ => RR :MLOAD(SP - 1)
+  SP - 1 => SP
+  :JMP(RR)
+finalizeExecution:
+  ${beforeLast()}  :JMPN(finalizeExecution)
+                   :JMP(start)
+INCLUDE "helpers/2-exp.zkasm"
