@@ -275,8 +275,7 @@ impl Inst {
         not_taken: BranchTarget,
         ty: Type,
     ) -> SmallInstVec<Inst> {
-        todo!()
-        /* let mut insts = SmallInstVec::new();
+        let mut insts = SmallInstVec::new();
         if ty.bits() <= 64 {
             let rs1 = a.only_reg().unwrap();
             let rs2 = b.only_reg().unwrap();
@@ -288,6 +287,8 @@ impl Inst {
             insts.push(inst);
             return insts;
         }
+        unimplemented!("lower_br_icmp: ty={ty:?}")
+        /*
         // compare i128
         let low = |cc: IntCC| -> IntegerCompare {
             IntegerCompare {

@@ -1,0 +1,79 @@
+start:
+  zkPC + 2 => RR
+  :JMP(function_1)
+  :JMP(finalizeExecution)
+function_1:
+  SP + 1 => SP
+  RR :MSTORE(SP - 1)
+  SP + 5 => SP
+  C :MSTORE(SP - 1)
+  D :MSTORE(SP - 2)
+  E :MSTORE(SP - 3)
+  B :MSTORE(SP - 4)
+  1n => C
+  0n => B
+  42949672960000n => A
+  A => E
+  C => A
+  :JMP(label_1_1)
+label_1_1:
+  $ => C :ADD
+  A => B
+  C => A
+  $ => C :ADD
+  A => B
+  C => A
+  $ => C :ADD
+  A => B
+  C => A
+  $ => C :ADD
+  A => B
+  C => A
+  $ => C :ADD
+  A => B
+  C => A
+  $ => C :ADD
+  A => B
+  C => A
+  $ => C :ADD
+  A => B
+  C => A
+  $ => C :ADD
+  A => B
+  C => A
+  $ => C :ADD
+  A => B
+  C => A
+  $ => D :ADD
+  A :MSTORE(SP)
+  18446744030759878656n => B
+  E => A
+  $ => A :ADD
+  A => C
+  A => E
+  C => B
+  0 => A
+  $ => A :EQ
+  A :JMPZ(label_1_2)
+  :JMP(label_1_3)
+label_1_2:
+  C => E
+  $ => B :MLOAD(SP)
+  D => A
+  :JMP(label_1_1)
+label_1_3:
+  15574651946073070043n => B
+  $ => A :MLOAD(SP)
+  B :ASSERT
+  $ => C :MLOAD(SP - 1)
+  $ => D :MLOAD(SP - 2)
+  $ => E :MLOAD(SP - 3)
+  $ => B :MLOAD(SP - 4)
+  SP - 5 => SP
+  $ => RR :MLOAD(SP - 1)
+  SP - 1 => SP
+  :JMP(RR)
+finalizeExecution:
+  ${beforeLast()}  :JMPN(finalizeExecution)
+                   :JMP(start)
+INCLUDE "helpers/2-exp.zkasm"
