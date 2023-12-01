@@ -1,5 +1,5 @@
 Suite path,Passing count,Total count,Total cycles
 cranelift/zkasm_data,25,26,1023
 cranelift/zkasm_data/spectest/conversions,3,24,45
-cranelift/zkasm_data/spectest/i32,155,364,4589
-cranelift/zkasm_data/spectest/i64,161,374,4042
+cranelift/zkasm_data/spectest/i32,169,364,4995
+cranelift/zkasm_data/spectest/i64,175,374,4406

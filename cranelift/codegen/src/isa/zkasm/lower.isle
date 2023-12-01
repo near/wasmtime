@@ -98,11 +98,12 @@
 
 ;;;; Rules for `div` ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(rule -1 (lower (has_type (fits_in_32 ty) (udiv x y)))
-  (let
-    ((y2 XReg (zext y ty $I64))
-      (_ InstOutput (gen_div_by_zero y2)))
-    (rv_divuw (zext x ty $I64) y2)))
+(rule (lower (has_type $I64 (udiv x y)))
+  (zk_divu x y))
+
+(rule (lower (has_type $I32 (udiv x y)))
+  (zk_divu_32 x y))
+
 
 (rule (lower (has_type $I64 (sdiv x y)))
   (zk_div x y))
@@ -110,10 +111,6 @@
 (rule (lower (has_type $I32 (sdiv x y)))
   (zk_div_32 x y))
 
-(rule (lower (has_type $I64 (udiv x y)))
-  (let
-    ((_ InstOutput (gen_div_by_zero y)))
-    (rv_divu x y)))
 
 ;;;; Rules for `rem` ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 

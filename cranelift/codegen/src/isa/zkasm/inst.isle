@@ -69,6 +69,16 @@
       (rs1 Reg)
       (rs2 Reg))
 
+    (UDivArith32
+      (rd WritableReg)
+      (rs1 Reg)
+      (rs2 Reg))
+
+    (UDivArith
+      (rd WritableReg)
+      (rs1 Reg)
+      (rs2 Reg))
+
     (RemArith
       (rd WritableReg)
       (rs1 Reg)
@@ -721,6 +731,18 @@
 (rule (zk_mul_32 rs1 rs2)
       (let ((dst WritableXReg (temp_writable_xreg))
             (_ Unit (emit (MInst.MulArith32 dst rs1 rs2))))
+        dst))
+
+(decl zk_divu (XReg XReg) XReg)
+(rule (zk_divu rs1 rs2)
+      (let ((dst WritableXReg (temp_writable_xreg))
+            (_ Unit (emit (MInst.UDivArith dst rs1 rs2))))
+        dst))
+
+(decl zk_divu_32 (XReg XReg) XReg)
+(rule (zk_divu_32 rs1 rs2)
+      (let ((dst WritableXReg (temp_writable_xreg))
+            (_ Unit (emit (MInst.UDivArith32 dst rs1 rs2))))
         dst))
 
 (decl zk_div_32 (XReg XReg) XReg)

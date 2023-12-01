@@ -679,6 +679,37 @@ impl MachInstEmit for Inst {
                 put_string("${E % B} => C\n", sink);
                 put_string("E:ARITH\n", sink);
             }
+            &Inst::UDivArith32 { rd, rs1, rs2 } => {
+                let rs1 = allocs.next(rs1);
+                let rs2 = allocs.next(rs2);
+                debug_assert_eq!(rs1, e0());
+                debug_assert_eq!(rs2, b0());
+                let rd = allocs.next_writable(rd);
+                // E / B => A
+                put_string("0 => D\n", sink);
+                put_string("${E / B} => A\n", sink);
+                put_string("${E % B} => C\n", sink);
+                put_string("E:ARITH\n", sink);
+
+                // A *= 2 ** 32
+                put_string("4294967296n => B\n", sink);
+                put_string("0 => C\n", sink);
+                // Intentionnaly ignore 64-bit overflow here
+                // (don't write _mulArith / 2 ** 64 => D)
+                // because if it is non-zero something is not OK
+                put_string("${A * B} => A :ARITH\n", sink);
+            }
+            &Inst::UDivArith { rd, rs1, rs2 } => {
+                let rs1 = allocs.next(rs1);
+                let rs2 = allocs.next(rs2);
+                debug_assert_eq!(rs1, e0());
+                debug_assert_eq!(rs2, b0());
+                let rd = allocs.next_writable(rd);
+                put_string("0 => D\n", sink);
+                put_string("${E / B} => A\n", sink);
+                put_string("${E % B} => C\n", sink);
+                put_string("E:ARITH\n", sink);
+            }
             // Rem32 is quite difficult opcode. Here we need calculate
             // ((op1 / 2**32) % (op2 / 2**32)) * 2**32
             &Inst::RemArith32 { rd, rs1, rs2 } => {
