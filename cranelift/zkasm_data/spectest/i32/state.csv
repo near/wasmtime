@@ -346,13 +346,13 @@ shr_u_6,pass,58
 shr_u_7,pass,58
 shr_u_8,pass,58
 shr_u_9,pass,58
-sub_1,runtime error,
-sub_2,runtime error,
-sub_3,runtime error,
-sub_4,runtime error,
-sub_5,runtime error,
-sub_6,runtime error,
-sub_7,runtime error,
+sub_1,pass,17
+sub_2,pass,17
+sub_3,pass,17
+sub_4,pass,17
+sub_5,pass,17
+sub_6,pass,17
+sub_7,pass,17
 xor_1,pass,17
 xor_10,pass,17
 xor_2,pass,17
