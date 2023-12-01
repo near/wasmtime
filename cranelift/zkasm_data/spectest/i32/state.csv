@@ -261,20 +261,20 @@ rem_s_6,runtime error,
 rem_s_7,pass,43
 rem_s_8,runtime error,
 rem_s_9,pass,43
-rem_u_1,compilation failed,
-rem_u_10,compilation failed,
-rem_u_11,compilation failed,
-rem_u_12,compilation failed,
-rem_u_13,compilation failed,
-rem_u_14,compilation failed,
-rem_u_2,compilation failed,
-rem_u_3,compilation failed,
-rem_u_4,compilation failed,
-rem_u_5,compilation failed,
-rem_u_6,compilation failed,
-rem_u_7,compilation failed,
-rem_u_8,compilation failed,
-rem_u_9,compilation failed,
+rem_u_1,pass,43
+rem_u_10,pass,43
+rem_u_11,pass,43
+rem_u_12,pass,43
+rem_u_13,pass,43
+rem_u_14,pass,43
+rem_u_2,pass,43
+rem_u_3,pass,43
+rem_u_4,pass,43
+rem_u_5,pass,43
+rem_u_6,pass,43
+rem_u_7,pass,43
+rem_u_8,pass,43
+rem_u_9,pass,43
 rotl_1,compilation failed,
 rotl_10,compilation failed,
 rotl_11,compilation failed,
