@@ -302,6 +302,7 @@ mod tests {
     #[test]
     fn run_benchmarks() {
         test_wat_in_directory(Path::new(&format!("../zkasm_data/benchmarks/fibonacci")));
+        test_wat_in_directory(Path::new(&format!("../zkasm_data/benchmarks/sha256")));
     }
 
     macro_rules! testcases {
