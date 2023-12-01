@@ -68,6 +68,10 @@ async function compilePil() {
 
 // Get all zkasm test files
 function getTestFiles(pathZkasm) {
+    if (!fs.existsSync(pathZkasm)) {
+        return [];
+    }
+
     // check if path provided is a file or a directory
     const stats = fs.statSync(pathZkasm);
 
