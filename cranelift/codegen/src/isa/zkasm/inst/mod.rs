@@ -784,7 +784,7 @@ impl MachInst for Inst {
 
     fn worst_case_size() -> CodeOffset {
         // calculate by test function zkasm_worst_case_instruction_size()
-        1_000_000
+        1_155
     }
 
     fn ref_type_regclass(_settings: &settings::Flags) -> RegClass {
