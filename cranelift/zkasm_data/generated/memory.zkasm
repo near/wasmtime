@@ -6,35 +6,41 @@ function_1:
   SP + 1 => SP
   RR :MSTORE(SP - 1)
   SP + 4 => SP
-  D :MSTORE(SP - 1)
-  E :MSTORE(SP - 2)
-  B :MSTORE(SP - 3)
+  C :MSTORE(SP - 1)
+  D :MSTORE(SP - 2)
+  E :MSTORE(SP - 3)
+  B :MSTORE(SP - 4)
   0n => B
   8589934592n => D
-  $ => A :MLOAD(CTX)
+  0 => A
   $ => E :ADD
-  D :MSTORE(E)
+  ${ E >> 32 } => E
+  D :MSTORE(MEM:E)
   34359738368n => B
-  12884901888n => E
-  $ => A :MLOAD(CTX)
-  $ => A :ADD
-  E :MSTORE(A)
+  12884901888n => C
+  0 => A
+  $ => E :ADD
+  ${ E >> 32 } => E
+  C :MSTORE(MEM:E)
   0n => B
-  $ => A :MLOAD(CTX)
+  0 => A
   $ => A :ADD
-  $ => A :MLOAD(A)
-  A => E
+  ${ A >> 32 } => E
+  $ => A :MLOAD(MEM:E)
+  A => C
   34359738368n => B
-  $ => A :MLOAD(CTX)
+  0 => A
   $ => A :ADD
-  $ => B :MLOAD(A)
-  E => A
+  ${ A >> 32 } => E
+  $ => B :MLOAD(MEM:E)
+  C => A
   $ => A :ADD
   21474836480n => B
   B :ASSERT
-  $ => D :MLOAD(SP - 1)
-  $ => E :MLOAD(SP - 2)
-  $ => B :MLOAD(SP - 3)
+  $ => C :MLOAD(SP - 1)
+  $ => D :MLOAD(SP - 2)
+  $ => E :MLOAD(SP - 3)
+  $ => B :MLOAD(SP - 4)
   SP - 4 => SP
   $ => RR :MLOAD(SP - 1)
   SP - 1 => SP
