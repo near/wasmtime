@@ -914,8 +914,6 @@ impl MachInstEmit for Inst {
                 let rd = allocs.next_writable(rd);
                 match from {
                     AMode::RegOffset(r, off, _) => {
-                        // For now we only support zero offsets.
-                        assert_eq!(off, 0);
                         if r == context_reg() {
                             put_string(&format!("0 => {}\n", reg_name(rd.to_reg())), sink);
                         } else {
@@ -923,7 +921,11 @@ impl MachInstEmit for Inst {
                             // are stored without shifts.
                             put_string(&format!("${{ {} >> 32 }} => E\n", reg_name(r)), sink);
                             put_string(
-                                &format!("$ => {} :MLOAD(MEM:E)\n", reg_name(rd.to_reg()),),
+                                &format!(
+                                    "$ => {} :MLOAD(MEM:{})\n",
+                                    reg_name(rd.to_reg()),
+                                    access_reg_with_offset(e0(), off)
+                                ),
                                 sink,
                             );
                         }
@@ -958,13 +960,18 @@ impl MachInstEmit for Inst {
 
                 match to {
                     AMode::RegOffset(r, off, _) => {
-                        // For now we only support zero offsets.
-                        assert_eq!(off, 0);
                         debug_assert_eq!(r, e0());
                         // TODO(akashin): Get rid of this unsound logic when 32-bit registers
                         // are stored without shifts.
                         put_string(&format!("${{ E >> 32 }} => E\n"), sink);
-                        put_string(&format!("{} :MSTORE(MEM:E)\n", reg_name(src)), sink);
+                        put_string(
+                            &format!(
+                                "{} :MSTORE(MEM:{})\n",
+                                reg_name(src),
+                                access_reg_with_offset(e0(), off)
+                            ),
+                            sink,
+                        );
                     }
                     AMode::SPOffset(off, _) | AMode::NominalSPOffset(off, _) => {
                         put_string(
