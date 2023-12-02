@@ -20,7 +20,7 @@ locals_simple,pass,15
 lt_s,pass,34
 lt_u,pass,34
 mul,pass,31
-ne,pass,38
+ne,pass,36
 nop,pass,15
 or,pass,17
 rem,pass,68

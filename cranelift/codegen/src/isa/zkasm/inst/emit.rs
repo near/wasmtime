@@ -1632,24 +1632,33 @@ impl MachInstEmit for Inst {
                 debug_assert_eq!(a, a0());
                 debug_assert_eq!(b, b0());
 
-                let opcode = match cc {
-                    IntCC::Equal => "EQ",
-                    IntCC::NotEqual => "EQ",
-                    IntCC::SignedLessThan => "SLT",
-                    IntCC::SignedGreaterThanOrEqual => todo!(),
-                    IntCC::SignedGreaterThan => todo!(),
-                    IntCC::SignedLessThanOrEqual => todo!(),
-                    IntCC::UnsignedLessThan => "LT",
-                    IntCC::UnsignedGreaterThanOrEqual => todo!(),
-                    IntCC::UnsignedGreaterThan => todo!(),
-                    IntCC::UnsignedLessThanOrEqual => todo!(),
+                let (opcode, invert_result, swap_inputs) = match cc {
+                    IntCC::Equal => ("EQ", false, false),
+                    IntCC::NotEqual => ("EQ", true, false),
+                    IntCC::SignedLessThan => ("SLT", false, false),
+                    IntCC::SignedGreaterThanOrEqual => ("SLT", true, false),
+                    IntCC::SignedGreaterThan => ("SLT", false, true),
+                    IntCC::SignedLessThanOrEqual => ("SLT", true, true),
+                    IntCC::UnsignedLessThan => ("LT", false, false),
+                    IntCC::UnsignedGreaterThanOrEqual => ("LT", true, false),
+                    IntCC::UnsignedGreaterThan => ("LT", false, true),
+                    IntCC::UnsignedLessThanOrEqual => ("LT", true, true),
                 };
 
-                put_string(&format!("$ => {} :{opcode}\n", reg_name(rd.to_reg())), sink);
+                // NB: We can implement this more efficiently by either introducing a dedicated
+                // ZK ASM instruction or introducing a new ISLE instruction and asking register
+                // allocator to put the inputs in the reverse from the start.
+                if swap_inputs {
+                    put_string(&format!("A => C\n"), sink);
+                    put_string(&format!("B => A\n"), sink);
+                    put_string(&format!("C => B\n"), sink);
+                }
 
-                if cc == IntCC::NotEqual {
-                    put_string("1 => B\n", sink);
-                    put_string(&format!("$ => {} :XOR\n", reg_name(rd.to_reg())), sink);
+                if invert_result {
+                    put_string(&format!("$ => A :{opcode}\n"), sink);
+                    put_string(&format!("1 - A => {}\n", reg_name(rd.to_reg())), sink);
+                } else {
+                    put_string(&format!("$ => {} :{opcode}\n", reg_name(rd.to_reg())), sink);
                 }
 
                 // Result of comparing operations in wasm for both i32 and i64
