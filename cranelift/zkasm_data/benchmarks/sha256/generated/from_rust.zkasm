@@ -5,95 +5,125 @@ start:
 function_1:
   SP + 1 => SP
   RR :MSTORE(SP - 1)
-  SP + 16 => SP
+  SP + 18 => SP
   C :MSTORE(SP - 1)
   D :MSTORE(SP - 2)
   E :MSTORE(SP - 3)
   B :MSTORE(SP - 4)
-  $ => A :MLOAD(CTX + 8)
+  CTX :MSTORE(SP - 5)
+  0 => A
+  CTX :MSTORE(SP)
   1030792151040n => B
   $ => A :SUB
+  $ => E :MLOAD(SP)
   A :MSTORE(SP + 88)
-  A :MSTORE(CTX + 8)
+  ${ E >> 32 } => E
+  A :MSTORE(MEM:E + 8)
   34359738368n => B
   $ => E :ADD
   E => A
   34359738368n => B
   $ => B :ADD
-  0n => E
-  $ => A :MLOAD(CTX)
-  $ => A :ADD
-  B :MSTORE(SP)
-  E :MSTORE(A)
+  0n => CTX
+  $ => C :MLOAD(SP)
+  ${ C >> 32 } => E
+  $ => A :MLOAD(MEM:E)
+  $ => E :ADD
+  B :MSTORE(SP + 24)
+  ${ E >> 32 } => E
+  CTX :MSTORE(MEM:E)
   34359738368n => B
   $ => A :MLOAD(SP + 88)
   $ => B :ADD
   B => A
   68719476736n => B
   $ => B :ADD
-  B :MSTORE(SP + 80)
-  0n => C
-  $ => A :MLOAD(CTX)
-  $ => A :ADD
-  C :MSTORE(A)
+  B :MSTORE(SP + 16)
+  0n => CTX
+  $ => B :MLOAD(SP)
+  ${ B >> 32 } => E
+  $ => A :MLOAD(MEM:E)
+  $ => B :MLOAD(SP + 16)
+  $ => E :ADD
+  ${ E >> 32 } => E
+  CTX :MSTORE(MEM:E)
   34359738368n => B
   $ => A :MLOAD(SP + 88)
   $ => B :ADD
   B => A
   103079215104n => B
+  $ => B :ADD
+  B :MSTORE(SP + 8)
+  0n => CTX
+  ${ C >> 32 } => E
+  $ => A :MLOAD(MEM:E)
+  $ => E :ADD
+  ${ E >> 32 } => E
+  CTX :MSTORE(MEM:E)
+  171798691840n => B
+  $ => A :MLOAD(SP + 88)
+  $ => B :ADD
+  B :MSTORE(SP + 80)
+  0n => CTX
+  $ => D :MLOAD(SP)
+  ${ D >> 32 } => E
+  $ => A :MLOAD(MEM:E)
+  $ => E :ADD
+  ${ E >> 32 } => E
+  CTX :MSTORE(MEM:E)
+  34359738368n => B
+  $ => A :MLOAD(SP + 88)
+  $ => C :ADD
+  C => A
+  171798691840n => B
   $ => B :ADD
   B :MSTORE(SP + 72)
   0n => C
-  $ => A :MLOAD(CTX)
-  $ => D :ADD
-  C :MSTORE(D)
-  171798691840n => B
-  $ => A :MLOAD(SP + 88)
-  $ => B :ADD
-  B :MSTORE(SP + 64)
-  0n => C
-  $ => A :MLOAD(CTX)
-  $ => D :ADD
-  C :MSTORE(D)
-  34359738368n => B
-  $ => A :MLOAD(SP + 88)
-  $ => C :ADD
-  C => A
-  171798691840n => B
-  $ => B :ADD
-  B :MSTORE(SP + 56)
-  0n => C
-  $ => A :MLOAD(CTX)
-  $ => D :ADD
-  C :MSTORE(D)
+  $ => B :MLOAD(SP)
+  ${ B >> 32 } => E
+  $ => A :MLOAD(MEM:E)
+  $ => B :MLOAD(SP + 72)
+  $ => E :ADD
+  ${ E >> 32 } => E
+  C :MSTORE(MEM:E)
   227633266688n => B
   $ => A :MLOAD(SP + 88)
   $ => B :ADD
-  B :MSTORE(SP + 48)
+  B :MSTORE(SP + 64)
   0n => D
-  $ => A :MLOAD(CTX)
+  $ => CTX :MLOAD(SP)
+  0 => A
   $ => E :ADD
-  D :MSTORE(E)
-  0n => E
-  $ => A :MLOAD(CTX)
+  ${ E >> 32 } => E
+  D :MSTORE(MEM:E)
+  0n => CTX
+  $ => B :MLOAD(SP)
+  ${ B >> 32 } => E
+  $ => A :MLOAD(MEM:E)
   $ => B :MLOAD(SP + 88)
-  $ => A :ADD
-  E :MSTORE(A + 8)
+  $ => E :ADD
+  ${ E >> 32 } => E
+  CTX :MSTORE(MEM:E + 8)
   274877906944n => B
   $ => A :MLOAD(SP + 88)
   $ => B :ADD
   B => A
   103079215104n => B
   $ => B :ADD
-  B => D
+  B :MSTORE(SP + 56)
   0n => B
-  $ => A :MLOAD(CTX)
+  $ => D :MLOAD(SP)
+  ${ D >> 32 } => E
+  $ => A :MLOAD(MEM:E)
   $ => A :ADD
-  $ => C :MLOAD(A + 1048600)
-  $ => A :MLOAD(CTX)
-  D => B
-  $ => A :ADD
-  C :MSTORE(A)
+  ${ A >> 32 } => E
+  $ => C :MLOAD(MEM:E + 1048600)
+  $ => CTX :MLOAD(SP)
+  0 => A
+  $ => B :MLOAD(SP + 56)
+  $ => E :ADD
+  ${ E >> 32 } => E
+  C :MSTORE(MEM:E)
   274877906944n => B
   $ => A :MLOAD(SP + 88)
   $ => B :ADD
@@ -102,178 +132,268 @@ function_1:
   $ => B :ADD
   B => D
   0n => B
-  $ => A :MLOAD(CTX)
+  $ => A :MLOAD(SP)
+  ${ A >> 32 } => E
+  $ => CTX :MLOAD(MEM:E)
+  CTX => A
   $ => B :ADD
-  $ => C :MLOAD(B + 1048592)
-  $ => A :MLOAD(CTX)
+  ${ B >> 32 } => E
+  $ => CTX :MLOAD(MEM:E + 1048592)
+  $ => C :MLOAD(SP)
+  ${ C >> 32 } => E
+  $ => A :MLOAD(MEM:E)
   D => B
-  $ => B :ADD
-  C :MSTORE(B)
+  $ => E :ADD
+  ${ E >> 32 } => E
+  CTX :MSTORE(MEM:E)
   274877906944n => B
   $ => A :MLOAD(SP + 88)
-  $ => C :ADD
-  C => A
+  $ => CTX :ADD
+  CTX => A
   34359738368n => B
   $ => B :ADD
-  B => D
+  B => C
   0n => B
-  $ => A :MLOAD(CTX)
-  $ => C :ADD
-  $ => C :MLOAD(C + 1048584)
-  $ => A :MLOAD(CTX)
-  D => B
-  $ => D :ADD
-  C :MSTORE(D)
+  $ => A :MLOAD(SP)
+  ${ A >> 32 } => E
+  $ => CTX :MLOAD(MEM:E)
+  CTX => A
+  $ => CTX :ADD
+  0 => CTX
+  $ => D :MLOAD(SP)
+  ${ D >> 32 } => E
+  $ => A :MLOAD(MEM:E)
+  C => B
+  $ => E :ADD
+  ${ E >> 32 } => E
+  CTX :MSTORE(MEM:E)
   476741369856n => B
   $ => A :MLOAD(SP + 88)
   $ => B :ADD
-  B => D
+  B => CTX
   0n => B
-  $ => A :MLOAD(CTX)
+  $ => A :MLOAD(SP)
+  ${ A >> 32 } => E
+  $ => C :MLOAD(MEM:E)
+  C => A
   $ => C :ADD
-  $ => C :MLOAD(C + 1048615)
-  $ => A :MLOAD(CTX)
-  D => B
-  $ => D :ADD
-  C :MSTORE(D)
+  ${ C >> 32 } => E
+  $ => C :MLOAD(MEM:E + 1048615)
+  ${ D >> 32 } => E
+  $ => A :MLOAD(MEM:E)
+  CTX => B
+  $ => E :ADD
+  ${ E >> 32 } => E
+  C :MSTORE(MEM:E)
   0n => B
-  $ => A :MLOAD(CTX)
+  $ => CTX :MLOAD(SP)
+  0 => A
   $ => D :ADD
-  $ => D :MLOAD(D + 1048576)
-  $ => A :MLOAD(CTX)
+  ${ D >> 32 } => E
+  $ => D :MLOAD(MEM:E + 1048576)
+  $ => A :MLOAD(SP)
+  ${ A >> 32 } => E
+  $ => B :MLOAD(MEM:E)
+  B => A
   $ => B :MLOAD(SP + 88)
   $ => E :ADD
-  D :MSTORE(E + 64)
-  0n => E
-  $ => A :MLOAD(CTX)
-  $ => A :ADD
-  E :MSTORE(A + 96)
-  0n => B
-  $ => A :MLOAD(CTX)
-  $ => A :ADD
-  $ => C :MLOAD(A + 1048608)
-  $ => A :MLOAD(CTX)
+  ${ E >> 32 } => E
+  D :MSTORE(MEM:E + 64)
+  0n => CTX
+  $ => B :MLOAD(SP)
+  ${ B >> 32 } => E
+  $ => A :MLOAD(MEM:E)
   $ => B :MLOAD(SP + 88)
+  $ => E :ADD
+  ${ E >> 32 } => E
+  CTX :MSTORE(MEM:E + 96)
+  0n => B
+  $ => D :MLOAD(SP)
+  ${ D >> 32 } => E
+  $ => A :MLOAD(MEM:E)
   $ => A :ADD
-  C :MSTORE(A + 104)
+  ${ A >> 32 } => E
+  $ => C :MLOAD(MEM:E + 1048608)
+  $ => CTX :MLOAD(SP)
+  0 => A
+  $ => B :MLOAD(SP + 88)
+  $ => E :ADD
+  ${ E >> 32 } => E
+  C :MSTORE(MEM:E + 104)
   493921239040n => B
   $ => A :MLOAD(SP + 88)
   $ => B :ADD
-  B :MSTORE(SP + 40)
-  $ => A :MLOAD(CTX)
+  B :MSTORE(SP + 56)
+  0 => A
   $ => B :MLOAD(SP + 88)
-  $ => C :ADD
-  $ => C :MLOAD(C + 8)
-  $ => A :MLOAD(CTX)
-  $ => B :MLOAD(SP + 40)
-  $ => D :ADD
-  C :MSTORE(D)
+  $ => CTX :ADD
+  0 => CTX
+  $ => A :MLOAD(SP)
+  ${ A >> 32 } => E
+  $ => B :MLOAD(MEM:E)
+  B => A
+  $ => B :MLOAD(SP + 56)
+  $ => E :ADD
+  ${ E >> 32 } => E
+  CTX :MSTORE(MEM:E)
   528280977408n => B
   $ => A :MLOAD(SP + 88)
   $ => B :ADD
-  B => D
-  $ => A :MLOAD(CTX)
-  $ => B :MLOAD(SP)
-  $ => C :ADD
-  $ => C :MLOAD(C)
-  $ => A :MLOAD(CTX)
-  D => B
-  $ => D :ADD
-  C :MSTORE(D)
+  B => C
+  $ => A :MLOAD(SP)
+  ${ A >> 32 } => E
+  $ => CTX :MLOAD(MEM:E)
+  CTX => A
+  $ => B :MLOAD(SP + 24)
+  $ => CTX :ADD
+  0 => CTX
+  ${ D >> 32 } => E
+  $ => A :MLOAD(MEM:E)
+  C => B
+  $ => E :ADD
+  ${ E >> 32 } => E
+  CTX :MSTORE(MEM:E)
   562640715776n => B
   $ => A :MLOAD(SP + 88)
   $ => B :ADD
-  B => D
-  $ => A :MLOAD(CTX)
-  $ => B :MLOAD(SP + 80)
+  B :MSTORE(SP + 48)
+  ${ D >> 32 } => E
+  $ => A :MLOAD(MEM:E)
+  $ => B :MLOAD(SP + 16)
   $ => C :ADD
-  $ => C :MLOAD(C)
-  $ => A :MLOAD(CTX)
-  D => B
-  $ => D :ADD
-  C :MSTORE(D)
+  ${ C >> 32 } => E
+  $ => C :MLOAD(MEM:E)
+  $ => CTX :MLOAD(SP)
+  0 => A
+  $ => B :MLOAD(SP + 48)
+  $ => E :ADD
+  ${ E >> 32 } => E
+  C :MSTORE(MEM:E)
   597000454144n => B
   $ => A :MLOAD(SP + 88)
   $ => B :ADD
-  B => E
-  $ => A :MLOAD(CTX)
-  $ => B :MLOAD(SP + 72)
+  B => C
+  0 => A
+  $ => B :MLOAD(SP + 8)
   $ => D :ADD
-  $ => D :MLOAD(D)
-  $ => A :MLOAD(CTX)
-  E => B
+  ${ D >> 32 } => E
+  $ => D :MLOAD(MEM:E)
+  $ => A :MLOAD(SP)
+  ${ A >> 32 } => E
+  $ => CTX :MLOAD(MEM:E)
+  CTX => A
+  C => B
   $ => E :ADD
-  D :MSTORE(E)
+  ${ E >> 32 } => E
+  D :MSTORE(MEM:E)
   631360192512n => B
   $ => A :MLOAD(SP + 88)
   $ => B :ADD
   B => C
-  $ => A :MLOAD(CTX)
-  $ => B :MLOAD(SP + 64)
+  $ => A :MLOAD(SP)
+  ${ A >> 32 } => E
+  $ => CTX :MLOAD(MEM:E)
+  CTX => A
+  $ => B :MLOAD(SP + 80)
   $ => E :ADD
-  $ => E :MLOAD(E)
-  $ => A :MLOAD(CTX)
+  ${ E >> 32 } => E
+  $ => CTX :MLOAD(MEM:E)
+  $ => D :MLOAD(SP)
+  ${ D >> 32 } => E
+  $ => A :MLOAD(MEM:E)
   C => B
-  $ => A :ADD
-  E :MSTORE(A)
+  $ => E :ADD
+  ${ E >> 32 } => E
+  CTX :MSTORE(MEM:E)
   665719930880n => B
   $ => A :MLOAD(SP + 88)
   $ => B :ADD
-  B => D
-  $ => A :MLOAD(CTX)
-  $ => B :MLOAD(SP + 56)
+  B :MSTORE(SP + 48)
+  ${ D >> 32 } => E
+  $ => A :MLOAD(MEM:E)
+  $ => B :MLOAD(SP + 72)
   $ => A :ADD
-  $ => C :MLOAD(A)
-  $ => A :MLOAD(CTX)
-  D => B
-  $ => A :ADD
-  C :MSTORE(A)
+  ${ A >> 32 } => E
+  $ => C :MLOAD(MEM:E)
+  $ => CTX :MLOAD(SP)
+  0 => A
+  $ => B :MLOAD(SP + 48)
+  $ => E :ADD
+  ${ E >> 32 } => E
+  C :MSTORE(MEM:E)
   687194767360n => B
   $ => A :MLOAD(SP + 88)
   $ => B :ADD
-  B => E
-  $ => A :MLOAD(CTX)
-  $ => B :MLOAD(SP + 48)
-  $ => C :ADD
-  $ => C :MLOAD(C)
-  $ => A :MLOAD(CTX)
-  E => B
-  $ => B :ADD
-  C :MSTORE(B)
-  47244640256n => C
-  $ => A :MLOAD(CTX)
+  B => D
+  0 => A
+  $ => B :MLOAD(SP + 64)
+  $ => CTX :ADD
+  0 => CTX
+  $ => A :MLOAD(SP)
+  ${ A >> 32 } => E
+  $ => C :MLOAD(MEM:E)
+  C => A
+  D => B
+  $ => E :ADD
+  ${ E >> 32 } => E
+  CTX :MSTORE(MEM:E)
+  47244640256n => CTX
+  $ => A :MLOAD(SP)
+  ${ A >> 32 } => E
+  $ => C :MLOAD(MEM:E)
+  C => A
   $ => B :MLOAD(SP + 88)
-  $ => D :ADD
-  C :MSTORE(D + 168)
+  $ => E :ADD
+  ${ E >> 32 } => E
+  CTX :MSTORE(MEM:E + 168)
   738734374912n => B
   $ => A :MLOAD(SP + 88)
   $ => B :ADD
-  B => D
+  B :MSTORE(SP + 48)
   17179869184n => B
   $ => B :ADD
-  $ => A :MLOAD(CTX)
+  $ => CTX :MLOAD(SP)
+  0 => A
   $ => C :ADD
-  $ => C :MLOAD(C)
-  $ => A :MLOAD(CTX)
-  D => B
-  $ => D :ADD
-  C :MSTORE(D)
-  $ => A :MLOAD(CTX)
-  $ => B :MLOAD(SP + 88)
-  $ => D :ADD
-  $ => D :MLOAD(D + 1)
-  $ => A :MLOAD(CTX)
+  ${ C >> 32 } => E
+  $ => C :MLOAD(MEM:E)
+  $ => A :MLOAD(SP)
+  ${ A >> 32 } => E
+  $ => D :MLOAD(MEM:E)
+  D => A
+  $ => B :MLOAD(SP + 48)
   $ => E :ADD
-  D :MSTORE(E + 169)
-  549755813888n => E
-  $ => A :MLOAD(CTX)
-  $ => B :MLOAD(SP + 40)
-  $ => A :ADD
-  E :MSTORE(A)
-  $ => A :MLOAD(CTX)
+  ${ E >> 32 } => E
+  C :MSTORE(MEM:E)
+  $ => C :MLOAD(SP)
+  ${ C >> 32 } => E
+  $ => A :MLOAD(MEM:E)
+  $ => B :MLOAD(SP + 88)
+  $ => D :ADD
+  ${ D >> 32 } => E
+  $ => D :MLOAD(MEM:E + 1)
+  $ => B :MLOAD(SP)
+  ${ B >> 32 } => E
+  $ => A :MLOAD(MEM:E)
+  $ => B :MLOAD(SP + 88)
+  $ => E :ADD
+  ${ E >> 32 } => E
+  D :MSTORE(MEM:E + 169)
+  549755813888n => CTX
+  $ => B :MLOAD(SP)
+  ${ B >> 32 } => E
+  $ => A :MLOAD(MEM:E)
+  $ => B :MLOAD(SP + 56)
+  $ => E :ADD
+  ${ E >> 32 } => E
+  CTX :MSTORE(MEM:E)
+  $ => D :MLOAD(SP)
+  ${ D >> 32 } => E
+  $ => A :MLOAD(MEM:E)
   $ => B :MLOAD(SP + 88)
   $ => A :ADD
-  $ => A :MLOAD(A + 96)
+  ${ A >> 32 } => E
+  $ => A :MLOAD(MEM:E + 96)
   9n => E
   A :MSTORE(SP)
   64 => B
@@ -290,14 +410,14 @@ function_1:
   $${var _mulShlArith = A * B}
   ${_mulShlArith / 18446744073709551616} => D
   ${_mulShlArith % 18446744073709551616} => E :ARITH
-  E :MSTORE(SP + 32)
-  A :MSTORE(SP + 40)
+  E => CTX
+  A :MSTORE(SP + 48)
   88n => B
-  $ => A :MLOAD(SP + 32)
+  CTX => A
   $ => B :OR
-  B :MSTORE(SP + 24)
+  B :MSTORE(SP + 40)
   65024n => B
-  $ => A :MLOAD(SP + 24)
+  $ => A :MLOAD(SP + 40)
   $ => B :AND
   B => A
   40n => E
@@ -316,9 +436,9 @@ function_1:
   $${var _mulShlArith = A * B}
   ${_mulShlArith / 18446744073709551616} => D
   ${_mulShlArith % 18446744073709551616} => E :ARITH
-  E :MSTORE(SP + 16)
+  E :MSTORE(SP + 32)
   16711680n => B
-  $ => A :MLOAD(SP + 24)
+  $ => A :MLOAD(SP + 40)
   $ => B :AND
   B => A
   24n => E
@@ -337,9 +457,9 @@ function_1:
   $${var _mulShlArith = A * B}
   ${_mulShlArith / 18446744073709551616} => D
   ${_mulShlArith % 18446744073709551616} => E :ARITH
-  E :MSTORE(SP + 8)
+  E :MSTORE(SP + 24)
   4278190080n => B
-  $ => A :MLOAD(SP + 24)
+  $ => A :MLOAD(SP + 40)
   $ => A :AND
   8n => E
   A :MSTORE(SP)
@@ -357,14 +477,14 @@ function_1:
   $${var _mulShlArith = A * B}
   ${_mulShlArith / 18446744073709551616} => D
   ${_mulShlArith % 18446744073709551616} => E :ARITH
-  $ => A :MLOAD(SP + 8)
+  $ => A :MLOAD(SP + 24)
   E => B
   $ => B :OR
-  $ => A :MLOAD(SP + 16)
+  $ => A :MLOAD(SP + 32)
   $ => A :OR
-  A :MSTORE(SP + 8)
+  A :MSTORE(SP + 24)
   1n => E
-  $ => A :MLOAD(SP + 40)
+  $ => A :MLOAD(SP + 48)
   A :MSTORE(SP)
   64 => B
   0 => D
@@ -383,9 +503,9 @@ function_1:
   E => A
   4278190080n => B
   $ => A :AND
-  A :MSTORE(SP)
+  A :MSTORE(SP + 16)
   15n => E
-  $ => A :MLOAD(SP + 40)
+  $ => A :MLOAD(SP + 48)
   A :MSTORE(SP)
   64 => B
   0 => D
@@ -403,11 +523,11 @@ function_1:
   E :ARITH
   16711680n => B
   $ => B :AND
-  $ => A :MLOAD(SP)
+  $ => A :MLOAD(SP + 16)
   $ => A :OR
-  A :MSTORE(SP)
+  A :MSTORE(SP + 16)
   31n => E
-  $ => A :MLOAD(SP + 40)
+  $ => A :MLOAD(SP + 48)
   A :MSTORE(SP)
   64 => B
   0 => D
@@ -425,9 +545,9 @@ function_1:
   E :ARITH
   65280n => B
   $ => A :AND
-  A :MSTORE(SP + 80)
+  A :MSTORE(SP + 8)
   56n => E
-  $ => A :MLOAD(SP + 32)
+  CTX => A
   A :MSTORE(SP)
   64 => B
   0 => D
@@ -444,20 +564,20 @@ function_1:
   ${E % B} => C
   E :ARITH
   A => B
-  $ => A :MLOAD(SP + 80)
-  $ => B :OR
-  $ => A :MLOAD(SP)
-  $ => B :OR
   $ => A :MLOAD(SP + 8)
+  $ => B :OR
+  $ => A :MLOAD(SP + 16)
+  $ => B :OR
+  $ => A :MLOAD(SP + 24)
   $ => A :OR
-  A => E
+  A => D
   274877906944n => B
   $ => A :MLOAD(SP + 88)
   $ => B :ADD
   B => A
   171798691840n => B
   $ => B :ADD
-  B :MSTORE(SP + 80)
+  B :MSTORE(SP + 8)
   0n => A
   A => B
   0 => A
@@ -468,22 +588,24 @@ label_1_1:
   :JMP(label_1_3)
 label_1_2:
   47244640256n => A
-  $ => B :MLOAD(SP + 80)
+  $ => B :MLOAD(SP + 8)
   $ => A :ADD
   4294967296n => B
   $ => A :ADD
   0n => B
-  223338299392n => C
+  223338299392n => CTX
   SP + 1 => SP
-  C :MSTORE(SP)
+  CTX :MSTORE(SP)
+  $ => CTX :MLOAD(SP)
   zkPC + 2 => RR
   :JMP(function_4)
   SP - 1 => SP
   :JMP(label_1_3)
 label_1_3:
   6341068275337658368n => B
-  E => A
-  $ => E :OR
+  D => A
+  $ => C :OR
+  C :MSTORE(SP + 80)
   47244640256n => A
   240518168576n => B
   $ => A :XOR
@@ -500,9 +622,12 @@ label_1_3:
   687194767360n => B
   $ => A :MLOAD(SP + 88)
   $ => B :ADD
-  $ => A :MLOAD(CTX)
-  $ => C :ADD
-  E :MSTORE(C)
+  $ => CTX :MLOAD(SP)
+  0 => A
+  $ => E :ADD
+  $ => CTX :MLOAD(SP + 80)
+  ${ E >> 32 } => E
+  CTX :MSTORE(MEM:E)
   274877906944n => B
   $ => A :MLOAD(SP + 88)
   $ => D :ADD
@@ -510,116 +635,151 @@ label_1_3:
   4294967296n => D
   SP + 1 => SP
   D :MSTORE(SP)
-  $ => B :MLOAD(SP + 80)
+  $ => B :MLOAD(SP + 8)
+  $ => CTX :MLOAD(SP)
   zkPC + 2 => RR
   :JMP(function_2)
   SP - 1 => SP
+  $ => CTX :MLOAD(SP)
   :JMP(label_1_6)
 label_1_5:
   274877906944n => B
   $ => A :MLOAD(SP + 88)
-  $ => B :ADD
-  B => A
-  4294967296n => C
+  $ => E :ADD
+  E => A
+  4294967296n => E
   SP + 1 => SP
-  C :MSTORE(SP)
-  $ => B :MLOAD(SP + 80)
+  E :MSTORE(SP)
+  $ => B :MLOAD(SP + 8)
+  $ => CTX :MLOAD(SP)
   zkPC + 2 => RR
   :JMP(function_2)
   SP - 1 => SP
   962072674304n => B
   $ => A :MLOAD(SP + 88)
   $ => B :ADD
-  0n => C
-  $ => A :MLOAD(CTX)
-  $ => A :ADD
-  C :MSTORE(A)
+  0n => CTX
+  $ => D :MLOAD(SP)
+  ${ D >> 32 } => E
+  $ => A :MLOAD(MEM:E)
+  $ => E :ADD
+  ${ E >> 32 } => E
+  CTX :MSTORE(MEM:E)
   927712935936n => B
   $ => A :MLOAD(SP + 88)
   $ => B :ADD
-  0n => C
-  $ => A :MLOAD(CTX)
-  $ => A :ADD
-  C :MSTORE(A)
+  0n => CTX
+  ${ D >> 32 } => E
+  $ => A :MLOAD(MEM:E)
+  $ => E :ADD
+  ${ E >> 32 } => E
+  CTX :MSTORE(MEM:E)
   893353197568n => B
   $ => A :MLOAD(SP + 88)
   $ => B :ADD
   0n => C
-  $ => A :MLOAD(CTX)
-  $ => B :ADD
-  C :MSTORE(B)
+  ${ D >> 32 } => E
+  $ => A :MLOAD(MEM:E)
+  $ => E :ADD
+  ${ E >> 32 } => E
+  C :MSTORE(MEM:E)
   858993459200n => B
   $ => A :MLOAD(SP + 88)
   $ => B :ADD
   0n => C
-  $ => A :MLOAD(CTX)
-  $ => D :ADD
-  C :MSTORE(D)
+  ${ D >> 32 } => E
+  $ => A :MLOAD(MEM:E)
+  $ => E :ADD
+  ${ E >> 32 } => E
+  C :MSTORE(MEM:E)
   824633720832n => B
   $ => A :MLOAD(SP + 88)
   $ => B :ADD
   0n => C
-  $ => A :MLOAD(CTX)
-  $ => D :ADD
-  C :MSTORE(D)
+  ${ D >> 32 } => E
+  $ => A :MLOAD(MEM:E)
+  $ => E :ADD
+  ${ E >> 32 } => E
+  C :MSTORE(MEM:E)
   790273982464n => B
   $ => A :MLOAD(SP + 88)
   $ => B :ADD
   0n => D
-  $ => A :MLOAD(CTX)
-  $ => A :ADD
-  D :MSTORE(A)
-  0n => C
-  $ => A :MLOAD(CTX)
+  $ => C :MLOAD(SP)
+  ${ C >> 32 } => E
+  $ => A :MLOAD(MEM:E)
+  $ => E :ADD
+  ${ E >> 32 } => E
+  D :MSTORE(MEM:E)
+  0n => CTX
+  $ => B :MLOAD(SP)
+  ${ B >> 32 } => E
+  $ => A :MLOAD(MEM:E)
   $ => B :MLOAD(SP + 88)
-  $ => A :ADD
-  C :MSTORE(A + 176)
-  $ => A :MLOAD(CTX)
-  $ => A :ADD
-  E :MSTORE(A + 232)
+  $ => E :ADD
+  ${ E >> 32 } => E
+  CTX :MSTORE(MEM:E + 176)
+  $ => A :MLOAD(SP)
+  ${ A >> 32 } => E
+  $ => B :MLOAD(MEM:E)
+  B => A
+  $ => B :MLOAD(SP + 88)
+  $ => E :ADD
+  $ => A :MLOAD(SP + 80)
+  ${ E >> 32 } => E
+  A :MSTORE(MEM:E + 232)
   274877906944n => B
   $ => A :MLOAD(SP + 88)
   $ => B :ADD
-  B => D
+  B => C
   755914244096n => B
   $ => B :ADD
-  4294967296n => C
+  4294967296n => CTX
   SP + 1 => SP
-  C :MSTORE(SP)
-  D => A
+  CTX :MSTORE(SP)
+  C => A
+  $ => CTX :MLOAD(SP)
   zkPC + 2 => RR
   :JMP(function_2)
   SP - 1 => SP
+  $ => CTX :MLOAD(SP)
   :JMP(label_1_6)
 label_1_6:
-  $ => A :MLOAD(CTX)
+  $ => CTX :MLOAD(SP)
+  0 => A
   $ => B :MLOAD(SP + 88)
-  $ => C :ADD
-  $ => A :MLOAD(C + 92)
+  $ => CTX :ADD
+  0 => A
+  $ => CTX :MLOAD(SP)
   A :MSTORE(SP + 80)
-  $ => A :MLOAD(CTX)
-  $ => C :ADD
-  $ => A :MLOAD(C + 88)
+  0 => A
+  $ => CTX :ADD
+  0 => A
+  $ => CTX :MLOAD(SP)
   A :MSTORE(SP + 72)
-  $ => A :MLOAD(CTX)
-  $ => C :ADD
-  $ => A :MLOAD(C + 84)
+  0 => A
+  $ => CTX :ADD
+  0 => A
+  $ => CTX :MLOAD(SP)
   A :MSTORE(SP + 64)
-  $ => A :MLOAD(CTX)
-  $ => C :ADD
-  $ => A :MLOAD(C + 80)
+  0 => A
+  $ => CTX :ADD
+  0 => A
+  $ => CTX :MLOAD(SP)
   A :MSTORE(SP + 56)
-  $ => A :MLOAD(CTX)
-  $ => C :ADD
-  $ => A :MLOAD(C + 76)
+  0 => A
+  $ => CTX :ADD
+  0 => A
+  $ => CTX :MLOAD(SP)
   A :MSTORE(SP + 48)
-  $ => A :MLOAD(CTX)
-  $ => C :ADD
-  $ => A :MLOAD(C + 72)
+  0 => A
+  $ => CTX :ADD
+  0 => A
+  $ => CTX :MLOAD(SP)
   A :MSTORE(SP + 40)
-  $ => A :MLOAD(CTX)
-  $ => C :ADD
-  $ => A :MLOAD(C + 64)
+  0 => A
+  $ => CTX :ADD
+  0 => A
   A :MSTORE(SP + 32)
   103079215104n => E
   A :MSTORE(SP)
@@ -644,10 +804,10 @@ label_1_6:
   $${var _mulShlArith = A * B}
   ${_mulShlArith / 18446744073709551616} => D
   ${_mulShlArith % 18446744073709551616} => E :ARITH
-  E :MSTORE(SP + 16)
+  E :MSTORE(SP + 8)
   280375465082880n => B
-  $ => C :AND
-  C => A
+  $ => CTX :AND
+  CTX => A
   34359738368n => E
   A :MSTORE(SP)
   0 => D
@@ -671,11 +831,11 @@ label_1_6:
   $${var _mulShlArith = A * B}
   ${_mulShlArith / 18446744073709551616} => D
   ${_mulShlArith % 18446744073709551616} => E :ARITH
-  $ => A :MLOAD(SP + 16)
+  $ => A :MLOAD(SP + 8)
   E => B
   $ => A :OR
-  A :MSTORE(SP)
-  B :MSTORE(SP + 8)
+  A :MSTORE(SP + 16)
+  B :MSTORE(SP + 24)
   34359738368n => E
   $ => A :MLOAD(SP + 32)
   E :MSTORE(SP)
@@ -716,7 +876,7 @@ label_1_6:
   E => A
   280375465082880n => B
   $ => A :AND
-  A :MSTORE(SP + 24)
+  A => CTX
   103079215104n => E
   $ => A :MLOAD(SP + 32)
   E :MSTORE(SP)
@@ -756,18 +916,19 @@ label_1_6:
   E :ARITH
   E => A
   A => B
-  $ => A :MLOAD(SP + 24)
-  $ => C :OR
-  $ => A :MLOAD(SP)
-  B => D
-  C => B
+  CTX => A
+  $ => CTX :OR
+  $ => A :MLOAD(SP + 16)
+  B => C
+  CTX => B
   $ => A :OR
-  A :MSTORE(SP + 24)
+  A => CTX
   280375465082880n => B
-  $ => C :AND
-  C :MSTORE(SP + 16)
+  $ => CTX :AND
+  CTX :MSTORE(SP + 16)
+  A => CTX
   68719476736n => E
-  D => A
+  C => A
   A :MSTORE(SP)
   0 => D
   4294967296n => B
@@ -795,7 +956,7 @@ label_1_6:
   $ => A :OR
   A :MSTORE(SP + 16)
   68719476736n => E
-  $ => A :MLOAD(SP + 8)
+  $ => A :MLOAD(SP + 24)
   E :MSTORE(SP)
   0 => D
   A => E
@@ -853,14 +1014,15 @@ label_1_6:
   ${_mulShlArith % 18446744073709551616} => E :ARITH
   E :MSTORE(SP + 16)
   18374686479671623680n => B
-  $ => A :MLOAD(SP + 24)
+  CTX => A
   $ => A :AND
+  $ => CTX :MLOAD(SP)
   A :MSTORE(SP + 8)
-  $ => A :MLOAD(CTX)
+  0 => A
   $ => B :MLOAD(SP + 88)
-  $ => C :ADD
-  $ => A :MLOAD(C + 68)
-  A :MSTORE(SP)
+  $ => CTX :ADD
+  0 => A
+  A :MSTORE(SP + 24)
   103079215104n => E
   E :MSTORE(SP)
   0 => D
@@ -926,9 +1088,9 @@ label_1_6:
   $ => B :OR
   $ => A :MLOAD(SP + 16)
   $ => A :OR
-  A :MSTORE(SP + 24)
+  A :MSTORE(SP + 16)
   34359738368n => E
-  $ => A :MLOAD(SP)
+  $ => A :MLOAD(SP + 24)
   E :MSTORE(SP)
   0 => D
   A => E
@@ -967,11 +1129,11 @@ label_1_6:
   E => A
   280375465082880n => B
   $ => A :AND
-  A :MSTORE(SP + 16)
+  A :MSTORE(SP + 8)
   280375465082880n => B
-  $ => A :MLOAD(SP)
-  $ => C :AND
-  C => A
+  $ => A :MLOAD(SP + 24)
+  $ => CTX :AND
+  CTX => A
   34359738368n => E
   A :MSTORE(SP)
   0 => D
@@ -1034,9 +1196,9 @@ label_1_6:
   E :ARITH
   E => A
   A => B
-  $ => A :MLOAD(SP + 16)
+  $ => A :MLOAD(SP + 8)
   $ => B :OR
-  $ => A :MLOAD(SP + 24)
+  $ => A :MLOAD(SP + 16)
   $ => A :OR
   8n => E
   A :MSTORE(SP)
@@ -1054,13 +1216,14 @@ label_1_6:
   $${var _mulShlArith = A * B}
   ${_mulShlArith / 18446744073709551616} => D
   ${_mulShlArith % 18446744073709551616} => E :ARITH
-  E => C
+  E => CTX
   1095216660480n => B
-  $ => A :MLOAD(SP)
+  $ => A :MLOAD(SP + 24)
   $ => B :AND
-  C => A
+  CTX => A
   $ => A :OR
   13352372148217134600n => B
+  $ => CTX :MLOAD(SP)
   B :ASSERT
   103079215104n => E
   $ => A :MLOAD(SP + 40)
@@ -1086,7 +1249,7 @@ label_1_6:
   $${var _mulShlArith = A * B}
   ${_mulShlArith / 18446744073709551616} => D
   ${_mulShlArith % 18446744073709551616} => E :ARITH
-  E :MSTORE(SP + 16)
+  E => CTX
   280375465082880n => B
   $ => C :AND
   C => A
@@ -1113,11 +1276,11 @@ label_1_6:
   $${var _mulShlArith = A * B}
   ${_mulShlArith / 18446744073709551616} => D
   ${_mulShlArith % 18446744073709551616} => E :ARITH
-  $ => A :MLOAD(SP + 16)
+  CTX => A
   E => B
   $ => A :OR
-  A :MSTORE(SP)
-  B :MSTORE(SP + 8)
+  B => CTX
+  A :MSTORE(SP + 8)
   34359738368n => E
   $ => A :MLOAD(SP + 40)
   E :MSTORE(SP)
@@ -1158,7 +1321,7 @@ label_1_6:
   E => A
   280375465082880n => B
   $ => A :AND
-  A :MSTORE(SP + 24)
+  A :MSTORE(SP + 16)
   103079215104n => E
   $ => A :MLOAD(SP + 40)
   E :MSTORE(SP)
@@ -1198,16 +1361,16 @@ label_1_6:
   E :ARITH
   E => A
   A => B
-  $ => A :MLOAD(SP + 24)
+  $ => A :MLOAD(SP + 16)
   $ => C :OR
-  $ => A :MLOAD(SP)
+  $ => A :MLOAD(SP + 8)
   B => D
   C => B
   $ => A :OR
-  A :MSTORE(SP + 24)
+  A :MSTORE(SP + 16)
   280375465082880n => B
   $ => C :AND
-  C :MSTORE(SP + 16)
+  C :MSTORE(SP + 8)
   68719476736n => E
   D => A
   A :MSTORE(SP)
@@ -1232,12 +1395,12 @@ label_1_6:
   $${var _mulShlArith = A * B}
   ${_mulShlArith / 18446744073709551616} => D
   ${_mulShlArith % 18446744073709551616} => E :ARITH
-  $ => A :MLOAD(SP + 16)
+  $ => A :MLOAD(SP + 8)
   E => B
   $ => A :OR
-  A :MSTORE(SP + 16)
+  A :MSTORE(SP + 8)
   68719476736n => E
-  $ => A :MLOAD(SP + 8)
+  CTX => A
   E :MSTORE(SP)
   0 => D
   A => E
@@ -1275,7 +1438,7 @@ label_1_6:
   E :ARITH
   E => A
   A => B
-  $ => A :MLOAD(SP + 16)
+  $ => A :MLOAD(SP + 8)
   $ => A :OR
   32n => E
   A :MSTORE(SP)
@@ -1293,9 +1456,9 @@ label_1_6:
   $${var _mulShlArith = A * B}
   ${_mulShlArith / 18446744073709551616} => D
   ${_mulShlArith % 18446744073709551616} => E :ARITH
-  E :MSTORE(SP + 16)
+  E => CTX
   18374686479671623680n => B
-  $ => A :MLOAD(SP + 24)
+  $ => A :MLOAD(SP + 16)
   $ => A :AND
   A :MSTORE(SP + 8)
   103079215104n => E
@@ -1362,9 +1525,9 @@ label_1_6:
   $ => A :MLOAD(SP + 8)
   E => B
   $ => B :OR
-  $ => A :MLOAD(SP + 16)
+  CTX => A
   $ => A :OR
-  A :MSTORE(SP + 8)
+  A => CTX
   34359738368n => E
   $ => A :MLOAD(SP + 48)
   E :MSTORE(SP)
@@ -1405,7 +1568,7 @@ label_1_6:
   E => A
   280375465082880n => B
   $ => A :AND
-  A :MSTORE(SP)
+  A :MSTORE(SP + 8)
   280375465082880n => B
   $ => A :MLOAD(SP + 48)
   $ => C :AND
@@ -1472,9 +1635,9 @@ label_1_6:
   E :ARITH
   E => A
   A => B
-  $ => A :MLOAD(SP)
-  $ => B :OR
   $ => A :MLOAD(SP + 8)
+  $ => B :OR
+  CTX => A
   $ => A :OR
   8n => E
   A :MSTORE(SP)
@@ -1492,13 +1655,14 @@ label_1_6:
   $${var _mulShlArith = A * B}
   ${_mulShlArith / 18446744073709551616} => D
   ${_mulShlArith % 18446744073709551616} => E :ARITH
-  E => C
+  E => CTX
   1095216660480n => B
   $ => A :MLOAD(SP + 48)
   $ => B :AND
-  C => A
+  CTX => A
   $ => A :OR
   11902541952223915002n => B
+  $ => CTX :MLOAD(SP)
   B :ASSERT
   103079215104n => E
   $ => A :MLOAD(SP + 56)
@@ -1524,7 +1688,7 @@ label_1_6:
   $${var _mulShlArith = A * B}
   ${_mulShlArith / 18446744073709551616} => D
   ${_mulShlArith % 18446744073709551616} => E :ARITH
-  E :MSTORE(SP)
+  E => CTX
   280375465082880n => B
   $ => D :AND
   D => A
@@ -1551,11 +1715,11 @@ label_1_6:
   $${var _mulShlArith = A * B}
   ${_mulShlArith / 18446744073709551616} => D
   ${_mulShlArith % 18446744073709551616} => E :ARITH
-  $ => A :MLOAD(SP)
+  CTX => A
   E => B
   $ => A :OR
+  B => CTX
   A :MSTORE(SP + 8)
-  B :MSTORE(SP + 24)
   34359738368n => E
   $ => A :MLOAD(SP + 56)
   E :MSTORE(SP)
@@ -1596,7 +1760,7 @@ label_1_6:
   E => A
   280375465082880n => B
   $ => A :AND
-  A :MSTORE(SP)
+  A :MSTORE(SP + 16)
   103079215104n => E
   $ => A :MLOAD(SP + 56)
   E :MSTORE(SP)
@@ -1636,16 +1800,16 @@ label_1_6:
   E :ARITH
   E => A
   A => B
-  $ => A :MLOAD(SP)
+  $ => A :MLOAD(SP + 16)
   $ => D :OR
   $ => A :MLOAD(SP + 8)
   B => C
   D => B
   $ => A :OR
-  A :MSTORE(SP)
+  A :MSTORE(SP + 16)
   280375465082880n => B
   $ => D :AND
-  D :MSTORE(SP + 16)
+  D :MSTORE(SP + 8)
   68719476736n => E
   C => A
   A :MSTORE(SP)
@@ -1670,12 +1834,12 @@ label_1_6:
   $${var _mulShlArith = A * B}
   ${_mulShlArith / 18446744073709551616} => D
   ${_mulShlArith % 18446744073709551616} => E :ARITH
-  $ => A :MLOAD(SP + 16)
+  $ => A :MLOAD(SP + 8)
   E => B
   $ => A :OR
-  A :MSTORE(SP + 16)
+  A :MSTORE(SP + 8)
   68719476736n => E
-  $ => A :MLOAD(SP + 24)
+  CTX => A
   E :MSTORE(SP)
   0 => D
   A => E
@@ -1713,7 +1877,7 @@ label_1_6:
   E :ARITH
   E => A
   A => B
-  $ => A :MLOAD(SP + 16)
+  $ => A :MLOAD(SP + 8)
   $ => A :OR
   32n => E
   A :MSTORE(SP)
@@ -1731,9 +1895,9 @@ label_1_6:
   $${var _mulShlArith = A * B}
   ${_mulShlArith / 18446744073709551616} => D
   ${_mulShlArith % 18446744073709551616} => E :ARITH
-  E :MSTORE(SP + 16)
+  E => CTX
   18374686479671623680n => B
-  $ => A :MLOAD(SP)
+  $ => A :MLOAD(SP + 16)
   $ => A :AND
   A :MSTORE(SP + 8)
   103079215104n => E
@@ -1800,9 +1964,9 @@ label_1_6:
   $ => A :MLOAD(SP + 8)
   E => B
   $ => B :OR
-  $ => A :MLOAD(SP + 16)
+  CTX => A
   $ => A :OR
-  A :MSTORE(SP + 8)
+  A => CTX
   34359738368n => E
   $ => A :MLOAD(SP + 64)
   E :MSTORE(SP)
@@ -1843,7 +2007,7 @@ label_1_6:
   E => A
   280375465082880n => B
   $ => A :AND
-  A :MSTORE(SP)
+  A :MSTORE(SP + 8)
   280375465082880n => B
   $ => A :MLOAD(SP + 64)
   $ => D :AND
@@ -1910,9 +2074,9 @@ label_1_6:
   E :ARITH
   E => A
   A => B
-  $ => A :MLOAD(SP)
-  $ => B :OR
   $ => A :MLOAD(SP + 8)
+  $ => B :OR
+  CTX => A
   $ => A :OR
   8n => E
   A :MSTORE(SP)
@@ -1930,13 +2094,14 @@ label_1_6:
   $${var _mulShlArith = A * B}
   ${_mulShlArith / 18446744073709551616} => D
   ${_mulShlArith % 18446744073709551616} => E :ARITH
-  E => C
+  E => CTX
   1095216660480n => B
   $ => A :MLOAD(SP + 64)
   $ => B :AND
-  C => A
+  CTX => A
   $ => A :OR
   14160706888648589550n => B
+  $ => CTX :MLOAD(SP)
   B :ASSERT
   103079215104n => E
   $ => A :MLOAD(SP + 72)
@@ -1962,7 +2127,7 @@ label_1_6:
   $${var _mulShlArith = A * B}
   ${_mulShlArith / 18446744073709551616} => D
   ${_mulShlArith % 18446744073709551616} => E :ARITH
-  E :MSTORE(SP)
+  E => CTX
   280375465082880n => B
   $ => E :AND
   E => A
@@ -1989,11 +2154,11 @@ label_1_6:
   $${var _mulShlArith = A * B}
   ${_mulShlArith / 18446744073709551616} => D
   ${_mulShlArith % 18446744073709551616} => E :ARITH
-  $ => A :MLOAD(SP)
+  CTX => A
   E => B
   $ => A :OR
-  A :MSTORE(SP)
-  B :MSTORE(SP + 16)
+  B => CTX
+  A :MSTORE(SP + 8)
   34359738368n => E
   $ => A :MLOAD(SP + 72)
   E :MSTORE(SP)
@@ -2034,7 +2199,7 @@ label_1_6:
   E => A
   280375465082880n => B
   $ => A :AND
-  A :MSTORE(SP + 8)
+  A :MSTORE(SP + 16)
   103079215104n => E
   $ => A :MLOAD(SP + 72)
   E :MSTORE(SP)
@@ -2074,16 +2239,16 @@ label_1_6:
   E :ARITH
   E => A
   A => B
-  $ => A :MLOAD(SP + 8)
+  $ => A :MLOAD(SP + 16)
   $ => E :OR
-  $ => A :MLOAD(SP)
+  $ => A :MLOAD(SP + 8)
   B => C
   E => B
   $ => A :OR
-  A :MSTORE(SP + 8)
+  A :MSTORE(SP + 16)
   280375465082880n => B
   $ => E :AND
-  E :MSTORE(SP)
+  E :MSTORE(SP + 8)
   68719476736n => E
   C => A
   A :MSTORE(SP)
@@ -2108,12 +2273,12 @@ label_1_6:
   $${var _mulShlArith = A * B}
   ${_mulShlArith / 18446744073709551616} => D
   ${_mulShlArith % 18446744073709551616} => E :ARITH
-  $ => A :MLOAD(SP)
+  $ => A :MLOAD(SP + 8)
   E => B
   $ => A :OR
-  A :MSTORE(SP)
+  A :MSTORE(SP + 8)
   68719476736n => E
-  $ => A :MLOAD(SP + 16)
+  CTX => A
   E :MSTORE(SP)
   0 => D
   A => E
@@ -2151,7 +2316,7 @@ label_1_6:
   E :ARITH
   E => A
   A => B
-  $ => A :MLOAD(SP)
+  $ => A :MLOAD(SP + 8)
   $ => A :OR
   32n => E
   A :MSTORE(SP)
@@ -2169,9 +2334,9 @@ label_1_6:
   $${var _mulShlArith = A * B}
   ${_mulShlArith / 18446744073709551616} => D
   ${_mulShlArith % 18446744073709551616} => E :ARITH
-  E :MSTORE(SP)
+  E => CTX
   18374686479671623680n => B
-  $ => A :MLOAD(SP + 8)
+  $ => A :MLOAD(SP + 16)
   $ => A :AND
   A :MSTORE(SP + 8)
   103079215104n => E
@@ -2238,9 +2403,9 @@ label_1_6:
   $ => A :MLOAD(SP + 8)
   E => B
   $ => B :OR
-  $ => A :MLOAD(SP)
+  CTX => A
   $ => A :OR
-  A :MSTORE(SP + 8)
+  A => CTX
   34359738368n => E
   $ => A :MLOAD(SP + 80)
   E :MSTORE(SP)
@@ -2281,7 +2446,7 @@ label_1_6:
   E => A
   280375465082880n => B
   $ => A :AND
-  A :MSTORE(SP)
+  A :MSTORE(SP + 8)
   280375465082880n => B
   $ => A :MLOAD(SP + 80)
   $ => E :AND
@@ -2348,9 +2513,9 @@ label_1_6:
   E :ARITH
   E => A
   A => B
-  $ => A :MLOAD(SP)
-  $ => B :OR
   $ => A :MLOAD(SP + 8)
+  $ => B :OR
+  CTX => A
   $ => A :OR
   8n => E
   A :MSTORE(SP)
@@ -2368,23 +2533,26 @@ label_1_6:
   $${var _mulShlArith = A * B}
   ${_mulShlArith / 18446744073709551616} => D
   ${_mulShlArith % 18446744073709551616} => E :ARITH
-  E => C
   1095216660480n => B
   $ => A :MLOAD(SP + 80)
   $ => B :AND
-  C => A
+  E => A
   $ => A :OR
   10414846460208074217n => B
+  $ => CTX :MLOAD(SP)
   B :ASSERT
   1030792151040n => B
   $ => A :MLOAD(SP + 88)
   $ => A :ADD
-  A :MSTORE(CTX + 8)
+  $ => E :MLOAD(SP)
+  ${ E >> 32 } => E
+  A :MSTORE(MEM:E + 8)
   $ => C :MLOAD(SP - 1)
   $ => D :MLOAD(SP - 2)
   $ => E :MLOAD(SP - 3)
   $ => B :MLOAD(SP - 4)
-  SP - 16 => SP
+  $ => CTX :MLOAD(SP - 5)
+  SP - 18 => SP
   $ => RR :MLOAD(SP - 1)
   SP - 1 => SP
   :JMP(RR)
@@ -2393,13 +2561,15 @@ function_2:
   RR :MSTORE(SP - 1)
   SP + 2 => SP
   C :MSTORE(SP - 1)
-  $ => C :MLOAD(fp + 16)
+  E :MSTORE(SP - 2)
+  ;; $ => C :MLOAD(fp + 16)
   SP + 1 => SP
   C :MSTORE(SP)
   zkPC + 2 => RR
   :JMP(function_3)
   SP - 1 => SP
   $ => C :MLOAD(SP - 1)
+  $ => E :MLOAD(SP - 2)
   SP - 2 => SP
   $ => RR :MLOAD(SP - 1)
   SP - 1 => SP
@@ -2415,42 +2585,52 @@ function_3:
   CTX :MSTORE(SP - 5)
   A :MSTORE(SP)
   B :MSTORE(SP + 8)
-  $ => A :MLOAD(fp + 16)
+  ;; $ => A :MLOAD(fp + 16)
   A :MSTORE(SP + 16)
-  $ => A :MLOAD(CTX)
+  0 => A
   $ => B :MLOAD(SP)
   $ => A :ADD
-  $ => C :MLOAD(A + 28)
+  ${ A >> 32 } => E
+  $ => C :MLOAD(MEM:E + 28)
   C :MSTORE(SP + 72)
-  $ => A :MLOAD(CTX)
+  0 => A
   $ => A :ADD
-  $ => A :MLOAD(A + 24)
+  ${ A >> 32 } => E
+  $ => A :MLOAD(MEM:E + 24)
   A :MSTORE(SP + 80)
-  $ => A :MLOAD(CTX)
+  0 => A
   $ => A :ADD
-  $ => D :MLOAD(A + 20)
+  ${ A >> 32 } => E
+  $ => D :MLOAD(MEM:E + 20)
   D :MSTORE(SP + 88)
-  $ => A :MLOAD(CTX)
+  0 => A
+  $ => A :ADD
+  ${ A >> 32 } => E
+  $ => C :MLOAD(MEM:E + 16)
+  C :MSTORE(SP + 96)
+  0 => A
+  $ => A :ADD
+  ${ A >> 32 } => E
+  $ => A :MLOAD(MEM:E + 12)
+  A :MSTORE(SP + 104)
+  0 => A
+  $ => A :ADD
+  ${ A >> 32 } => E
+  $ => D :MLOAD(MEM:E + 8)
+  D :MSTORE(SP + 112)
+  0 => A
   CTX :MSTORE(SP + 24)
   $ => A :ADD
-  $ => C :MLOAD(A + 16)
-  $ => E :MLOAD(SP + 24)
-  C :MSTORE(SP + 96)
-  $ => A :MLOAD(E)
-  $ => A :ADD
-  $ => A :MLOAD(A + 12)
-  A :MSTORE(SP + 104)
-  $ => A :MLOAD(E)
-  $ => A :ADD
-  $ => D :MLOAD(A + 8)
-  D :MSTORE(SP + 112)
-  $ => A :MLOAD(E)
-  $ => A :ADD
-  $ => C :MLOAD(A + 4)
+  ${ A >> 32 } => E
+  $ => C :MLOAD(MEM:E + 4)
+  $ => A :MLOAD(SP + 24)
   C :MSTORE(SP + 120)
-  $ => A :MLOAD(E)
+  ${ A >> 32 } => E
+  $ => CTX :MLOAD(MEM:E)
+  CTX => A
   $ => A :ADD
-  $ => B :MLOAD(A)
+  ${ A >> 32 } => E
+  $ => B :MLOAD(MEM:E)
   B :MSTORE(SP + 128)
   0n => B
   $ => A :MLOAD(SP + 16)
@@ -3023,11 +3203,12 @@ label_3_3:
   $ => A :ADD
   A :MSTORE(SP + 2784)
   $ => A :MLOAD(SP + 24)
-  $ => B :MLOAD(A)
+  ${ A >> 32 } => E
+  $ => B :MLOAD(MEM:E)
   B => A
   $ => B :MLOAD(SP + 64)
   $ => CTX :ADD
-  $ => A :MLOAD(CTX)
+  0 => A
   A => CTX
   103079215104n => E
   A :MSTORE(SP)
@@ -3432,11 +3613,12 @@ label_3_3:
   $ => A :ADD
   A :MSTORE(SP + 2744)
   $ => A :MLOAD(SP + 24)
-  $ => B :MLOAD(A)
+  ${ A >> 32 } => E
+  $ => B :MLOAD(MEM:E)
   B => A
   $ => B :MLOAD(SP + 64)
   $ => CTX :ADD
-  $ => A :MLOAD(CTX + 4)
+  0 => A
   A => CTX
   103079215104n => E
   A :MSTORE(SP)
@@ -4100,11 +4282,12 @@ label_3_3:
   $ => A :ADD
   A :MSTORE(SP + 2696)
   $ => A :MLOAD(SP + 24)
-  $ => B :MLOAD(A)
+  ${ A >> 32 } => E
+  $ => B :MLOAD(MEM:E)
   B => A
   $ => B :MLOAD(SP + 64)
   $ => CTX :ADD
-  $ => A :MLOAD(CTX + 8)
+  0 => A
   A => CTX
   103079215104n => E
   A :MSTORE(SP)
@@ -4768,11 +4951,12 @@ label_3_3:
   $ => A :ADD
   A :MSTORE(SP + 2648)
   $ => A :MLOAD(SP + 24)
-  $ => B :MLOAD(A)
+  ${ A >> 32 } => E
+  $ => B :MLOAD(MEM:E)
   B => A
   $ => B :MLOAD(SP + 64)
   $ => CTX :ADD
-  $ => A :MLOAD(CTX + 12)
+  0 => A
   A => CTX
   103079215104n => E
   A :MSTORE(SP)
@@ -5437,11 +5621,12 @@ label_3_3:
   $ => A :ADD
   A :MSTORE(SP + 2600)
   $ => A :MLOAD(SP + 24)
-  $ => B :MLOAD(A)
+  ${ A >> 32 } => E
+  $ => B :MLOAD(MEM:E)
   B => A
   $ => B :MLOAD(SP + 64)
   $ => CTX :ADD
-  $ => A :MLOAD(CTX + 16)
+  0 => A
   A => CTX
   103079215104n => E
   A :MSTORE(SP)
@@ -6105,11 +6290,12 @@ label_3_3:
   $ => A :ADD
   A :MSTORE(SP + 2552)
   $ => A :MLOAD(SP + 24)
-  $ => B :MLOAD(A)
+  ${ A >> 32 } => E
+  $ => B :MLOAD(MEM:E)
   B => A
   $ => B :MLOAD(SP + 64)
   $ => CTX :ADD
-  $ => A :MLOAD(CTX + 20)
+  0 => A
   A => CTX
   103079215104n => E
   A :MSTORE(SP)
@@ -6773,11 +6959,12 @@ label_3_3:
   $ => A :ADD
   A :MSTORE(SP + 2504)
   $ => A :MLOAD(SP + 24)
-  $ => B :MLOAD(A)
+  ${ A >> 32 } => E
+  $ => B :MLOAD(MEM:E)
   B => A
   $ => B :MLOAD(SP + 64)
   $ => CTX :ADD
-  $ => A :MLOAD(CTX + 24)
+  0 => A
   A => CTX
   103079215104n => E
   A :MSTORE(SP)
@@ -7441,11 +7628,12 @@ label_3_3:
   $ => A :ADD
   A :MSTORE(SP + 2456)
   $ => A :MLOAD(SP + 24)
-  $ => B :MLOAD(A)
+  ${ A >> 32 } => E
+  $ => B :MLOAD(MEM:E)
   B => A
   $ => B :MLOAD(SP + 64)
   $ => CTX :ADD
-  $ => A :MLOAD(CTX + 28)
+  0 => A
   A => CTX
   103079215104n => E
   A :MSTORE(SP)
@@ -8109,11 +8297,12 @@ label_3_3:
   $ => A :ADD
   A :MSTORE(SP + 2408)
   $ => A :MLOAD(SP + 24)
-  $ => B :MLOAD(A)
+  ${ A >> 32 } => E
+  $ => B :MLOAD(MEM:E)
   B => A
   $ => B :MLOAD(SP + 64)
   $ => CTX :ADD
-  $ => A :MLOAD(CTX + 32)
+  0 => A
   A => CTX
   103079215104n => E
   A :MSTORE(SP)
@@ -8777,11 +8966,12 @@ label_3_3:
   $ => A :ADD
   A :MSTORE(SP + 2360)
   $ => A :MLOAD(SP + 24)
-  $ => B :MLOAD(A)
+  ${ A >> 32 } => E
+  $ => B :MLOAD(MEM:E)
   B => A
   $ => B :MLOAD(SP + 64)
   $ => CTX :ADD
-  $ => A :MLOAD(CTX + 36)
+  0 => A
   A => CTX
   103079215104n => E
   A :MSTORE(SP)
@@ -9445,11 +9635,12 @@ label_3_3:
   $ => A :ADD
   A :MSTORE(SP + 2312)
   $ => A :MLOAD(SP + 24)
-  $ => B :MLOAD(A)
+  ${ A >> 32 } => E
+  $ => B :MLOAD(MEM:E)
   B => A
   $ => B :MLOAD(SP + 64)
   $ => CTX :ADD
-  $ => A :MLOAD(CTX + 40)
+  0 => A
   A => CTX
   103079215104n => E
   A :MSTORE(SP)
@@ -10113,11 +10304,12 @@ label_3_3:
   $ => A :ADD
   A :MSTORE(SP + 2264)
   $ => A :MLOAD(SP + 24)
-  $ => B :MLOAD(A)
+  ${ A >> 32 } => E
+  $ => B :MLOAD(MEM:E)
   B => A
   $ => B :MLOAD(SP + 64)
   $ => CTX :ADD
-  $ => A :MLOAD(CTX + 44)
+  0 => A
   A => CTX
   103079215104n => E
   A :MSTORE(SP)
@@ -10781,11 +10973,12 @@ label_3_3:
   $ => A :ADD
   A :MSTORE(SP + 2216)
   $ => A :MLOAD(SP + 24)
-  $ => B :MLOAD(A)
+  ${ A >> 32 } => E
+  $ => B :MLOAD(MEM:E)
   B => A
   $ => B :MLOAD(SP + 64)
   $ => CTX :ADD
-  $ => A :MLOAD(CTX + 48)
+  0 => A
   A => CTX
   103079215104n => E
   A :MSTORE(SP)
@@ -11449,11 +11642,12 @@ label_3_3:
   $ => A :ADD
   A :MSTORE(SP + 2168)
   $ => A :MLOAD(SP + 24)
-  $ => B :MLOAD(A)
+  ${ A >> 32 } => E
+  $ => B :MLOAD(MEM:E)
   B => A
   $ => B :MLOAD(SP + 64)
   $ => CTX :ADD
-  $ => A :MLOAD(CTX + 52)
+  0 => A
   A => CTX
   103079215104n => E
   A :MSTORE(SP)
@@ -12117,11 +12311,12 @@ label_3_3:
   $ => A :ADD
   A :MSTORE(SP + 2120)
   $ => A :MLOAD(SP + 24)
-  $ => B :MLOAD(A)
+  ${ A >> 32 } => E
+  $ => B :MLOAD(MEM:E)
   B => A
   $ => B :MLOAD(SP + 64)
   $ => CTX :ADD
-  $ => A :MLOAD(CTX + 56)
+  0 => A
   A => CTX
   103079215104n => E
   A :MSTORE(SP)
@@ -12785,11 +12980,12 @@ label_3_3:
   $ => A :ADD
   A :MSTORE(SP + 2072)
   $ => A :MLOAD(SP + 24)
-  $ => B :MLOAD(A)
+  ${ A >> 32 } => E
+  $ => B :MLOAD(MEM:E)
   B => A
   $ => B :MLOAD(SP + 64)
   $ => CTX :ADD
-  $ => A :MLOAD(CTX + 60)
+  0 => A
   A => CTX
   103079215104n => E
   A :MSTORE(SP)
@@ -57837,35 +58033,35 @@ label_3_3:
   $ => A :MLOAD(SP + 152)
   $ => A :ADD
   A :MSTORE(SP + 128)
-  $ => A :MLOAD(SP + 160)
-  B => D
+  B => CTX
   $ => B :MLOAD(SP + 16)
-  $ => C :ADD
+  $ => A :MLOAD(SP + 160)
+  $ => E :ADD
   $ => A :MLOAD(SP + 272)
   $ => B :MLOAD(SP + 40)
-  C :MSTORE(SP + 120)
+  E :MSTORE(SP + 120)
   $ => A :ADD
-  D => B
-  $ => B :ADD
-  B :MSTORE(SP + 96)
-  $ => B :MLOAD(SP + 8)
+  CTX => B
+  $ => E :ADD
   $ => A :MLOAD(SP + 192)
-  $ => D :ADD
+  $ => B :MLOAD(SP + 8)
+  E :MSTORE(SP + 96)
+  $ => E :ADD
   $ => A :MLOAD(SP + 144)
   $ => B :MLOAD(SP + 56)
-  D :MSTORE(SP + 112)
-  $ => B :ADD
-  B :MSTORE(SP + 88)
-  $ => B :MLOAD(SP + 104)
+  E :MSTORE(SP + 112)
+  $ => E :ADD
   $ => A :MLOAD(SP + 232)
+  $ => B :MLOAD(SP + 104)
+  E :MSTORE(SP + 88)
   $ => B :ADD
   B :MSTORE(SP + 104)
   $ => B :MLOAD(SP + 48)
   $ => A :MLOAD(SP + 176)
-  $ => B :ADD
-  B :MSTORE(SP + 80)
-  $ => B :MLOAD(SP + 32)
+  $ => E :ADD
   $ => A :MLOAD(SP + 208)
+  $ => B :MLOAD(SP + 32)
+  E :MSTORE(SP + 80)
   $ => CTX :ADD
   274877906944n => B
   $ => A :MLOAD(SP + 64)
@@ -57904,52 +58100,68 @@ label_3_5:
   :JMP(label_3_7)
 label_3_7:
   $ => A :MLOAD(SP + 24)
-  $ => C :MLOAD(A)
+  ${ A >> 32 } => E
+  $ => C :MLOAD(MEM:E)
   C => A
   $ => B :MLOAD(SP)
-  $ => C :ADD
-  CTX :MSTORE(C + 28)
-  $ => A :MLOAD(SP + 24)
-  $ => C :MLOAD(A)
-  C => A
-  $ => C :ADD
-  $ => CTX :MLOAD(SP + 80)
-  CTX :MSTORE(C + 24)
-  $ => A :MLOAD(SP + 24)
-  $ => D :MLOAD(A)
-  D => A
-  $ => D :ADD
-  $ => C :MLOAD(SP + 88)
-  C :MSTORE(D + 20)
-  $ => A :MLOAD(SP + 24)
-  $ => E :MLOAD(A)
-  E => A
   $ => E :ADD
-  $ => CTX :MLOAD(SP + 96)
-  CTX :MSTORE(E + 16)
+  ${ E >> 32 } => E
+  CTX :MSTORE(MEM:E + 28)
   $ => A :MLOAD(SP + 24)
-  $ => CTX :MLOAD(A)
+  ${ A >> 32 } => E
+  $ => C :MLOAD(MEM:E)
+  C => A
+  $ => E :ADD
+  $ => CTX :MLOAD(SP + 80)
+  ${ E >> 32 } => E
+  CTX :MSTORE(MEM:E + 24)
+  $ => A :MLOAD(SP + 24)
+  ${ A >> 32 } => E
+  $ => D :MLOAD(MEM:E)
+  D => A
+  $ => E :ADD
+  $ => A :MLOAD(SP + 88)
+  ${ E >> 32 } => E
+  A :MSTORE(MEM:E + 20)
+  $ => A :MLOAD(SP + 24)
+  ${ A >> 32 } => E
+  $ => CTX :MLOAD(MEM:E)
   CTX => A
-  $ => A :ADD
-  $ => C :MLOAD(SP + 104)
-  C :MSTORE(A + 12)
+  $ => E :ADD
+  $ => A :MLOAD(SP + 96)
+  ${ E >> 32 } => E
+  A :MSTORE(MEM:E + 16)
   $ => A :MLOAD(SP + 24)
-  $ => CTX :MLOAD(A)
+  ${ A >> 32 } => E
+  $ => CTX :MLOAD(MEM:E)
   CTX => A
-  $ => CTX :ADD
-  $ => D :MLOAD(SP + 112)
-  D :MSTORE(CTX + 8)
+  $ => E :ADD
+  $ => A :MLOAD(SP + 104)
+  ${ E >> 32 } => E
+  A :MSTORE(MEM:E + 12)
   $ => A :MLOAD(SP + 24)
-  $ => CTX :MLOAD(A)
+  ${ A >> 32 } => E
+  $ => CTX :MLOAD(MEM:E)
   CTX => A
-  $ => CTX :ADD
-  $ => C :MLOAD(SP + 120)
-  C :MSTORE(CTX + 4)
+  $ => E :ADD
+  $ => CTX :MLOAD(SP + 112)
+  ${ E >> 32 } => E
+  CTX :MSTORE(MEM:E + 8)
   $ => A :MLOAD(SP + 24)
-  $ => A :MLOAD(A)
-  $ => C :ADD
+  ${ A >> 32 } => E
+  $ => CTX :MLOAD(MEM:E)
+  CTX => A
+  $ => E :ADD
+  $ => CTX :MLOAD(SP + 120)
+  ${ E >> 32 } => E
+  CTX :MSTORE(MEM:E + 4)
+  $ => A :MLOAD(SP + 24)
+  ${ A >> 32 } => E
+  $ => A :MLOAD(MEM:E)
+  $ => E :ADD
   $ => B :MLOAD(SP + 128)
-  B :MSTORE(C)
+  ${ E >> 32 } => E
+  B :MSTORE(MEM:E)
   $ => C :MLOAD(SP - 1)
   $ => D :MLOAD(SP - 2)
   $ => E :MLOAD(SP - 3)
@@ -57964,13 +58176,15 @@ function_4:
   RR :MSTORE(SP - 1)
   SP + 2 => SP
   C :MSTORE(SP - 1)
-  $ => C :MLOAD(fp + 16)
+  E :MSTORE(SP - 2)
+  ;; $ => C :MLOAD(fp + 16)
   SP + 1 => SP
   C :MSTORE(SP)
   zkPC + 2 => RR
   :JMP(function_5)
   SP - 1 => SP
   $ => C :MLOAD(SP - 1)
+  $ => E :MLOAD(SP - 2)
   SP - 2 => SP
   $ => RR :MLOAD(SP - 1)
   SP - 1 => SP
@@ -57978,7 +58192,7 @@ function_4:
 function_5:
   SP + 1 => SP
   RR :MSTORE(SP - 1)
-  SP + 11 => SP
+  SP + 12 => SP
   C :MSTORE(SP - 1)
   D :MSTORE(SP - 2)
   E :MSTORE(SP - 3)
@@ -57986,8 +58200,7 @@ function_5:
   CTX :MSTORE(SP - 5)
   A :MSTORE(SP)
   B :MSTORE(SP + 8)
-  CTX :MSTORE(SP + 24)
-  $ => A :MLOAD(fp + 16)
+  ;; $ => A :MLOAD(fp + 16)
   A :MSTORE(SP + 16)
   64424509440n => B
   A => C
@@ -58002,6 +58215,7 @@ function_5:
   0 => A
   $ => A :EQ
   A :JMPZ(label_5_2)
+  CTX :MSTORE(SP + 24)
   $ => E :MLOAD(SP + 16)
   $ => C :MLOAD(SP)
   C :MSTORE(SP + 16)
@@ -58014,8 +58228,8 @@ label_5_2:
   $ => B :AND
   $ => A :MLOAD(SP)
   $ => C :ADD
-  C => CTX
   B :MSTORE(SP + 32)
+  C :MSTORE(SP + 40)
   0n => B
   $ => A :MLOAD(SP + 32)
   $ => A :EQ
@@ -58031,23 +58245,23 @@ label_5_2:
 label_5_3:
   $ => A :MLOAD(SP + 16)
   $ => B :MLOAD(SP + 32)
+  CTX :MSTORE(SP + 24)
   :JMP(label_5_9)
 label_5_4:
-  $ => E :MLOAD(SP + 24)
   $ => B :MLOAD(SP)
   :JMP(label_5_5)
 label_5_5:
-  $ => A :MLOAD(E)
-  E :MSTORE(SP + 24)
-  $ => A :ADD
-  B => C
+  0 => A
+  CTX :MSTORE(SP + 24)
+  $ => E :ADD
+  B => A
   $ => B :MLOAD(SP + 8)
-  B :MSTORE(A)
+  ${ E >> 32 } => E
+  B :MSTORE(MEM:E)
   4294967296n => B
-  C => A
   $ => E :ADD
   E => A
-  CTX => B
+  $ => B :MLOAD(SP + 40)
   $ => A :LT
   4294967296n => B
   0 => D
@@ -58060,7 +58274,7 @@ label_5_5:
   :JMP(label_5_7)
 label_5_6:
   E => B
-  $ => E :MLOAD(SP + 24)
+  $ => CTX :MLOAD(SP + 24)
   :JMP(label_5_5)
 label_5_7:
   $ => A :MLOAD(SP + 16)
@@ -58071,7 +58285,7 @@ label_5_9:
   18446744056529682432n => B
   $ => B :AND
   A :MSTORE(SP + 32)
-  CTX => A
+  $ => A :MLOAD(SP + 40)
   $ => C :ADD
   B => A
   C :MSTORE(SP + 16)
@@ -58100,19 +58314,21 @@ label_5_11:
   ${E / B} => A
   E:ARITH
   $ => B :MLOAD(SP)
-  ${A * B} => E :ARITH
-  $ => A :MLOAD(SP + 24)
-  CTX => B
+  ${A * B} => CTX :ARITH
+  $ => C :MLOAD(SP + 24)
+  $ => B :MLOAD(SP + 40)
   :JMP(label_5_12)
 label_5_12:
-  $ => CTX :MLOAD(A)
-  CTX => A
-  $ => CTX :ADD
+  ${ C >> 32 } => E
+  $ => A :MLOAD(MEM:E)
+  C :MSTORE(SP + 24)
+  $ => E :ADD
   B => A
-  E :MSTORE(CTX)
+  ${ E >> 32 } => E
+  CTX :MSTORE(MEM:E)
   17179869184n => B
-  $ => CTX :ADD
-  CTX => A
+  $ => E :ADD
+  E => A
   $ => B :MLOAD(SP + 16)
   $ => A :LT
   4294967296n => B
@@ -58125,8 +58341,8 @@ label_5_12:
   A :JMPZ(label_5_13)
   :JMP(label_5_14)
 label_5_13:
-  $ => A :MLOAD(SP + 24)
-  CTX => B
+  $ => C :MLOAD(SP + 24)
+  E => B
   :JMP(label_5_12)
 label_5_14:
   :JMP(label_5_16)
@@ -58143,7 +58359,6 @@ label_5_17:
   0 => D
   0 => C
   ${A * B} => A :ARITH
-  E => CTX
   A => B
   0 => A
   $ => A :EQ
@@ -58153,23 +58368,25 @@ label_5_18:
   :JMP(label_5_24)
 label_5_19:
   $ => A :MLOAD(SP + 16)
-  CTX => B
-  $ => E :ADD
+  E => B
+  $ => C :ADD
+  C :MSTORE(SP + 32)
+  $ => C :MLOAD(SP + 24)
   A => B
-  $ => A :MLOAD(SP + 24)
   :JMP(label_5_20)
 label_5_20:
-  $ => A :MLOAD(SP + 24)
-  $ => C :MLOAD(A)
-  C => A
-  $ => C :ADD
-  B => A
-  $ => B :MLOAD(SP + 8)
-  B :MSTORE(C)
+  ${ C >> 32 } => E
+  $ => A :MLOAD(MEM:E)
+  $ => E :ADD
+  B => D
+  $ => A :MLOAD(SP + 8)
+  ${ E >> 32 } => E
+  A :MSTORE(MEM:E)
   4294967296n => B
+  D => A
   $ => CTX :ADD
   CTX => A
-  E => B
+  $ => B :MLOAD(SP + 32)
   $ => A :LT
   4294967296n => B
   0 => D
@@ -58181,7 +58398,7 @@ label_5_20:
   A :JMPZ(label_5_21)
   :JMP(label_5_22)
 label_5_21:
-  $ => A :MLOAD(SP + 24)
+  $ => C :MLOAD(SP + 24)
   CTX => B
   :JMP(label_5_20)
 label_5_22:
@@ -58193,7 +58410,7 @@ label_5_24:
   $ => E :MLOAD(SP - 3)
   $ => B :MLOAD(SP - 4)
   $ => CTX :MLOAD(SP - 5)
-  SP - 11 => SP
+  SP - 12 => SP
   $ => RR :MLOAD(SP - 1)
   SP - 1 => SP
   :JMP(RR)
