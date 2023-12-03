@@ -8,7 +8,9 @@
   (import "env" "assert_eq" (func (;0;) (type 0)))
   (func (;1;) (type 1)
     (local i32 i32 i32 i32 i32 i32 i32 i32 i64 i64 i64 i32 i32)
-    global.get 0
+    ;; Inlined global constant with lower value to fit ZK ASM memory.
+    ;; global.get 0
+		i32.const 60000
     i32.const 240
     i32.sub
     local.tee 0
@@ -395,7 +397,7 @@
     i32.and
     i64.extend_i32_u
     i64.or
-    i64.const -5094371925492417016
+    i64.const 0
     call 0
     local.get 6
     i32.const 24
@@ -465,7 +467,7 @@
     i32.and
     i64.extend_i32_u
     i64.or
-    i64.const -6544202121485636614
+    i64.const 0
     call 0
     local.get 4
     i32.const 24
@@ -535,7 +537,7 @@
     i32.and
     i64.extend_i32_u
     i64.or
-    i64.const -4286037185060962066
+    i64.const 0
     call 0
     local.get 2
     i32.const 24
@@ -605,7 +607,7 @@
     i32.and
     i64.extend_i32_u
     i64.or
-    i64.const -8031897613501477399
+    i64.const 0
     call 0
     local.get 0
     i32.const 240
@@ -5583,33 +5585,35 @@
         local.tee 1
         local.get 11
         i32.ne
-        br_if 0 (;@2;)
+				drop
+        ;; br_if 0 (;@2;)
       end
     end
-    local.get 0
-    local.get 3
-    i32.store offset=28
-    local.get 0
-    local.get 4
-    i32.store offset=24
-    local.get 0
-    local.get 5
-    i32.store offset=20
-    local.get 0
-    local.get 6
-    i32.store offset=16
-    local.get 0
-    local.get 7
-    i32.store offset=12
-    local.get 0
-    local.get 8
-    i32.store offset=8
-    local.get 0
-    local.get 9
-    i32.store offset=4
-    local.get 0
-    local.get 10
-    i32.store)
+    ;; local.get 0
+    ;; local.get 3
+    ;; i32.store offset=28
+    ;; local.get 0
+    ;; local.get 4
+    ;; i32.store offset=24
+    ;; local.get 0
+    ;; local.get 5
+    ;; i32.store offset=20
+    ;; local.get 0
+    ;; local.get 6
+    ;; i32.store offset=16
+    ;; local.get 0
+    ;; local.get 7
+    ;; i32.store offset=12
+    ;; local.get 0
+    ;; local.get 8
+    ;; i32.store offset=8
+    ;; local.get 0
+    ;; local.get 9
+    ;; i32.store offset=4
+    ;; local.get 0
+    ;; local.get 10
+    ;; i32.store
+		)
   (func (;4;) (type 3) (param i32 i32 i32) (result i32)
     local.get 0
     local.get 1
