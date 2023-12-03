@@ -1657,7 +1657,7 @@ function_2:
   RR :MSTORE(SP - 1)
   SP + 2 => SP
   C :MSTORE(SP - 1)
-  $ => C :MLOAD(fp + 16)
+  ;; $ => C :MLOAD(fp + 16)
   SP + 1 => SP
   C :MSTORE(SP)
   zkPC + 2 => RR
@@ -1678,7 +1678,7 @@ function_3:
   B :MSTORE(SP - 4)
   A :MSTORE(SP)
   B :MSTORE(SP + 8)
-  $ => A :MLOAD(fp + 16)
+  ;; $ => A :MLOAD(fp + 16)
   A :MSTORE(SP + 16)
   0 => A  ;; LoadExtName(User(userextname0))
   $ => B :MLOAD(SP)
@@ -28171,7 +28171,7 @@ function_4:
   RR :MSTORE(SP - 1)
   SP + 2 => SP
   C :MSTORE(SP - 1)
-  $ => C :MLOAD(fp + 16)
+  ;; $ => C :MLOAD(fp + 16)
   SP + 1 => SP
   C :MSTORE(SP)
   zkPC + 2 => RR
@@ -28192,7 +28192,7 @@ function_5:
   B :MSTORE(SP - 4)
   A :MSTORE(SP)
   B :MSTORE(SP + 8)
-  $ => A :MLOAD(fp + 16)
+  ;; $ => A :MLOAD(fp + 16)
   A :MSTORE(SP + 16)
   15n => B  ;; LoadConst32
   A => C

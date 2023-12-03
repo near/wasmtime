@@ -611,9 +611,11 @@ impl MachInstEmit for Inst {
                         );
                     }
                     AMode::FPOffset(off, _) => {
+                        // TODO(akashin): Figure out what frame pointer is in the context of ZK
+                        // ASM.
                         put_string(
                             &format!(
-                                "$ => {} :MLOAD({})\n",
+                                ";; $ => {} :MLOAD({})\n",
                                 reg_name(rd.to_reg()),
                                 access_reg_with_offset(fp_reg(), off),
                             ),
