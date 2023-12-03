@@ -17,6 +17,19 @@ const emptyInput = require('@0xpolygonhermez/zkevm-proverjs/test/inputs/empty_in
 const pathMainPil = path.join(__dirname, 'node_modules/@0xpolygonhermez/zkevm-proverjs/pil/main.pil');
 const fileCachePil = path.join(__dirname, 'node_modules/@0xpolygonhermez/zkevm-proverjs/cache-main-pil.json');
 
+function value_to_json(key, value) {
+    if (typeof value === "bigint") {
+        return value.toString();
+    }
+
+    // Serialize exceptions by inlining all references fields.
+    if (value instanceof Error) {
+        return JSON.stringify(value, Object.getOwnPropertyNames(value));
+    }
+
+    return value;
+}
+
 async function main() {
     // Compile pil
     const cmPols = await compilePil();
@@ -34,13 +47,11 @@ async function main() {
         testResults.push(await runTest(file, cmPols));
     }
 
-    const json = JSON.stringify(testResults, (key, value) =>
-        typeof value === "bigint" ? value.toString() : value
-    );
     if (process.argv[3]) {
+        const json = JSON.stringify(testResults, value_to_json);
         fs.writeFileSync(process.argv[3], json);
     } else {
-        console.log(json);
+        console.log(testResults);
     }
 }
 
@@ -112,7 +123,7 @@ async function runTest(pathTest, cmPols) {
         return {
             path: pathTest,
             status: "runtime error",
-            error: JSON.stringify(e, Object.getOwnPropertyNames(e)),
+            error: e,
         }
     }
 }
