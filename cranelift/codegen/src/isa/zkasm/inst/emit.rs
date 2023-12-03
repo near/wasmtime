@@ -914,7 +914,18 @@ impl MachInstEmit for Inst {
                 let rd = allocs.next_writable(rd);
                 match from {
                     AMode::RegOffset(r, off, _) => {
-                        if r == context_reg() {
+                        if off > 65536 {
+                            // TODO(akashin): Large offsets are accesses to the const data section,
+                            // which is not supported yet.
+                            put_string(
+                                &format!(
+                                    "0 => {} ;; Offset is too large: {}\n",
+                                    reg_name(rd.to_reg()),
+                                    offset
+                                ),
+                                sink,
+                            );
+                        } else if r == context_reg() {
                             put_string(&format!("0 => {}\n", reg_name(rd.to_reg())), sink);
                         } else {
                             // TODO(akashin): Get rid of this unsound logic when 32-bit registers
