@@ -8,7 +8,8 @@ function_1:
   SP + 4 => SP
   C :MSTORE(SP - 1)
   D :MSTORE(SP - 2)
-  B :MSTORE(SP - 3)
+  E :MSTORE(SP - 3)
+  B :MSTORE(SP - 4)
   18446744073709551615n => A
   9223372036854775808n => B
   $ => A :EQ
@@ -17,11 +18,13 @@ function_1:
   0 => D
   0 => C
   ${A * B} => A :ARITH
+  A => E
   4294967296n => B
   B :ASSERT
   $ => C :MLOAD(SP - 1)
   $ => D :MLOAD(SP - 2)
-  $ => B :MLOAD(SP - 3)
+  $ => E :MLOAD(SP - 3)
+  $ => B :MLOAD(SP - 4)
   SP - 4 => SP
   $ => RR :MLOAD(SP - 1)
   SP - 1 => SP

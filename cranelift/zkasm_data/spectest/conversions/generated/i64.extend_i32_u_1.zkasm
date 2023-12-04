@@ -5,13 +5,24 @@ start:
 function_1:
   SP + 1 => SP
   RR :MSTORE(SP - 1)
-  SP + 2 => SP
-  B :MSTORE(SP - 1)
-  0n => A
+  SP + 4 => SP
+  C :MSTORE(SP - 1)
+  D :MSTORE(SP - 2)
+  E :MSTORE(SP - 3)
+  B :MSTORE(SP - 4)
+  0n => E
+  4294967296n => B
+  0 => D
+  0 => C
+  ${E / B} => A
+  E:ARITH
   0n => B
   B :ASSERT
-  $ => B :MLOAD(SP - 1)
-  SP - 2 => SP
+  $ => C :MLOAD(SP - 1)
+  $ => D :MLOAD(SP - 2)
+  $ => E :MLOAD(SP - 3)
+  $ => B :MLOAD(SP - 4)
+  SP - 4 => SP
   $ => RR :MLOAD(SP - 1)
   SP - 1 => SP
   :JMP(RR)

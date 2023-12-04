@@ -8,6 +8,7 @@ use crate::trace;
 use cranelift_control::ControlPlane;
 use cranelift_entity::EntityRef;
 use regalloc2::Allocation;
+use cranelift_codegen_shared::constants;
 
 pub struct EmitInfo {
     shared_flag: settings::Flags,
@@ -441,6 +442,22 @@ impl MachInstEmit for Inst {
                     &format!("{}n + {}n => {}\n", val1, val2, reg_name(rd)),
                     sink,
                 );
+            }
+            &Inst::UExtend { rd, rs, ty_in, ty_out } => {
+
+                // TODO: support other types cast
+                if ty_in == I32 && ty_out == I64 {
+                    let rs = allocs.next(rs);
+                    let rd = allocs.next_writable(rd);
+
+                    debug_assert_eq!(rs, e0());
+                    put_string("4294967296n => B\n", sink);
+                    put_string("0 => D\n", sink);
+                    // Intentionnally don't put E % B to C. If E % B != 0 something goes wrong.
+                    put_string("0 => C\n", sink);
+                    put_string("${E / B} => A\n", sink);
+                    put_string("E:ARITH\n", sink);
+                }
             }
             &Inst::MulArith32 { rd, rs1, rs2 } => {
                 let rs1 = allocs.next(rs1);
