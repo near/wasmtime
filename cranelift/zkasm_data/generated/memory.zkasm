@@ -5,37 +5,70 @@ start:
 function_1:
   SP + 1 => SP
   RR :MSTORE(SP - 1)
-  SP + 4 => SP
-  D :MSTORE(SP - 1)
-  E :MSTORE(SP - 2)
-  B :MSTORE(SP - 3)
-  0n => B
-  8589934592n => D
+  SP + 8 => SP
+  C :MSTORE(SP - 1)
+  D :MSTORE(SP - 2)
+  E :MSTORE(SP - 3)
+  B :MSTORE(SP - 4)
+  CTX :MSTORE(SP - 5)
+  CTX :MSTORE(SP)
+  0n => E
+  8589934592n => CTX
+  4294967296n => B
+  0 => D
+  0 => C
+  ${E / B} => A
+  E:ARITH
+  $ => C :MLOAD(SP)
+  A => B
+  $ => A :MLOAD(C)
+  $ => C :ADD
+  CTX :MSTORE(C)
+  34359738368n => E
+  12884901888n => CTX
+  4294967296n => B
+  0 => D
+  0 => C
+  ${E / B} => A
+  E:ARITH
+  $ => E :MLOAD(SP)
+  A => B
+  $ => A :MLOAD(E)
+  $ => C :ADD
+  CTX :MSTORE(C)
+  0n => E
+  4294967296n => B
+  0 => D
+  0 => C
+  ${E / B} => A
+  E:ARITH
+  A => B
+  $ => CTX :MLOAD(SP)
   $ => A :MLOAD(CTX)
-  $ => E :ADD
-  D :MSTORE(E)
-  34359738368n => B
-  12884901888n => E
+  $ => D :ADD
+  $ => A :MLOAD(D)
+  A :MSTORE(SP + 8)
+  34359738368n => E
+  4294967296n => B
+  0 => D
+  0 => C
+  ${E / B} => A
+  E:ARITH
+  A => B
   $ => A :MLOAD(CTX)
-  $ => A :ADD
-  E :MSTORE(A)
-  0n => B
-  $ => A :MLOAD(CTX)
-  $ => A :ADD
-  $ => A :MLOAD(A)
-  A => E
-  34359738368n => B
-  $ => A :MLOAD(CTX)
-  $ => A :ADD
-  $ => B :MLOAD(A)
-  E => A
+  $ => D :ADD
+  $ => B :MLOAD(D)
+  $ => A :MLOAD(SP + 8)
   $ => A :ADD
   21474836480n => B
+  $ => CTX :MLOAD(SP)
   B :ASSERT
-  $ => D :MLOAD(SP - 1)
-  $ => E :MLOAD(SP - 2)
-  $ => B :MLOAD(SP - 3)
-  SP - 4 => SP
+  $ => C :MLOAD(SP - 1)
+  $ => D :MLOAD(SP - 2)
+  $ => E :MLOAD(SP - 3)
+  $ => B :MLOAD(SP - 4)
+  $ => CTX :MLOAD(SP - 5)
+  SP - 8 => SP
   $ => RR :MLOAD(SP - 1)
   SP - 1 => SP
   :JMP(RR)

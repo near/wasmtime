@@ -267,7 +267,12 @@ fn zkasm_get_operands<F: Fn(VReg) -> VReg>(inst: &Inst, collector: &mut OperandC
             collector.reg_fixed_use(rs2, b0());
             collector.reg_def(rd);
         }
-        &Inst::UExtend { rd, rs, ty_in, ty_out } => {
+        &Inst::UExtend {
+            rd,
+            rs,
+            ty_in,
+            ty_out,
+        } => {
             collector.reg_fixed_use(rs, e0());
             if ty_in == I32 && ty_out == I64 {
                 let mut clobbered = PRegSet::empty();
@@ -1083,10 +1088,18 @@ impl Inst {
                 write!(&mut buf, ".8byte 0x{:x}", imm).unwrap();
                 buf
             }
-            &Inst::UExtend { rd, rs, ty_in, ty_out } => {
+            &Inst::UExtend {
+                rd,
+                rs,
+                ty_in,
+                ty_out,
+            } => {
                 let rs_s = format_reg(rs, allocs);
                 let rd_s = format_reg(rd.to_reg(), allocs);
-                format!("UExtend rd = {}, rs = {}, ty_in = {:#?}, ty_out = {:#?}", rd_s, rs_s, ty_in, ty_out)
+                format!(
+                    "UExtend rd = {}, rs = {}, ty_in = {:#?}, ty_out = {:#?}",
+                    rd_s, rs_s, ty_in, ty_out
+                )
             }
             &Inst::AluRRR {
                 alu_op,
