@@ -308,56 +308,48 @@
   (udf code))
 
 ;;;;;  Rules for `uload8`;;;;;;;;;
-(rule
-  (lower (uload8 flags p @ (value_type (ty_addr64 _)) offset))
-  (gen_load p offset (int_load_op $false 8) flags $I64))
+(rule (lower (uload8 flags addr offset))
+  (gen_load (amode addr offset $I8) (LoadOP.Lbu) flags))
+
 ;;;;;  Rules for `sload8`;;;;;;;;;
-(rule
-  (lower (sload8 flags p @ (value_type (ty_addr64 _)) offset))
-  (gen_load p offset (int_load_op $true 8) flags $I64))
+(rule (lower (sload8 flags addr offset))
+  (gen_load (amode addr offset $I8) (LoadOP.Lb) flags))
+
 ;;;;;  Rules for `uload16`;;;;;;;;;
-(rule
-  (lower (uload16 flags p @ (value_type (ty_addr64 _)) offset))
-  (gen_load p offset (int_load_op $false 16) flags $I64))
+(rule (lower (uload16 flags addr offset))
+  (gen_load (amode addr offset $I16) (LoadOP.Lhu) flags))
 
 ;;;;;  Rules for `iload16`;;;;;;;;;
-(rule
-  (lower (sload16 flags p @ (value_type (ty_addr64 _)) offset))
-  (gen_load p offset (int_load_op $true 16) flags $I64))
+(rule (lower (sload16 flags addr offset))
+  (gen_load (amode addr offset $I16) (LoadOP.Lh) flags))
 
 ;;;;;  Rules for `uload32`;;;;;;;;;
-(rule
-  (lower (uload32 flags p @ (value_type (ty_addr64 _)) offset))
-  (gen_load p offset (int_load_op $false 32) flags $I64))
+(rule (lower (uload32 flags addr offset))
+  (gen_load (amode addr offset $I32) (LoadOP.Lwu) flags))
 
-;;;;;  Rules for `iload32`;;;;;;;;;
-(rule
-  (lower (sload32 flags p @ (value_type (ty_addr64 _)) offset))
-  (gen_load p offset (int_load_op $true 32) flags $I64))
+;;;;;  Rules for `sload32`;;;;;;;;;
+(rule (lower (sload32 flags addr offset))
+  (gen_load (amode addr offset $I32) (LoadOP.Lw) flags))
 
-(rule
-  (lower (has_type ty (load flags p @ (value_type (ty_addr32 _)) offset)))
-  (gen_load p offset (load_op ty) flags ty)
-)
+;;;;;  Rules for `load`;;;;;;;;;
+(rule (lower (has_type ty (load flags addr offset)))
+  (gen_load (amode addr offset ty) (load_op ty) flags))
 
 ;;;;;  Rules for `istore8`;;;;;;;;;
-(rule
-  (lower (istore8 flags x p @ (value_type (ty_addr64 _)) offset))
-  (gen_store p offset (StoreOP.Sb) flags x))
+(rule (lower (istore8 flags src addr offset))
+  (gen_store (amode addr offset $I8) (StoreOP.Sb) flags src))
+
 ;;;;;  Rules for `istore16`;;;;;;;;;
-(rule
-  (lower (istore16 flags x p @ (value_type (ty_addr64 _)) offset))
-  (gen_store p offset (StoreOP.Sh) flags x))
+(rule (lower (istore16 flags src addr offset))
+  (gen_store (amode addr offset $I16) (StoreOP.Sh) flags src))
 
 ;;;;;  Rules for `istore32`;;;;;;;;;
-(rule
-  (lower (istore32 flags x p @ (value_type (ty_addr64 _)) offset))
-  (gen_store p offset (StoreOP.Sw) flags x))
+(rule (lower (istore32 flags src addr offset))
+  (gen_store (amode addr offset $I32) (StoreOP.Sw) flags src))
 
 ;;;;;  Rules for `store`;;;;;;;;;
-(rule
-  (lower (store flags x @ (value_type ty) p @ (value_type (ty_addr32 _)) offset))
-  (gen_store p offset (store_op ty) flags x))
+(rule (lower (store flags src @ (value_type ty) addr offset))
+  (gen_store (amode addr offset ty) (store_op ty) flags src))
 
 (decl gen_icmp (IntCC ValueRegs ValueRegs Type) XReg)
 (rule
