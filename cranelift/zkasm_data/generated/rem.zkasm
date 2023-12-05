@@ -10,55 +10,23 @@ function_1:
   D :MSTORE(SP - 2)
   E :MSTORE(SP - 3)
   B :MSTORE(SP - 4)
-  21474836480n => A  ;; LoadConst32(5)
-  8589934592n => E  ;; LoadConst32(2)
-  A :MSTORE(SP)
+  5n => E  ;; LoadConst32
+  2n => B  ;; LoadConst32
   0 => D
-  0 => C
-  4294967296n => B
-  ${E / B} => A
-  E:ARITH
-  A :MSTORE(SP + 1)
-  $ => E :MLOAD(SP)
-  ${E / B} => A
-  E:ARITH
-  A => E
-  $ => B :MLOAD(SP + 1)
   ${E / B} => A
   ${E % B} => C
   E:ARITH
   C => A
-  4294967296n => B
-  0 => D
-  0 => C
-  ${A * B} => E :ARITH
-  E => A
-  4294967296n => B  ;; LoadConst32(1)
+  1n => B  ;; LoadConst32
   B :ASSERT
-  34359738368n => A  ;; LoadConst32(8)
-  12884901888n => E  ;; LoadConst32(3)
-  A :MSTORE(SP)
+  8n => E  ;; LoadConst32
+  3n => B  ;; LoadConst32
   0 => D
-  0 => C
-  4294967296n => B
-  ${E / B} => A
-  E:ARITH
-  A :MSTORE(SP + 1)
-  $ => E :MLOAD(SP)
-  ${E / B} => A
-  E:ARITH
-  A => E
-  $ => B :MLOAD(SP + 1)
   ${E / B} => A
   ${E % B} => C
   E:ARITH
   C => A
-  4294967296n => B
-  0 => D
-  0 => C
-  ${A * B} => E :ARITH
-  E => A
-  8589934592n => B  ;; LoadConst32(2)
+  2n => B  ;; LoadConst32
   B :ASSERT
   $ => C :MLOAD(SP - 1)
   $ => D :MLOAD(SP - 2)

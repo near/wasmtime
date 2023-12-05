@@ -10,15 +10,25 @@ function_1:
   D :MSTORE(SP - 2)
   E :MSTORE(SP - 3)
   B :MSTORE(SP - 4)
-  9223372036854775808n => A  ;; LoadConst32(2147483648)
-  9223372036854775808n => B  ;; LoadConst32(2147483648)
+  2147483648n => A  ;; LoadConst32
+  2147483648n => B  ;; LoadConst32
+  B => C  ;; Extend A.
+  A => B
+  B => A
+  0x80000000n => B
+  $ => A: XOR
+  $ => A: SUB
+  C => B  ;; Extend B.
+  A => C
+  B => A
+  0x80000000n => B
+  $ => A: XOR
+  $ => A: SUB
+  A => B
+  C => A
   $ => A :SLT
-  4294967296n => B
-  0 => D
-  0 => C
-  ${A * B} => A :ARITH
   A => E
-  0n => B  ;; LoadConst32(0)
+  0n => B  ;; LoadConst32
   B :ASSERT
   $ => C :MLOAD(SP - 1)
   $ => D :MLOAD(SP - 2)

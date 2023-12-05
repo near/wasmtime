@@ -40,6 +40,10 @@ pub fn writable_a0() -> Writable<Reg> {
     Writable::from_reg(a0())
 }
 #[inline]
+pub fn writable_b0() -> Writable<Reg> {
+    Writable::from_reg(b0())
+}
+#[inline]
 pub fn writable_c0() -> Writable<Reg> {
     Writable::from_reg(c0())
 }
@@ -128,7 +132,7 @@ pub fn create_reg_environment() -> MachineEnv {
     let preferred_regs_by_class: [Vec<PReg>; 3] = {
         // Registers are A, B, C, D, E.
         let x_registers: Vec<PReg> = (5..=7)
-            .chain(10..=12)
+            .chain(10..12)
             .map(|i| PReg::new(i, RegClass::Int))
             .collect();
 
@@ -138,14 +142,10 @@ pub fn create_reg_environment() -> MachineEnv {
     };
 
     let non_preferred_regs_by_class: [Vec<PReg>; 3] = {
-        let x_registers: Vec<PReg> = Vec::new();
-        // (9..=9)
-        // .chain(18..=27)
-        // .map(|i| PReg::new(i, RegClass::Int))
-        // .collect();
+        let x_registers: Vec<PReg> = (12..=12).map(|i| PReg::new(i, RegClass::Int)).collect();
 
         let f_registers: Vec<PReg> = Vec::new();
-        let v_registers = vec![];
+        let v_registers: Vec<PReg> = Vec::new();
         [x_registers, f_registers, v_registers]
     };
 

@@ -7,11 +7,11 @@ function_1:
   RR :MSTORE(SP - 1)
   SP + 2 => SP
   B :MSTORE(SP - 1)
-  8589934592n => A  ;; LoadConst32(2)
-  12884901888n => B  ;; LoadConst32(3)
+  2n => A  ;; LoadConst32
+  3n => B  ;; LoadConst32
   zkPC + 2 => RR
   :JMP(function_2)
-  21474836480n => B  ;; LoadConst32(5)
+  5n => B  ;; LoadConst32
   B :ASSERT
   $ => B :MLOAD(SP - 1)
   SP - 2 => SP
@@ -19,7 +19,17 @@ function_1:
   SP - 1 => SP
   :JMP(RR)
 function_2:
+  SP + 1 => SP
+  RR :MSTORE(SP - 1)
+  SP + 2 => SP
+  B :MSTORE(SP - 1)
   $ => A :ADD
+  4294967295n => B  ;; LoadConst64
+  $ => A :AND
+  $ => B :MLOAD(SP - 1)
+  SP - 2 => SP
+  $ => RR :MLOAD(SP - 1)
+  SP - 1 => SP
   :JMP(RR)
 finalizeExecution:
   ${beforeLast()}  :JMPN(finalizeExecution)

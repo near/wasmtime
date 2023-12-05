@@ -10,25 +10,23 @@ function_1:
   D :MSTORE(SP - 2)
   E :MSTORE(SP - 3)
   B :MSTORE(SP - 4)
-  0n => A  ;; LoadConst32(0)
+  0n => A  ;; LoadConst32
   A :MSTORE(SP + 8)
-  0n => A  ;; LoadConst64(0)
-  1n => D  ;; LoadConst64(1)
-  D => B
+  0n => A  ;; LoadConst64
+  1n => C  ;; LoadConst64
+  C => B
   :JMP(label_1_1)
 label_1_1:
   $ => E :ADD
   B :MSTORE(SP)
-  4294967296n => B  ;; LoadConst32(1)
+  1n => B  ;; LoadConst32
   $ => A :MLOAD(SP + 8)
   $ => A :ADD
+  4294967295n => B  ;; LoadConst64
+  $ => A :AND
   A :MSTORE(SP + 8)
-  42949672960000n => B  ;; LoadConst32(10000)
+  10000n => B  ;; LoadConst32
   $ => A :EQ
-  4294967296n => B
-  0 => D
-  0 => C
-  ${A * B} => A :ARITH
   A => B
   0 => A
   $ => A :EQ
@@ -37,7 +35,7 @@ label_1_1:
   E => B
   :JMP(label_1_1)
 label_1_3:
-  15574651946073070043n => B  ;; LoadConst64(15574651946073070043)
+  15574651946073070043n => B  ;; LoadConst64
   $ => A :MLOAD(SP)
   B :ASSERT
   $ => C :MLOAD(SP - 1)

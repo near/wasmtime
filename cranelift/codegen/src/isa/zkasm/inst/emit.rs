@@ -419,22 +419,15 @@ impl MachInstEmit for Inst {
             }
             &Inst::LoadConst32 { rd, imm } => {
                 let rd = allocs.next_writable(rd);
-                let shifted = (imm as u64) << 32;
                 put_string(
-                    &format!(
-                        "{shifted}n => {}  ;; LoadConst32({imm})\n",
-                        reg_name(rd.to_reg())
-                    ),
+                    &format!("{imm}n => {}  ;; LoadConst32\n", reg_name(rd.to_reg())),
                     sink,
                 );
             }
             &Inst::LoadConst64 { rd, imm } => {
                 let rd = allocs.next_writable(rd);
                 put_string(
-                    &format!(
-                        "{imm}n => {}  ;; LoadConst64({imm})\n",
-                        reg_name(rd.to_reg())
-                    ),
+                    &format!("{imm}n => {}  ;; LoadConst64\n", reg_name(rd.to_reg())),
                     sink,
                 );
             }
@@ -481,33 +474,17 @@ impl MachInstEmit for Inst {
                     ty_out
                 );
             }
-            &Inst::MulArith32 { rd, rs1, rs2 } => {
+            &Inst::MulArith { rd, rs1, rs2 } => {
                 let rs1 = allocs.next(rs1);
                 let rs2 = allocs.next(rs2);
-                debug_assert_eq!(rs1, b0());
-                debug_assert_eq!(rs2, e0());
+                debug_assert_eq!(rs1, a0());
+                debug_assert_eq!(rs2, b0());
                 let rd = allocs.next_writable(rd);
-                // B * E => rd
-
-                // Didn't find way to avoid stack usage, because in time of ARITH
-                // registers are:
-                // C and D must be set to 0
-                // A and B: one must be 2 ** 32, second -- result of rs2 / 2 ** 32
-                // E: rs1 here
-                // no register to store rs2 =(
-                put_string("B :MSTORE(SP)\n", sink);
-                // E / 2 ** 32 => A
-                put_string("0 => D\n", sink);
                 put_string("0 => C\n", sink);
-                put_string("4294967296n => B\n", sink);
-                // Intentionnaly ignore rem here because if rem != 0 mean something goes wrong
-                put_string("${E / B} => A\n", sink);
-                put_string("E:ARITH\n", sink);
-
-                put_string("$ => B :MLOAD(SP)\n", sink);
-
+                put_string("$${var _mulArith = A * B}\n", sink);
+                put_string("${_mulArith >> 64} => D\n", sink);
                 put_string(
-                    &format!("${{A * B}} => {} :ARITH\n", reg_name(rd.to_reg())),
+                    &format!("${{_mulArith}} => {} :ARITH\n", reg_name(rd.to_reg())),
                     sink,
                 );
             }
@@ -529,147 +506,14 @@ impl MachInstEmit for Inst {
                     sink,
                 );
             }
-            &Inst::MulArith { rd, rs1, rs2 } => {
-                let rs1 = allocs.next(rs1);
-                let rs2 = allocs.next(rs2);
-                debug_assert_eq!(rs1, a0());
-                debug_assert_eq!(rs2, b0());
-                let rd = allocs.next_writable(rd);
-                put_string("0 => D\n", sink);
-                put_string("0 => C\n", sink);
-                put_string("$${var _mulArith = A * B}\n", sink);
-                put_string("${_mulArith / 18446744073709551616} => D\n", sink);
-                put_string(
-                    &format!(
-                        "${{_mulArith % 18446744073709551616}} => {} :ARITH\n",
-                        reg_name(rd.to_reg())
-                    ),
-                    sink,
-                );
-            }
-            &Inst::Rotl64 { rd, rs1, rs2 } => {
-                unimplemented!("Rotl64");
-            }
-            &Inst::Rotl32 { rd, rs1, rs2 } => {
-                // rotl(num, amount) = num << amount | num >> (bitness - amount)
-                let rs1 = allocs.next(rs1);
-                let rs2 = allocs.next(rs2);
-                debug_assert_eq!(rs1, a0());
-                debug_assert_eq!(rs2, e0());
-
-                // a (in A) -- number, e (in E) -- rot amount.
-                // It is important to do e := e % 32. Shifts we use here do it inside.
-
-                put_string("A :MSTORE(SP)\n", sink); // a on SP
-                put_string("E :MSTORE(SP + 1)\n", sink); // e on SP + 1
-
-                // Shl and shr also use stack, so we need increase SP
-                put_string("SP + 2 => SP\n", sink);
-
-                Inst::Shl32 {
-                    rd: Writable::from_reg(e0()),
-                    rs1: a0(),
-                    rs2: e0(),
-                }
-                .emit(&[], sink, emit_info, state); // now a << e in E.
-
-                put_string(";; shl\n", sink);
-
-                put_string("SP - 2 => SP\n", sink);
-
-                put_string("$ => C :MLOAD(SP)\n", sink); // a in C
-                put_string("E :MSTORE(SP)\n", sink); // (a << e) on SP
-                put_string("$ => E :MLOAD(SP + 1)\n", sink); // e in E
-
-                put_string("137438953472n => A\n", sink);
-                put_string("E => B\n", sink);
-                put_string("$ => E :SUB\n", sink); // 32 - e in E
-
-                put_string("C => A\n", sink); // a in A
-
-                put_string("SP + 1 => SP\n", sink);
-
-                Inst::Shru32 {
-                    rd: Writable::from_reg(a0()),
-                    rs1: a0(),
-                    rs2: e0(),
-                }
-                .emit(&[], sink, emit_info, state); // now a >> (32 - e) in A
-
-                put_string("SP - 1 => SP\n", sink);
-
-                put_string(";; shr\n", sink);
-
-                put_string("$ => B :MLOAD(SP)\n", sink); // (a << e) in B
-
-                Inst::AluRRR {
-                    alu_op: AluOPRRR::Or,
-                    rd: Writable::from_reg(a0()),
-                    rs1: a0(),
-                    rs2: b0(),
-                }
-                .emit(&[], sink, emit_info, state); // now a >> (32 - e) | (a << e) in A
-            }
             &Inst::Shru64 { rd, rs1, rs2 } => {
-                let rs1 = allocs.next(rs1);
-                let rs2 = allocs.next(rs2);
-                debug_assert_eq!(rs1, a0());
-                debug_assert_eq!(rs2, e0());
-
-                put_string("A :MSTORE(SP)\n", sink);
-
-                put_string("64 => B\n", sink);
-                put_string("0 => D\n", sink);
-                put_string("${E / B} => A\n", sink);
-                put_string("${E % B} => C\n", sink);
-                put_string("E:ARITH\n", sink);
-
-                put_string("$ => A :MLOAD(SP)\n", sink);
-                put_string("C => E", sink);
-                // E -- shift amount.
                 // A -- number.
-                sink.put_data(format!(";;NEED_INCLUDE: 2-exp\n").as_bytes());
-                put_string("zkPC + 2 => RR\n", sink);
-                put_string("  :JMP(@two_power + E)\n", sink);
-                put_string("A => E\n", sink);
-                put_string("0 => D\n", sink);
-                put_string("${E / B} => A\n", sink);
-                put_string("${E % B} => C\n", sink);
-                put_string("E :ARITH\n", sink);
-            }
-            &Inst::Shru32 { rd, rs1, rs2 } => {
                 let rs1 = allocs.next(rs1);
-                let rs2 = allocs.next(rs2);
                 debug_assert_eq!(rs1, a0());
+                // E -- shift amount.
+                let rs2 = allocs.next(rs2);
                 debug_assert_eq!(rs2, e0());
-
-                // A /= 2**32
-                put_string("E :MSTORE(SP)\n", sink);
-                put_string("0 => D\n", sink);
-                put_string("A => E\n", sink);
-                put_string("4294967296n => B\n", sink);
-                put_string("${E / B} => A\n", sink);
-                put_string("${E % B} => C\n", sink);
-                put_string("E:ARITH\n", sink);
-                put_string("$ => E :MLOAD(SP)\n", sink);
-
-                // E /= 2**32
-                put_string("A :MSTORE(SP)\n", sink);
-                put_string("0 => D\n", sink);
-                put_string("4294967296n => B\n", sink);
-                put_string("${E / B} => A\n", sink);
-                put_string("${E % B} => C\n", sink);
-                put_string("E:ARITH\n", sink);
-                put_string("A => E\n", sink);
-
-                // E %= 32
-                put_string("32 => B\n", sink);
-                put_string("0 => D\n", sink);
-                put_string("${E / B} => A\n", sink);
-                put_string("${E % B} => C\n", sink);
-                put_string("E:ARITH\n", sink);
-                put_string("$ => A :MLOAD(SP)\n", sink);
-                put_string("C => E\n", sink);
+                let rd = allocs.next_writable(rd);
 
                 sink.put_data(format!(";;NEED_INCLUDE: 2-exp\n").as_bytes());
                 put_string("zkPC + 2 => RR\n", sink);
@@ -679,97 +523,26 @@ impl MachInstEmit for Inst {
                 put_string("${E / B} => A\n", sink);
                 put_string("${E % B} => C\n", sink);
                 put_string("E :ARITH\n", sink);
-
-                // A *= 2**32
-                put_string("0 => C\n", sink);
-                put_string("4294967296n => B\n", sink);
-                put_string("${A * B} => E\n", sink);
-                put_string("0 => D\n", sink);
-                put_string("E :ARITH\n", sink);
-                put_string("E => A\n", sink)
             }
             &Inst::Shl64 { rd, rs1, rs2 } => {
-                let rs1 = allocs.next(rs1);
-                let rs2 = allocs.next(rs2);
-                debug_assert_eq!(rs1, a0());
-                debug_assert_eq!(rs2, e0());
-
-                put_string("A :MSTORE(SP)\n", sink);
-
-                put_string("64 => B\n", sink);
-                put_string("0 => D\n", sink);
-                put_string("${E / B} => A\n", sink);
-                put_string("${E % B} => C\n", sink);
-                put_string("E:ARITH\n", sink);
-
-                put_string("$ => A :MLOAD(SP)\n", sink);
-                put_string("C => E", sink);
-                // E -- shift amount.
                 // A -- number.
-                sink.put_data(format!(";;NEED_INCLUDE: 2-exp\n").as_bytes());
-                put_string("zkPC + 2 => RR\n", sink);
-                put_string("  :JMP(@two_power + E)\n", sink);
-                put_string("0 => D\n", sink);
-                put_string("0 => C\n", sink);
-                put_string("$${var _mulShlArith = A * B}\n", sink);
-                put_string("${_mulShlArith / 18446744073709551616} => D\n", sink);
-                put_string("${_mulShlArith % 18446744073709551616} => E :ARITH\n", sink);
-            }
-            &Inst::Shl32 { rd, rs1, rs2 } => {
                 let rs1 = allocs.next(rs1);
-                let rs2 = allocs.next(rs2);
                 debug_assert_eq!(rs1, a0());
-                debug_assert_eq!(rs2, e0());
-
-                // E /= 2**32
-                put_string("A :MSTORE(SP)\n", sink);
-                put_string("0 => D\n", sink);
-                put_string("4294967296n => B\n", sink);
-                put_string("${E / B} => A\n", sink);
-                put_string("${E % B} => C\n", sink);
-                put_string("E:ARITH\n", sink);
-                put_string("A => E\n", sink);
-
-                // E %= 32
-                put_string("32 => B\n", sink);
-                put_string("0 => D\n", sink);
-                put_string("${E / B} => A\n", sink);
-                put_string("${E % B} => C\n", sink);
-                put_string("E:ARITH\n", sink);
-                put_string("$ => A :MLOAD(SP)\n", sink);
-                put_string("C => E\n", sink);
-
                 // E -- shift amount.
-                // A -- number.
-                // E:= (A << E)
-                sink.put_data(format!(";;NEED_INCLUDE: 2-exp\n").as_bytes());
-                put_string("zkPC + 2 => RR\n", sink);
-                put_string("  :JMP(@two_power + E)\n", sink);
-                put_string("0 => D\n", sink);
-                put_string("0 => C\n", sink);
-                put_string("$${var _mulShlArith = A * B}\n", sink);
-                put_string("${_mulShlArith / 18446744073709551616} => D\n", sink);
-                put_string("${_mulShlArith % 18446744073709551616} => E :ARITH\n", sink);
-            }
-            &Inst::DivArith32 { rd, rs1, rs2 } => {
-                let rs1 = allocs.next(rs1);
                 let rs2 = allocs.next(rs2);
-                debug_assert_eq!(rs1, e0());
-                debug_assert_eq!(rs2, b0());
+                debug_assert_eq!(rs2, e0());
                 let rd = allocs.next_writable(rd);
-                // E / B => A
-                put_string("0 => D\n", sink);
-                put_string("${E / B} => A\n", sink);
-                put_string("${E % B} => C\n", sink);
-                put_string("E:ARITH\n", sink);
 
-                // A *= 2 ** 32
-                put_string("4294967296n => B\n", sink);
+                sink.put_data(format!(";;NEED_INCLUDE: 2-exp\n").as_bytes());
+                put_string("zkPC + 2 => RR\n", sink);
+                put_string("  :JMP(@two_power + E)\n", sink);
                 put_string("0 => C\n", sink);
-                // Intentionnaly ignore 64-bit overflow here
-                // (don't write _mulArith / 2 ** 64 => D)
-                // because if it is non-zero something is not OK
-                put_string("${A * B} => A :ARITH\n", sink);
+                put_string("$${var _mul = A * B}\n", sink);
+                put_string("${_mul >> 64} => D\n", sink);
+                put_string(
+                    &format!("${{_mul}} => {} :ARITH\n", reg_name(rd.to_reg())),
+                    sink,
+                );
             }
             &Inst::DivArith { rd, rs1, rs2 } => {
                 let rs1 = allocs.next(rs1);
@@ -782,26 +555,6 @@ impl MachInstEmit for Inst {
                 put_string("${E % B} => C\n", sink);
                 put_string("E:ARITH\n", sink);
             }
-            &Inst::UDivArith32 { rd, rs1, rs2 } => {
-                let rs1 = allocs.next(rs1);
-                let rs2 = allocs.next(rs2);
-                debug_assert_eq!(rs1, e0());
-                debug_assert_eq!(rs2, b0());
-                let rd = allocs.next_writable(rd);
-                // E / B => A
-                put_string("0 => D\n", sink);
-                put_string("${E / B} => A\n", sink);
-                put_string("${E % B} => C\n", sink);
-                put_string("E:ARITH\n", sink);
-
-                // A *= 2 ** 32
-                put_string("4294967296n => B\n", sink);
-                put_string("0 => C\n", sink);
-                // Intentionnaly ignore 64-bit overflow here
-                // (don't write _mulArith / 2 ** 64 => D)
-                // because if it is non-zero something is not OK
-                put_string("${A * B} => A :ARITH\n", sink);
-            }
             &Inst::UDivArith { rd, rs1, rs2 } => {
                 let rs1 = allocs.next(rs1);
                 let rs2 = allocs.next(rs2);
@@ -813,52 +566,6 @@ impl MachInstEmit for Inst {
                 put_string("${E % B} => C\n", sink);
                 put_string("E:ARITH\n", sink);
             }
-            // Rem32 is quite difficult opcode. Here we need calculate
-            // ((op1 / 2**32) % (op2 / 2**32)) * 2**32
-            &Inst::RemArith32 { rd, rs1, rs2 } => {
-                let rs1 = allocs.next(rs1);
-                let rs2 = allocs.next(rs2);
-                debug_assert_eq!(rs1, a0());
-                debug_assert_eq!(rs2, e0());
-                let rd = allocs.next_writable(rd);
-
-                // A % B => E
-
-                put_string("A :MSTORE(SP)\n", sink); // SP contains op1
-
-                // op2 / 2 ** 32 => A
-                put_string("0 => D\n", sink);
-                put_string("0 => C\n", sink);
-                put_string("4294967296n => B\n", sink);
-                put_string("${E / B} => A\n", sink);
-                put_string("E:ARITH\n", sink);
-
-                put_string("A :MSTORE(SP + 1)\n", sink); // SP + 1 contains op2 / 2 ** 32
-
-                // op1 => E
-                put_string("$ => E :MLOAD(SP)\n", sink);
-
-                // op1 / 2 ** 32 => A
-                put_string("${E / B} => A\n", sink);
-                put_string("E:ARITH\n", sink);
-
-                put_string("A => E\n", sink);
-                put_string("$ => B :MLOAD(SP + 1)\n", sink);
-
-                // now E = op1 / 2**32, B = op2 / 2**32
-                put_string("${E / B} => A\n", sink);
-                put_string("${E % B} => C\n", sink);
-                put_string("E:ARITH\n", sink);
-
-                // now C = res / 2 ** 32
-                put_string("C => A\n", sink);
-                put_string("4294967296n => B\n", sink);
-
-                put_string("0 => D\n", sink);
-                put_string("0 => C\n", sink);
-                put_string("${A * B} => E :ARITH\n", sink);
-                // now E = res
-            }
             &Inst::RemArith { rd, rs1, rs2 } => {
                 let rs1 = allocs.next(rs1);
                 let rs2 = allocs.next(rs2);
@@ -869,50 +576,6 @@ impl MachInstEmit for Inst {
                 put_string("${E / B} => A\n", sink);
                 put_string("${E % B} => C\n", sink);
                 put_string("E:ARITH\n", sink);
-            }
-            &Inst::URemArith32 { rd, rs1, rs2 } => {
-                let rs1 = allocs.next(rs1);
-                let rs2 = allocs.next(rs2);
-                debug_assert_eq!(rs1, a0());
-                debug_assert_eq!(rs2, e0());
-                let rd = allocs.next_writable(rd);
-
-                // A % B => E
-
-                put_string("A :MSTORE(SP)\n", sink); // SP contains op1
-
-                // op2 / 2 ** 32 => A
-                put_string("0 => D\n", sink);
-                put_string("0 => C\n", sink);
-                put_string("4294967296n => B\n", sink);
-                put_string("${E / B} => A\n", sink);
-                put_string("E:ARITH\n", sink);
-
-                put_string("A :MSTORE(SP + 1)\n", sink); // SP + 1 contains op2 / 2 ** 32
-
-                // op1 => E
-                put_string("$ => E :MLOAD(SP)\n", sink);
-
-                // op1 / 2 ** 32 => A
-                put_string("${E / B} => A\n", sink);
-                put_string("E:ARITH\n", sink);
-
-                put_string("A => E\n", sink);
-                put_string("$ => B :MLOAD(SP + 1)\n", sink);
-
-                // now E = op1 / 2**32, B = op2 / 2**32
-                put_string("${E / B} => A\n", sink);
-                put_string("${E % B} => C\n", sink);
-                put_string("E:ARITH\n", sink);
-
-                // now C = res / 2 ** 32
-                put_string("C => A\n", sink);
-                put_string("4294967296n => B\n", sink);
-
-                put_string("0 => D\n", sink);
-                put_string("0 => C\n", sink);
-                put_string("${A * B} => E :ARITH\n", sink);
-                // now E = res
             }
             &Inst::URemArith { rd, rs1, rs2 } => {
                 let rs1 = allocs.next(rs1);
@@ -956,9 +619,6 @@ impl MachInstEmit for Inst {
                         if r == context_reg() {
                             put_string(&format!("0 => {}\n", reg_name(rd.to_reg())), sink);
                         } else {
-                            // TODO(akashin): Get rid of this unsound logic when 32-bit registers
-                            // are stored without shifts.
-                            put_string(&format!("${{ {} >> 32 }} => E\n", reg_name(r)), sink);
                             put_string(
                                 &format!(
                                     "$ => {} :MLOAD(MEM:{})\n",
@@ -1000,9 +660,6 @@ impl MachInstEmit for Inst {
                 match to {
                     AMode::RegOffset(r, off, _) => {
                         debug_assert_eq!(r, e0());
-                        // TODO(akashin): Get rid of this unsound logic when 32-bit registers
-                        // are stored without shifts.
-                        put_string(&format!("${{ E >> 32 }} => E\n"), sink);
                         put_string(
                             &format!(
                                 "{} :MSTORE(MEM:{})\n",
@@ -1061,40 +718,23 @@ impl MachInstEmit for Inst {
                 from_bits,
                 to_bits: _to_bits,
             } => {
-                todo!() /* let rn = allocs.next(rn);
-                        let rd = allocs.next_writable(rd);
-                        let mut insts = SmallInstVec::new();
-                        let shift_bits = (64 - from_bits) as i16;
-                        let is_u8 = || from_bits == 8 && signed == false;
-                        if is_u8() {
-                            // special for u8.
-                            insts.push(Inst::AluRRImm12 {
-                                alu_op: AluOPRRI::Andi,
-                                rd,
-                                rs: rn,
-                                imm12: Imm12::from_bits(255),
-                            });
-                        } else {
-                            insts.push(Inst::AluRRImm12 {
-                                alu_op: AluOPRRI::Slli,
-                                rd,
-                                rs: rn,
-                                imm12: Imm12::from_bits(shift_bits),
-                            });
-                            insts.push(Inst::AluRRImm12 {
-                                alu_op: if signed {
-                                    AluOPRRI::Srai
-                                } else {
-                                    AluOPRRI::Srli
-                                },
-                                rd,
-                                rs: rd.to_reg(),
-                                imm12: Imm12::from_bits(shift_bits),
-                            });
-                        }
-                        insts
-                            .into_iter()
-                            .for_each(|i| i.emit(&[], sink, emit_info, state)); */
+                let rn = allocs.next(rn);
+                let rd = allocs.next_writable(rd);
+                assert_eq!(rn, b0());
+                assert_eq!(rd.to_reg(), a0());
+                assert_eq!(from_bits, 32);
+                assert_eq!(_to_bits, 64);
+                Inst::Mov {
+                    rd,
+                    rm: rn,
+                    ty: I64,
+                }
+                .emit(&[], sink, emit_info, state);
+                if signed {
+                    put_string(&format!("0x80000000n => B\n"), sink);
+                    put_string(&format!("$ => A: XOR\n"), sink);
+                    put_string(&format!("$ => A: SUB\n"), sink);
+                }
             }
             &Inst::ReleaseSp { amount } => {
                 // Stack is growing "up" in zkASM contrary to traditional architectures.
@@ -1700,18 +1340,43 @@ impl MachInstEmit for Inst {
                 debug_assert_eq!(a, a0());
                 debug_assert_eq!(b, b0());
 
-                let (opcode, invert_result, swap_inputs) = match cc {
-                    IntCC::Equal => ("EQ", false, false),
-                    IntCC::NotEqual => ("EQ", true, false),
-                    IntCC::SignedLessThan => ("SLT", false, false),
-                    IntCC::SignedGreaterThanOrEqual => ("SLT", true, false),
-                    IntCC::SignedGreaterThan => ("SLT", false, true),
-                    IntCC::SignedLessThanOrEqual => ("SLT", true, true),
-                    IntCC::UnsignedLessThan => ("LT", false, false),
-                    IntCC::UnsignedGreaterThanOrEqual => ("LT", true, false),
-                    IntCC::UnsignedGreaterThan => ("LT", false, true),
-                    IntCC::UnsignedLessThanOrEqual => ("LT", true, true),
+                let (opcode, invert_result, swap_inputs, signed) = match cc {
+                    IntCC::Equal => ("EQ", false, false, false),
+                    IntCC::NotEqual => ("EQ", true, false, false),
+                    IntCC::SignedLessThan => ("SLT", false, false, true),
+                    IntCC::SignedGreaterThanOrEqual => ("SLT", true, false, true),
+                    IntCC::SignedGreaterThan => ("SLT", false, true, true),
+                    IntCC::SignedLessThanOrEqual => ("SLT", true, true, true),
+                    IntCC::UnsignedLessThan => ("LT", false, false, false),
+                    IntCC::UnsignedGreaterThanOrEqual => ("LT", true, false, false),
+                    IntCC::UnsignedGreaterThan => ("LT", false, true, false),
+                    IntCC::UnsignedLessThanOrEqual => ("LT", true, true, false),
                 };
+
+                if signed && ty != I64 {
+                    put_string(&format!("B => C  ;; Extend A.\n"), sink);
+                    put_string(&format!("A => B\n"), sink);
+                    Inst::Extend {
+                        rd: writable_a0(),
+                        rn: b0(),
+                        signed: true,
+                        from_bits: ty.bits() as u8,
+                        to_bits: 64,
+                    }
+                    .emit(&[], sink, emit_info, state);
+                    put_string(&format!("C => B  ;; Extend B.\n"), sink);
+                    put_string(&format!("A => C\n"), sink);
+                    Inst::Extend {
+                        rd: writable_a0(),
+                        rn: b0(),
+                        signed: true,
+                        from_bits: ty.bits() as u8,
+                        to_bits: 64,
+                    }
+                    .emit(&[], sink, emit_info, state);
+                    put_string(&format!("A => B\n"), sink);
+                    put_string(&format!("C => A\n"), sink);
+                }
 
                 // NB: We can implement this more efficiently by either introducing a dedicated
                 // ZK ASM instruction or introducing a new ISLE instruction and asking register
@@ -1731,10 +1396,10 @@ impl MachInstEmit for Inst {
 
                 // Result of comparing operations in wasm for both i32 and i64
                 // is i32. So, we need to multiply it by 2**32
-                put_string("4294967296n => B\n", sink);
-                put_string("0 => D\n", sink);
-                put_string("0 => C\n", sink);
-                put_string("${A * B} => A :ARITH\n", sink);
+                // put_string("4294967296n => B\n", sink);
+                // put_string("0 => D\n", sink);
+                // put_string("0 => C\n", sink);
+                // put_string("${A * B} => A :ARITH\n", sink);
 
                 /*
                 let label_true = sink.get_label();

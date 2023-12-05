@@ -5,70 +5,29 @@ start:
 function_1:
   SP + 1 => SP
   RR :MSTORE(SP - 1)
-  SP + 4 => SP
+  SP + 7 => SP
   C :MSTORE(SP - 1)
   D :MSTORE(SP - 2)
   E :MSTORE(SP - 3)
   B :MSTORE(SP - 4)
-  12736693093579882496n => A  ;; LoadConst32(2965492451)
-  280396939919360n => E  ;; LoadConst32(65285)
-  A :MSTORE(SP)
-  E :MSTORE(SP + 1)
-  SP + 2 => SP
-  A :MSTORE(SP)
-  0 => D
-  4294967296n => B
-  ${E / B} => A
-  ${E % B} => C
-  E:ARITH
-  A => E
-  32 => B
-  0 => D
-  ${E / B} => A
-  ${E % B} => C
-  E:ARITH
-  $ => A :MLOAD(SP)
-  C => E
+  CTX :MSTORE(SP - 5)
+  CTX :MSTORE(SP)
+  2965492451n => A  ;; LoadConst32
+  65285n => CTX  ;; LoadConst32
+  CTX => E
 ;;NEED_INCLUDE: 2-exp
   zkPC + 2 => RR
     :JMP(@two_power + E)
-  0 => D
   0 => C
-  $${var _mulShlArith = A * B}
-  ${_mulShlArith / 18446744073709551616} => D
-  ${_mulShlArith % 18446744073709551616} => E :ARITH
-  ;; shl
-  SP - 2 => SP
-  $ => C :MLOAD(SP)
-  E :MSTORE(SP)
-  $ => E :MLOAD(SP + 1)
-  137438953472n => A
-  E => B
+  $${var _mul = A * B}
+  ${_mul >> 64} => D
+  ${_mul} => E :ARITH
+  CTX => B
+  E => CTX
+  A => C
+  32n => A  ;; LoadConst32
   $ => E :SUB
   C => A
-  SP + 1 => SP
-  E :MSTORE(SP)
-  0 => D
-  A => E
-  4294967296n => B
-  ${E / B} => A
-  ${E % B} => C
-  E:ARITH
-  $ => E :MLOAD(SP)
-  A :MSTORE(SP)
-  0 => D
-  4294967296n => B
-  ${E / B} => A
-  ${E % B} => C
-  E:ARITH
-  A => E
-  32 => B
-  0 => D
-  ${E / B} => A
-  ${E % B} => C
-  E:ARITH
-  $ => A :MLOAD(SP)
-  C => E
 ;;NEED_INCLUDE: 2-exp
   zkPC + 2 => RR
     :JMP(@two_power + E)
@@ -77,23 +36,18 @@ function_1:
   ${E / B} => A
   ${E % B} => C
   E :ARITH
-  0 => C
-  4294967296n => B
-  ${A * B} => E
-  0 => D
-  E :ARITH
-  E => A
-  SP - 1 => SP
-  ;; shr
-  $ => B :MLOAD(SP)
+  A => B
+  CTX => A
   $ => A :OR
-  1745809467435384832n => B  ;; LoadConst32(406477942)
+  406477942n => B  ;; LoadConst32
+  $ => CTX :MLOAD(SP)
   B :ASSERT
   $ => C :MLOAD(SP - 1)
   $ => D :MLOAD(SP - 2)
   $ => E :MLOAD(SP - 3)
   $ => B :MLOAD(SP - 4)
-  SP - 4 => SP
+  $ => CTX :MLOAD(SP - 5)
+  SP - 7 => SP
   $ => RR :MLOAD(SP - 1)
   SP - 1 => SP
   :JMP(RR)

@@ -1,10 +1,10 @@
 Test,Status,Cycles
 i32.wrap_i64_1,runtime error,
-i32.wrap_i64_10,runtime error,
+i32.wrap_i64_10,pass,15
 i32.wrap_i64_11,runtime error,
 i32.wrap_i64_12,runtime error,
 i32.wrap_i64_2,runtime error,
-i32.wrap_i64_3,runtime error,
+i32.wrap_i64_3,pass,15
 i32.wrap_i64_4,runtime error,
 i32.wrap_i64_5,runtime error,
 i32.wrap_i64_6,runtime error,
@@ -12,14 +12,14 @@ i32.wrap_i64_7,runtime error,
 i32.wrap_i64_8,pass,15
 i32.wrap_i64_9,runtime error,
 i64.extend_i32_s_1,pass,15
-i64.extend_i32_s_2,runtime error,
+i64.extend_i32_s_2,pass,15
 i64.extend_i32_s_3,runtime error,
 i64.extend_i32_s_4,runtime error,
-i64.extend_i32_s_5,runtime error,
+i64.extend_i32_s_5,pass,15
 i64.extend_i32_s_6,runtime error,
 i64.extend_i32_u_1,pass,26
-i64.extend_i32_u_2,pass,26
-i64.extend_i32_u_3,pass,26
-i64.extend_i32_u_4,pass,26
-i64.extend_i32_u_5,pass,26
-i64.extend_i32_u_6,pass,26
+i64.extend_i32_u_2,runtime error,
+i64.extend_i32_u_3,runtime error,
+i64.extend_i32_u_4,runtime error,
+i64.extend_i32_u_5,runtime error,
+i64.extend_i32_u_6,runtime error,

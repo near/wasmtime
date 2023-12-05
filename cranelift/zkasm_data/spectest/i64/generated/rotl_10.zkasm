@@ -1,0 +1,57 @@
+start:
+  zkPC + 2 => RR
+  :JMP(function_1)
+  :JMP(finalizeExecution)
+function_1:
+  SP + 1 => SP
+  RR :MSTORE(SP - 1)
+  SP + 7 => SP
+  C :MSTORE(SP - 1)
+  D :MSTORE(SP - 2)
+  E :MSTORE(SP - 3)
+  B :MSTORE(SP - 4)
+  CTX :MSTORE(SP - 5)
+  CTX :MSTORE(SP)
+  12379676934707509257n => A  ;; LoadConst64
+  18446744073709551597n => CTX  ;; LoadConst64
+  CTX => E
+;;NEED_INCLUDE: 2-exp
+  zkPC + 2 => RR
+    :JMP(@two_power + E)
+  0 => C
+  $${var _mul = A * B}
+  ${_mul >> 64} => D
+  ${_mul} => E :ARITH
+  CTX => B
+  E => CTX
+  A => C
+  64n => A  ;; LoadConst32
+  $ => E :SUB
+  C => A
+;;NEED_INCLUDE: 2-exp
+  zkPC + 2 => RR
+    :JMP(@two_power + E)
+  A => E
+  0 => D
+  ${E / B} => A
+  ${E % B} => C
+  E :ARITH
+  A => B
+  CTX => A
+  $ => A :OR
+  14916262237559758314n => B  ;; LoadConst64
+  $ => CTX :MLOAD(SP)
+  B :ASSERT
+  $ => C :MLOAD(SP - 1)
+  $ => D :MLOAD(SP - 2)
+  $ => E :MLOAD(SP - 3)
+  $ => B :MLOAD(SP - 4)
+  $ => CTX :MLOAD(SP - 5)
+  SP - 7 => SP
+  $ => RR :MLOAD(SP - 1)
+  SP - 1 => SP
+  :JMP(RR)
+finalizeExecution:
+  ${beforeLast()}  :JMPN(finalizeExecution)
+                   :JMP(start)
+INCLUDE "helpers/2-exp.zkasm"

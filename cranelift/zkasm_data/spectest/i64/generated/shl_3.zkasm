@@ -10,25 +10,21 @@ function_1:
   D :MSTORE(SP - 2)
   E :MSTORE(SP - 3)
   B :MSTORE(SP - 4)
-  9223372036854775807n => A  ;; LoadConst64(9223372036854775807)
-  1n => E  ;; LoadConst64(1)
-  A :MSTORE(SP)
-  64 => B
-  0 => D
-  ${E / B} => A
-  ${E % B} => C
-  E:ARITH
-  $ => A :MLOAD(SP)
-  C => E;;NEED_INCLUDE: 2-exp
+  9223372036854775807n => A  ;; LoadConst64
+  A => C
+  1n => A  ;; LoadConst64
+  63n => B  ;; LoadConst64
+  $ => E :AND
+  C => A
+;;NEED_INCLUDE: 2-exp
   zkPC + 2 => RR
     :JMP(@two_power + E)
-  0 => D
   0 => C
-  $${var _mulShlArith = A * B}
-  ${_mulShlArith / 18446744073709551616} => D
-  ${_mulShlArith % 18446744073709551616} => E :ARITH
+  $${var _mul = A * B}
+  ${_mul >> 64} => D
+  ${_mul} => E :ARITH
   E => A
-  18446744073709551614n => B  ;; LoadConst64(18446744073709551614)
+  18446744073709551614n => B  ;; LoadConst64
   B :ASSERT
   $ => C :MLOAD(SP - 1)
   $ => D :MLOAD(SP - 2)
