@@ -8,25 +8,20 @@ function_1:
   SP + 4 => SP
   C :MSTORE(SP - 1)
   D :MSTORE(SP - 2)
-  E :MSTORE(SP - 3)
-  B :MSTORE(SP - 4)
-  133143986176n => B  ;; LoadConst32(31)
-  277094664119517184n => E  ;; LoadConst32(64516129)
-  B :MSTORE(SP)
-  0 => D
+  B :MSTORE(SP - 3)
+  31n => A  ;; LoadConst32
+  64516129n => B  ;; LoadConst32
   0 => C
-  4294967296n => B
-  ${E / B} => A
-  E:ARITH
-  $ => B :MLOAD(SP)
-  ${A * B} => B :ARITH
-  B => A
-  8589934587705032704n => B  ;; LoadConst32(1999999999)
+  $${var _mulArith = A * B}
+  ${_mulArith >> 64} => D
+  ${_mulArith} => A :ARITH
+  4294967295n => B  ;; LoadConst64
+  $ => A :AND
+  1999999999n => B  ;; LoadConst32
   B :ASSERT
   $ => C :MLOAD(SP - 1)
   $ => D :MLOAD(SP - 2)
-  $ => E :MLOAD(SP - 3)
-  $ => B :MLOAD(SP - 4)
+  $ => B :MLOAD(SP - 3)
   SP - 4 => SP
   $ => RR :MLOAD(SP - 1)
   SP - 1 => SP

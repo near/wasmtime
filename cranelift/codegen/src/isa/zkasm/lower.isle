@@ -31,15 +31,10 @@
 (rule 0 (lower (has_type (ty_int_ref_scalar_64 ty) (iadd x y)))
   (rv_add x y))
 
-;; TODO: restore it, disabled cause matches 1 as i64 but don't correspond our i32 
-;; representation.
+(rule 1 (lower (has_type (fits_in_32 (ty_int ty)) (iadd x y)))
+  (gen_andi (rv_add x y) 0xFFFFFFFF))
+
 ;; Hint 1: imm31 should work
-;; Hint 2:
-;; (rule 1 (lower (has_type (fits_in_32 (ty_int ty)) (imul x y)))
-;;   (gen_andi (zk_mul x y) 0xFFFFFFFF))
-;; Can work
-;;
-;;
 ;; (rule 1 (lower (iadd (imm32_from_value x) (imm32_from_value y)))
 ;;   (zk_add x y))
 
@@ -64,7 +59,7 @@
   (rv_sub x y))
 
 (rule 1 (lower (has_type (fits_in_32 (ty_int ty)) (isub x y)))
-  (rv_subw x y))
+  (gen_andi (rv_sub x y) 0xFFFFFFFF))
 
 ;;;; Rules for `ineg`/`bnot` ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -86,7 +81,7 @@
   (zk_mul x y))
 
 (rule 1 (lower (has_type (fits_in_32 (ty_int ty)) (imul x y)))
-  (zk_mul_32 x y))
+  (gen_andi (zk_mul x y) 0xFFFFFFFF))
 
 ;;;; Rules for `smulhi` ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (rule 0 (lower (has_type (ty_int_ref_scalar_64 ty) (smulhi x y)))
@@ -102,15 +97,14 @@
   (zk_divu x y))
 
 (rule (lower (has_type $I32 (udiv x y)))
-  (zk_divu_32 x y))
+  (zk_divu x y))
 
 
 (rule (lower (has_type $I64 (sdiv x y)))
   (zk_div x y))
 
 (rule (lower (has_type $I32 (sdiv x y)))
-  (zk_div_32 x y))
-
+  (zk_div x y))
 
 ;;;; Rules for `rem` ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -118,13 +112,13 @@
   (zk_rem x y))
 
 (rule (lower (has_type $I32 (srem x y)))
-  (zk_rem_32 x y))
+  (zk_rem x y))
 
 (rule (lower (has_type $I64 (urem x y)))
   (zk_remu x y))
 
 (rule (lower (has_type $I32 (urem x y)))
-  (zk_remu_32 x y))
+  (zk_remu x y))
 
 ;;;; Rules for `and` ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (rule 0 (lower (has_type (ty_int ty) (band x y)))
@@ -182,18 +176,18 @@
 ;;;; Rules for `ishl` ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (rule (lower (has_type $I64 (ishl x y)))
-  (zk_shl x y))
+  (zk_shl x (gen_andi y 0x3F)))
 
 (rule (lower (has_type $I32 (ishl x y)))
-  (zk_shl_32 x y))
+  (gen_andi (zk_shl x (gen_andi y 0x1F)) 0xFFFFFFFF))
 
 ;;;; Rules for `ushr` ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (rule (lower (has_type $I64 (ushr x y)))
-  (zk_shr_u x y))
+  (zk_shr_u x (gen_andi y 0x3F)))
 
 (rule (lower (has_type $I32 (ushr x y)))
-  (zk_shr_u_32 x y))
+  (gen_andi (zk_shr_u x (gen_andi y 0x1F)) 0xFFFFFFFF))
 
 ;;;; Rules for `sshr` ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -213,10 +207,16 @@
 
 ;;;; Rules for `rotl` ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (rule (lower (has_type $I64 (rotl x y)))
-  (zk_rotl x y))
+	(let ((left XReg (zk_shl x y))
+				(shr_amount XReg (rv_sub (imm $I32 64) y))
+				(right XReg (zk_shr_u x shr_amount)))
+		(rv_or left right)))
 
 (rule (lower (has_type $I32 (rotl x y)))
-  (zk_rotl_32 x y))
+	(let ((left XReg (zk_shl x y))
+				(shr_amount XReg (rv_sub (imm $I32 32) y))
+				(right XReg (zk_shr_u x shr_amount)))
+		(rv_or left right)))
 
 ;;;; Rules for `rotr` ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (rule (lower (has_type (fits_in_64 ty) (rotr x y)))

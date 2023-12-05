@@ -5,70 +5,28 @@ start:
 function_1:
   SP + 1 => SP
   RR :MSTORE(SP - 1)
-  SP + 4 => SP
+  SP + 6 => SP
   C :MSTORE(SP - 1)
   D :MSTORE(SP - 2)
   E :MSTORE(SP - 3)
   B :MSTORE(SP - 4)
-  18302870778191806464n => A  ;; LoadConst32(4261469184)
-  17179869184n => E  ;; LoadConst32(4)
-  A :MSTORE(SP)
-  E :MSTORE(SP + 1)
-  SP + 2 => SP
-  A :MSTORE(SP)
-  0 => D
-  4294967296n => B
-  ${E / B} => A
-  ${E % B} => C
-  E:ARITH
-  A => E
-  32 => B
-  0 => D
-  ${E / B} => A
-  ${E % B} => C
-  E:ARITH
-  $ => A :MLOAD(SP)
-  C => E
+  4261469184n => A  ;; LoadConst32
+  A => C
+  4n => E  ;; LoadConst32
+  E :MSTORE(SP + 8)
 ;;NEED_INCLUDE: 2-exp
   zkPC + 2 => RR
     :JMP(@two_power + E)
-  0 => D
   0 => C
-  $${var _mulShlArith = A * B}
-  ${_mulShlArith / 18446744073709551616} => D
-  ${_mulShlArith % 18446744073709551616} => E :ARITH
-  ;; shl
-  SP - 2 => SP
-  $ => C :MLOAD(SP)
+  $${var _mul = A * B}
+  ${_mul >> 64} => D
+  ${_mul} => E :ARITH
+  A => C
   E :MSTORE(SP)
-  $ => E :MLOAD(SP + 1)
-  137438953472n => A
-  E => B
+  32n => A  ;; LoadConst32
+  $ => B :MLOAD(SP + 8)
   $ => E :SUB
   C => A
-  SP + 1 => SP
-  E :MSTORE(SP)
-  0 => D
-  A => E
-  4294967296n => B
-  ${E / B} => A
-  ${E % B} => C
-  E:ARITH
-  $ => E :MLOAD(SP)
-  A :MSTORE(SP)
-  0 => D
-  4294967296n => B
-  ${E / B} => A
-  ${E % B} => C
-  E:ARITH
-  A => E
-  32 => B
-  0 => D
-  ${E / B} => A
-  ${E % B} => C
-  E:ARITH
-  $ => A :MLOAD(SP)
-  C => E
 ;;NEED_INCLUDE: 2-exp
   zkPC + 2 => RR
     :JMP(@two_power + E)
@@ -77,23 +35,16 @@ function_1:
   ${E / B} => A
   ${E % B} => C
   E :ARITH
-  0 => C
-  4294967296n => B
-  ${A * B} => E
-  0 => D
-  E :ARITH
-  E => A
-  SP - 1 => SP
-  ;; shr
-  $ => B :MLOAD(SP)
+  A => B
+  $ => A :MLOAD(SP)
   $ => A :OR
-  16144771409850138624n => B  ;; LoadConst32(3758997519)
+  3758997519n => B  ;; LoadConst32
   B :ASSERT
   $ => C :MLOAD(SP - 1)
   $ => D :MLOAD(SP - 2)
   $ => E :MLOAD(SP - 3)
   $ => B :MLOAD(SP - 4)
-  SP - 4 => SP
+  SP - 6 => SP
   $ => RR :MLOAD(SP - 1)
   SP - 1 => SP
   :JMP(RR)

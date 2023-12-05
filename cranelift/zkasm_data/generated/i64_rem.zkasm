@@ -10,23 +10,23 @@ function_1:
   D :MSTORE(SP - 2)
   E :MSTORE(SP - 3)
   B :MSTORE(SP - 4)
-  5n => E  ;; LoadConst64(5)
-  2n => B  ;; LoadConst64(2)
+  5n => E  ;; LoadConst64
+  2n => B  ;; LoadConst64
   0 => D
   ${E / B} => A
   ${E % B} => C
   E:ARITH
   C => A
-  1n => B  ;; LoadConst64(1)
+  1n => B  ;; LoadConst64
   B :ASSERT
-  8n => E  ;; LoadConst64(8)
-  3n => B  ;; LoadConst64(3)
+  8n => E  ;; LoadConst64
+  3n => B  ;; LoadConst64
   0 => D
   ${E / B} => A
   ${E % B} => C
   E:ARITH
   C => A
-  2n => B  ;; LoadConst64(2)
+  2n => B  ;; LoadConst64
   B :ASSERT
   $ => C :MLOAD(SP - 1)
   $ => D :MLOAD(SP - 2)
