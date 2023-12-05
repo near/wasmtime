@@ -10,15 +10,15 @@ function_1:
   D :MSTORE(SP - 2)
   E :MSTORE(SP - 3)
   B :MSTORE(SP - 4)
-  0n => A
+  0n => A  ;; LoadConst32(0)
   A => E
   :JMP(label_1_1)
 label_1_1:
-  4294967296n => B
+  4294967296n => B  ;; LoadConst32(1)
   E => A
   $ => A :ADD
   A => E
-  42949672960n => B
+  42949672960n => B  ;; LoadConst32(10)
   $ => A :EQ
   4294967296n => B
   0 => D
@@ -30,7 +30,7 @@ label_1_1:
   A :JMPZ(label_1_3)
   :JMP(label_1_1)
 label_1_3:
-  42949672960n => B
+  42949672960n => B  ;; LoadConst32(10)
   E => A
   B :ASSERT
   $ => C :MLOAD(SP - 1)

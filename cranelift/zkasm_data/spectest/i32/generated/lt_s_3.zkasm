@@ -9,14 +9,14 @@ function_1:
   C :MSTORE(SP - 1)
   D :MSTORE(SP - 2)
   B :MSTORE(SP - 3)
-  18446744069414584320n => A
-  4294967296n => B
+  18446744069414584320n => A  ;; LoadConst32(4294967295)
+  4294967296n => B  ;; LoadConst32(1)
   $ => A :SLT
   4294967296n => B
   0 => D
   0 => C
   ${A * B} => A :ARITH
-  4294967296n => B
+  4294967296n => B  ;; LoadConst32(1)
   B :ASSERT
   $ => C :MLOAD(SP - 1)
   $ => D :MLOAD(SP - 2)

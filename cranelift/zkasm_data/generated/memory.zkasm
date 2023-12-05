@@ -10,32 +10,32 @@ function_1:
   D :MSTORE(SP - 2)
   E :MSTORE(SP - 3)
   B :MSTORE(SP - 4)
-  0n => B
-  8589934592n => D
+  0n => B  ;; LoadConst32(0)
+  8589934592n => D  ;; LoadConst32(2)
   0 => A
   $ => E :ADD
   ${ E >> 32 } => E
   D :MSTORE(MEM:E)
-  34359738368n => B
-  12884901888n => C
+  34359738368n => B  ;; LoadConst32(8)
+  12884901888n => C  ;; LoadConst32(3)
   0 => A
   $ => E :ADD
   ${ E >> 32 } => E
   C :MSTORE(MEM:E)
-  0n => B
+  0n => B  ;; LoadConst32(0)
   0 => A
   $ => A :ADD
   ${ A >> 32 } => E
   $ => A :MLOAD(MEM:E)
   A => C
-  34359738368n => B
+  34359738368n => B  ;; LoadConst32(8)
   0 => A
   $ => A :ADD
   ${ A >> 32 } => E
   $ => B :MLOAD(MEM:E)
   C => A
   $ => A :ADD
-  21474836480n => B
+  21474836480n => B  ;; LoadConst32(5)
   B :ASSERT
   $ => C :MLOAD(SP - 1)
   $ => D :MLOAD(SP - 2)

@@ -10,8 +10,8 @@ function_1:
   D :MSTORE(SP - 2)
   E :MSTORE(SP - 3)
   B :MSTORE(SP - 4)
-  0n => E
-  18446744069414584320n => B
+  0n => E  ;; LoadConst32(0)
+  18446744069414584320n => B  ;; LoadConst32(4294967295)
   0 => D
   ${E / B} => A
   ${E % B} => C
@@ -19,7 +19,7 @@ function_1:
   4294967296n => B
   0 => C
   ${A * B} => A :ARITH
-  0n => B
+  0n => B  ;; LoadConst32(0)
   B :ASSERT
   $ => C :MLOAD(SP - 1)
   $ => D :MLOAD(SP - 2)
