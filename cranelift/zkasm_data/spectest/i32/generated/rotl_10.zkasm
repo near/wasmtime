@@ -10,8 +10,8 @@ function_1:
   D :MSTORE(SP - 2)
   E :MSTORE(SP - 3)
   B :MSTORE(SP - 4)
-  8546350908852666368n => A
-  18446743992105172992n => E
+  8546350908852666368n => A  ;; LoadConst32(1989852383)
+  18446743992105172992n => E  ;; LoadConst32(4294967277)
   A :MSTORE(SP)
   E :MSTORE(SP + 1)
   SP + 2 => SP
@@ -87,7 +87,7 @@ function_1:
   ;; shr
   $ => B :MLOAD(SP)
   $ => A :OR
-  6312901892695392256n => B
+  6312901892695392256n => B  ;; LoadConst32(1469837011)
   B :ASSERT
   $ => C :MLOAD(SP - 1)
   $ => D :MLOAD(SP - 2)

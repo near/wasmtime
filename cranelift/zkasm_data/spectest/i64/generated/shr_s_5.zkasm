@@ -7,10 +7,10 @@ function_1:
   RR :MSTORE(SP - 1)
   SP + 2 => SP
   B :MSTORE(SP - 1)
-  9223372036854775808n => A
-  1n => B
+  9223372036854775808n => A  ;; LoadConst64(9223372036854775808)
+  1n => B  ;; LoadConst64(1)
   $ => A :sra
-  13835058055282163712n => B
+  13835058055282163712n => B  ;; LoadConst64(13835058055282163712)
   B :ASSERT
   $ => B :MLOAD(SP - 1)
   SP - 2 => SP

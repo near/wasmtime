@@ -419,11 +419,23 @@ impl MachInstEmit for Inst {
             &Inst::LoadConst32 { rd, imm } => {
                 let rd = allocs.next_writable(rd);
                 let shifted = (imm as u64) << 32;
-                put_string(&format!("{shifted}n => {}\n", reg_name(rd.to_reg())), sink);
+                put_string(
+                    &format!(
+                        "{shifted}n => {}  ;; LoadConst32({imm})\n",
+                        reg_name(rd.to_reg())
+                    ),
+                    sink,
+                );
             }
             &Inst::LoadConst64 { rd, imm } => {
                 let rd = allocs.next_writable(rd);
-                put_string(&format!("{imm}n => {}\n", reg_name(rd.to_reg())), sink);
+                put_string(
+                    &format!(
+                        "{imm}n => {}  ;; LoadConst64({imm})\n",
+                        reg_name(rd.to_reg())
+                    ),
+                    sink,
+                );
             }
             &Inst::Unwind { ref inst } => {
                 put_string(&format!("Unwind\n"), sink);
