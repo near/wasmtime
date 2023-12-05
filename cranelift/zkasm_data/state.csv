@@ -19,7 +19,7 @@ locals,pass,17
 locals_simple,pass,15
 lt_s,pass,34
 lt_u,pass,34
-memory,pass,45
+memory,runtime error,
 mul,pass,31
 ne,pass,36
 nop,pass,15

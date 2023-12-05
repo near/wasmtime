@@ -47,6 +47,10 @@ pub fn writable_c0() -> Writable<Reg> {
 pub fn writable_d0() -> Writable<Reg> {
     Writable::from_reg(d0())
 }
+#[inline]
+pub fn writable_e0() -> Writable<Reg> {
+    Writable::from_reg(e0())
+}
 
 /// Get a reference to the zero-register.
 #[inline]

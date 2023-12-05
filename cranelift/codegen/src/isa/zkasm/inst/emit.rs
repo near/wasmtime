@@ -917,9 +917,18 @@ impl MachInstEmit for Inst {
                         if r == context_reg() {
                             put_string(&format!("0 => {}\n", reg_name(rd.to_reg())), sink);
                         } else {
-                            // TODO(akashin): Get rid of this unsound logic when 32-bit registers
-                            // are stored without shifts.
-                            put_string(&format!("${{ {} >> 32 }} => E\n", reg_name(r)), sink);
+                            debug_assert_eq!(r, a0());
+                            Inst::LoadConst64 {
+                                rd: writable_e0(),
+                                imm: 32,
+                            }
+                            .emit(&[], sink, emit_info, state);
+                            Inst::Shru32 {
+                                rd: writable_e0(),
+                                rs1: r,
+                                rs2: e0(),
+                            }
+                            .emit(&[], sink, emit_info, state);
                             put_string(
                                 &format!(
                                     "$ => {} :MLOAD(MEM:{})\n",
@@ -960,10 +969,18 @@ impl MachInstEmit for Inst {
 
                 match to {
                     AMode::RegOffset(r, off, _) => {
-                        debug_assert_eq!(r, e0());
-                        // TODO(akashin): Get rid of this unsound logic when 32-bit registers
-                        // are stored without shifts.
-                        put_string(&format!("${{ E >> 32 }} => E\n"), sink);
+                        debug_assert_eq!(r, a0());
+                        Inst::LoadConst64 {
+                            rd: writable_e0(),
+                            imm: 32,
+                        }
+                        .emit(&[], sink, emit_info, state);
+                        Inst::Shru32 {
+                            rd: writable_e0(),
+                            rs1: r,
+                            rs2: e0(),
+                        }
+                        .emit(&[], sink, emit_info, state);
                         put_string(
                             &format!(
                                 "{} :MSTORE(MEM:{})\n",
