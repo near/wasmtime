@@ -9,14 +9,14 @@ function_1:
   C :MSTORE(SP - 1)
   D :MSTORE(SP - 2)
   B :MSTORE(SP - 3)
-  18446744073709551615n => A
-  18446744073709551615n => B
+  18446744073709551615n => A  ;; LoadConst64(18446744073709551615)
+  18446744073709551615n => B  ;; LoadConst64(18446744073709551615)
   0 => D
   0 => C
   $${var _mulArith = A * B}
   ${_mulArith / 18446744073709551616} => D
   ${_mulArith % 18446744073709551616} => A :ARITH
-  1n => B
+  1n => B  ;; LoadConst64(1)
   B :ASSERT
   $ => C :MLOAD(SP - 1)
   $ => D :MLOAD(SP - 2)

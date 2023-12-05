@@ -447,11 +447,14 @@ fn zkasm_get_operands<F: Fn(VReg) -> VReg>(inst: &Inst, collector: &mut OperandC
             if let Some(r) = from.get_allocatable_register() {
                 collector.reg_use(r);
             }
+            let mut clobbered = PRegSet::empty();
+            clobbered.add(e0().to_real_reg().unwrap().into());
+            collector.reg_clobbers(clobbered);
             collector.reg_def(rd);
         }
         &Inst::Store { to, src, .. } => {
             if let Some(r) = to.get_allocatable_register() {
-                collector.reg_use(r);
+                collector.reg_fixed_use(r, e0());
             }
             collector.reg_use(src);
         }
@@ -800,7 +803,7 @@ impl MachInst for Inst {
 
     fn worst_case_size() -> CodeOffset {
         // calculate by test function zkasm_worst_case_instruction_size()
-        1_000_000
+        1_155
     }
 
     fn ref_type_regclass(_settings: &settings::Flags) -> RegClass {

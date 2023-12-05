@@ -420,11 +420,23 @@ impl MachInstEmit for Inst {
             &Inst::LoadConst32 { rd, imm } => {
                 let rd = allocs.next_writable(rd);
                 let shifted = (imm as u64) << 32;
-                put_string(&format!("{shifted}n => {}\n", reg_name(rd.to_reg())), sink);
+                put_string(
+                    &format!(
+                        "{shifted}n => {}  ;; LoadConst32({imm})\n",
+                        reg_name(rd.to_reg())
+                    ),
+                    sink,
+                );
             }
             &Inst::LoadConst64 { rd, imm } => {
                 let rd = allocs.next_writable(rd);
-                put_string(&format!("{imm}n => {}\n", reg_name(rd.to_reg())), sink);
+                put_string(
+                    &format!(
+                        "{imm}n => {}  ;; LoadConst64({imm})\n",
+                        reg_name(rd.to_reg())
+                    ),
+                    sink,
+                );
             }
             &Inst::Unwind { ref inst } => {
                 put_string(&format!("Unwind\n"), sink);
@@ -939,61 +951,90 @@ impl MachInstEmit for Inst {
                 let base = from.get_base_register();
                 let offset = from.get_offset_with_state(state);
                 let rd = allocs.next_writable(rd);
-                let insn = match from {
-                    AMode::RegOffset(r, off, _) => format!(
-                        "$ => {} :MLOAD({})\n",
-                        reg_name(rd.to_reg()),
-                        access_reg_with_offset(r, off),
-                    ),
+                match from {
+                    AMode::RegOffset(r, off, _) => {
+                        if r == context_reg() {
+                            put_string(&format!("0 => {}\n", reg_name(rd.to_reg())), sink);
+                        } else {
+                            // TODO(akashin): Get rid of this unsound logic when 32-bit registers
+                            // are stored without shifts.
+                            put_string(&format!("${{ {} >> 32 }} => E\n", reg_name(r)), sink);
+                            put_string(
+                                &format!(
+                                    "$ => {} :MLOAD(MEM:{})\n",
+                                    reg_name(rd.to_reg()),
+                                    access_reg_with_offset(e0(), off)
+                                ),
+                                sink,
+                            );
+                        }
+                    }
                     AMode::SPOffset(off, _) | AMode::NominalSPOffset(off, _) => {
-                        format!(
-                            "$ => {} :MLOAD({})\n",
-                            reg_name(rd.to_reg()),
-                            access_reg_with_offset(stack_reg(), off),
-                        )
+                        put_string(
+                            &format!(
+                                "$ => {} :MLOAD({})\n",
+                                reg_name(rd.to_reg()),
+                                access_reg_with_offset(stack_reg(), off),
+                            ),
+                            sink,
+                        );
                     }
                     AMode::FPOffset(off, _) => {
-                        format!(
-                            "$ => {} :MLOAD({})\n",
-                            reg_name(rd.to_reg()),
-                            access_reg_with_offset(fp_reg(), off),
-                        )
+                        put_string(
+                            &format!(
+                                "$ => {} :MLOAD({})\n",
+                                reg_name(rd.to_reg()),
+                                access_reg_with_offset(fp_reg(), off),
+                            ),
+                            sink,
+                        );
                     }
-                    // FIXME: these don't actually produce valid zkASM
-                    AMode::Const(_) => format!("$ => {} :MLOAD({})\n", reg_name(rd.to_reg()), from),
-                    AMode::Label(_) => format!("$ => {} :MLOAD({})\n", reg_name(rd.to_reg()), from),
+                    AMode::Const(_) => unimplemented!("Load, AMode::Const"),
+                    AMode::Label(_) => unimplemented!("Load, AMode::Label"),
                 };
-                put_string(&insn, sink);
             }
             &Inst::Store { op, src, flags, to } => {
                 let to = to.clone().with_allocs(&mut allocs);
                 let src = allocs.next(src);
 
-                let insn = match to {
-                    AMode::RegOffset(r, off, _) => format!(
-                        "{} :MSTORE({})\n",
-                        reg_name(src),
-                        access_reg_with_offset(r, off),
-                    ),
+                match to {
+                    AMode::RegOffset(r, off, _) => {
+                        debug_assert_eq!(r, e0());
+                        // TODO(akashin): Get rid of this unsound logic when 32-bit registers
+                        // are stored without shifts.
+                        put_string(&format!("${{ E >> 32 }} => E\n"), sink);
+                        put_string(
+                            &format!(
+                                "{} :MSTORE(MEM:{})\n",
+                                reg_name(src),
+                                access_reg_with_offset(e0(), off)
+                            ),
+                            sink,
+                        );
+                    }
                     AMode::SPOffset(off, _) | AMode::NominalSPOffset(off, _) => {
-                        format!(
-                            "{} :MSTORE({})\n",
-                            reg_name(src),
-                            access_reg_with_offset(stack_reg(), off),
-                        )
+                        put_string(
+                            &format!(
+                                "{} :MSTORE({})\n",
+                                reg_name(src),
+                                access_reg_with_offset(stack_reg(), off),
+                            ),
+                            sink,
+                        );
                     }
                     AMode::FPOffset(off, _) => {
-                        format!(
-                            "{} :MSTORE({})\n",
-                            reg_name(src),
-                            access_reg_with_offset(fp_reg(), off),
-                        )
+                        put_string(
+                            &format!(
+                                "{} :MSTORE({})\n",
+                                reg_name(src),
+                                access_reg_with_offset(fp_reg(), off),
+                            ),
+                            sink,
+                        );
                     }
-                    // FIXME: these don't actually produce valid zkASM
-                    AMode::Const(_) => format!("{} :MSTORE({})\n", reg_name(src), to),
-                    AMode::Label(_) => format!("{} :MSTORE({})\n", reg_name(src), to),
+                    AMode::Const(_) => unimplemented!("Store, AMode::Const"),
+                    AMode::Label(_) => unimplemented!("Store, AMode::Label"),
                 };
-                put_string(&insn, sink);
             }
             &Inst::Args { .. } => {
                 // Nothing: this is a pseudoinstruction that serves
