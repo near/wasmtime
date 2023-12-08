@@ -5,73 +5,45 @@ start:
 function_1:
   SP + 1 => SP
   RR :MSTORE(SP - 1)
-  SP + 7 => SP
+  SP + 4 => SP
   C :MSTORE(SP - 1)
   D :MSTORE(SP - 2)
   E :MSTORE(SP - 3)
   B :MSTORE(SP - 4)
-  CTX :MSTORE(SP - 5)
-  CTX :MSTORE(SP)
-  0n => E  ;; LoadConst32
-  2n => CTX  ;; LoadConst32
-  4294967296n => B
-  0 => D
-  0 => C
-  ${E / B} => A
-  E:ARITH
-  $ => E :MLOAD(SP)
-  A => B
+  0n => B  ;; LoadConst32
+  2n => D  ;; LoadConst32
+  CTX => E
   $ => A :MLOAD(MEM:E)
   $ => E :ADD
-  CTX :MSTORE(MEM:E)
-  8n => E  ;; LoadConst32
-  3n => CTX  ;; LoadConst32
-  4294967296n => B
-  0 => D
-  0 => C
-  ${E / B} => A
-  E:ARITH
-  $ => E :MLOAD(SP)
-  A => B
+  D :MSTORE(MEM:E)
+  8n => B  ;; LoadConst32
+  3n => C  ;; LoadConst32
+  CTX => E
   $ => A :MLOAD(MEM:E)
   $ => E :ADD
-  CTX :MSTORE(MEM:E)
-  0n => E  ;; LoadConst32
-  4294967296n => B
-  0 => D
-  0 => C
-  ${E / B} => A
-  E:ARITH
-  $ => E :MLOAD(SP)
-  A => B
+  C :MSTORE(MEM:E)
+  0n => B  ;; LoadConst32
+  CTX => E
   $ => A :MLOAD(MEM:E)
   $ => E :ADD
   $ => A :MLOAD(MEM:E)
-  A => CTX
-  8n => E  ;; LoadConst32
-  4294967296n => B
-  0 => D
-  0 => C
-  ${E / B} => A
-  E:ARITH
-  $ => E :MLOAD(SP)
-  A => B
+  A => C
+  8n => B  ;; LoadConst32
+  CTX => E
   $ => A :MLOAD(MEM:E)
   $ => E :ADD
   $ => B :MLOAD(MEM:E)
-  CTX => A
+  C => A
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
   $ => A :AND
   5n => B  ;; LoadConst32
-  $ => CTX :MLOAD(SP)
   B :ASSERT
   $ => C :MLOAD(SP - 1)
   $ => D :MLOAD(SP - 2)
   $ => E :MLOAD(SP - 3)
   $ => B :MLOAD(SP - 4)
-  $ => CTX :MLOAD(SP - 5)
-  SP - 7 => SP
+  SP - 4 => SP
   $ => RR :MLOAD(SP - 1)
   SP - 1 => SP
   :JMP(RR)

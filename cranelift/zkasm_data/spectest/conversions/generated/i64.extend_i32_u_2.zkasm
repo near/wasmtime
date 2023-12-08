@@ -5,24 +5,13 @@ start:
 function_1:
   SP + 1 => SP
   RR :MSTORE(SP - 1)
-  SP + 4 => SP
-  C :MSTORE(SP - 1)
-  D :MSTORE(SP - 2)
-  E :MSTORE(SP - 3)
-  B :MSTORE(SP - 4)
-  10000n => E  ;; LoadConst32
-  4294967296n => B
-  0 => D
-  0 => C
-  ${E / B} => A
-  E:ARITH
+  SP + 2 => SP
+  B :MSTORE(SP - 1)
+  10000n => A  ;; LoadConst32
   10000n => B  ;; LoadConst64
   B :ASSERT
-  $ => C :MLOAD(SP - 1)
-  $ => D :MLOAD(SP - 2)
-  $ => E :MLOAD(SP - 3)
-  $ => B :MLOAD(SP - 4)
-  SP - 4 => SP
+  $ => B :MLOAD(SP - 1)
+  SP - 2 => SP
   $ => RR :MLOAD(SP - 1)
   SP - 1 => SP
   :JMP(RR)

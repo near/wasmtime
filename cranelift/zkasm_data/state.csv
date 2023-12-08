@@ -5,7 +5,7 @@ add_func,pass,30
 and,pass,17
 counter,pass,153
 div,pass,26
-eqz,pass,30
+eqz,pass,26
 fibonacci,pass,224
 i32_add_overflows,pass,17
 i32_const,pass,15
@@ -17,11 +17,11 @@ i64_mul_overflows,pass,23
 i64_rem,pass,36
 locals,pass,19
 locals_simple,pass,15
-lt_s,pass,58
-lt_u,pass,30
-memory,runtime error,
+lt_s,pass,54
+lt_u,pass,26
+memory,pass,47
 mul,pass,25
-ne,pass,32
+ne,pass,28
 nop,pass,15
 or,pass,17
 rem,pass,36

@@ -8,8 +8,7 @@ function_1:
   SP + 4 => SP
   C :MSTORE(SP - 1)
   D :MSTORE(SP - 2)
-  E :MSTORE(SP - 3)
-  B :MSTORE(SP - 4)
+  B :MSTORE(SP - 3)
   4294967295n => A  ;; LoadConst32
   2147483648n => B  ;; LoadConst32
   B => C  ;; Extend A.
@@ -31,13 +30,11 @@ function_1:
   C => B
   $ => A :SLT
   1 - A => A
-  A => E
   0n => B  ;; LoadConst32
   B :ASSERT
   $ => C :MLOAD(SP - 1)
   $ => D :MLOAD(SP - 2)
-  $ => E :MLOAD(SP - 3)
-  $ => B :MLOAD(SP - 4)
+  $ => B :MLOAD(SP - 3)
   SP - 4 => SP
   $ => RR :MLOAD(SP - 1)
   SP - 1 => SP

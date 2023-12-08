@@ -63,12 +63,6 @@
       (rd WritableReg)
       (rs1 Reg))
 
-    (UExtend
-      (rd WritableReg)
-      (rs Reg)
-      (ty_in Type)
-      (ty_out Type))
-
     (Bnot
       (rd WritableReg)
       (rs1 Reg))
@@ -672,12 +666,6 @@
 
 ;; RV32M Extension
 ;; TODO: Enable these instructions only when we have the M extension
-
-(decl zk_uextend (XReg Type Type) XReg)
-(rule (zk_uextend rs ty_in ty_out)
-      (let ((dst WritableXReg (temp_writable_xreg))
-            (_ Unit (emit (MInst.UExtend dst rs ty_in ty_out))))
-        dst))
 
 (decl zk_shr_u (XReg XReg) XReg)
 (rule (zk_shr_u rs1 rs2)

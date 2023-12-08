@@ -22,26 +22,19 @@ function_1:
   A :MSTORE(SP + 80)
   A :MSTORE(MEM:E + 8)
   8n => B  ;; LoadConst32
-  $ => E :ADD
-  E => A
+  $ => B :ADD
+  B => A
   4294967295n => B  ;; LoadConst64
   $ => A :AND
   8n => B  ;; LoadConst32
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
-  $ => E :AND
-  E :MSTORE(SP + 32)
-  0n => CTX  ;; LoadConst64
-  4294967296n => B
-  0 => D
-  0 => C
-  ${E / B} => A
-  E:ARITH
-  A => B
-  $ => E :MLOAD(SP)
+  $ => B :AND
+  0n => C  ;; LoadConst64
   $ => A :MLOAD(MEM:E)
   $ => E :ADD
-  CTX :MSTORE(MEM:E)
+  B => CTX
+  C :MSTORE(MEM:E)
   8n => B  ;; LoadConst32
   $ => A :MLOAD(SP + 80)
   $ => B :ADD
@@ -51,587 +44,345 @@ function_1:
   16n => B  ;; LoadConst32
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
-  $ => E :AND
-  E :MSTORE(SP + 24)
-  0n => CTX  ;; LoadConst64
-  4294967296n => B
-  0 => D
-  0 => C
-  ${E / B} => A
-  E:ARITH
-  A => B
+  $ => B :AND
+  0n => D  ;; LoadConst64
   $ => E :MLOAD(SP)
   $ => A :MLOAD(MEM:E)
   $ => E :ADD
-  CTX :MSTORE(MEM:E)
+  B :MSTORE(SP + 16)
+  D :MSTORE(MEM:E)
   8n => B  ;; LoadConst32
   $ => A :MLOAD(SP + 80)
-  $ => B :ADD
-  B => A
+  $ => C :ADD
+  C => A
   4294967295n => B  ;; LoadConst64
   $ => A :AND
   24n => B  ;; LoadConst32
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
-  $ => E :AND
-  E :MSTORE(SP + 16)
-  0n => CTX  ;; LoadConst64
-  4294967296n => B
-  0 => D
-  0 => C
-  ${E / B} => A
-  E:ARITH
-  A => B
+  $ => B :AND
+  0n => C  ;; LoadConst64
   $ => E :MLOAD(SP)
   $ => A :MLOAD(MEM:E)
   $ => E :ADD
-  CTX :MSTORE(MEM:E)
+  B :MSTORE(SP + 8)
+  C :MSTORE(MEM:E)
   40n => B  ;; LoadConst32
-  $ => A :MLOAD(SP + 80)
-  $ => C :ADD
-  C => A
-  4294967295n => B  ;; LoadConst64
-  $ => E :AND
-  E :MSTORE(SP + 8)
-  0n => CTX  ;; LoadConst64
-  4294967296n => B
-  0 => D
-  0 => C
-  ${E / B} => A
-  E:ARITH
-  A => B
-  $ => E :MLOAD(SP)
-  $ => A :MLOAD(MEM:E)
-  $ => E :ADD
-  CTX :MSTORE(MEM:E)
-  8n => B  ;; LoadConst32
   $ => A :MLOAD(SP + 80)
   $ => D :ADD
   D => A
+  4294967295n => B  ;; LoadConst64
+  $ => B :AND
+  B :MSTORE(SP + 72)
+  0n => C  ;; LoadConst64
+  $ => E :MLOAD(SP)
+  $ => A :MLOAD(MEM:E)
+  $ => E :ADD
+  C :MSTORE(MEM:E)
+  8n => B  ;; LoadConst32
+  $ => A :MLOAD(SP + 80)
+  $ => E :ADD
+  E => A
   4294967295n => B  ;; LoadConst64
   $ => A :AND
   40n => B  ;; LoadConst32
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
-  $ => E :AND
-  E :MSTORE(SP + 72)
-  0n => CTX  ;; LoadConst64
-  4294967296n => B
-  0 => D
-  0 => C
-  ${E / B} => A
-  E:ARITH
-  A => B
+  $ => B :AND
+  B :MSTORE(SP + 64)
+  0n => C  ;; LoadConst64
   $ => E :MLOAD(SP)
   $ => A :MLOAD(MEM:E)
   $ => E :ADD
-  CTX :MSTORE(MEM:E)
+  C :MSTORE(MEM:E)
   53n => B  ;; LoadConst32
   $ => A :MLOAD(SP + 80)
-  $ => E :ADD
-  E => A
-  4294967295n => B  ;; LoadConst64
-  $ => E :AND
-  E :MSTORE(SP + 64)
-  0n => CTX  ;; LoadConst64
-  4294967296n => B
-  0 => D
-  0 => C
-  ${E / B} => A
-  E:ARITH
-  A => B
-  $ => E :MLOAD(SP)
-  $ => A :MLOAD(MEM:E)
-  $ => E :ADD
-  CTX :MSTORE(MEM:E)
-  0n => CTX  ;; LoadConst64
-  $ => E :MLOAD(SP + 80)
-  4294967296n => B
-  0 => D
-  0 => C
-  ${E / B} => A
-  E:ARITH
-  A => B
-  $ => E :MLOAD(SP)
-  $ => A :MLOAD(MEM:E)
-  $ => E :ADD
-  CTX :MSTORE(MEM:E + 8)
-  64n => B  ;; LoadConst32
-  $ => A :MLOAD(SP + 80)
   $ => B :ADD
   B => A
   4294967295n => B  ;; LoadConst64
-  $ => A :AND
-  24n => B  ;; LoadConst32
-  $ => A :ADD
-  4294967295n => B  ;; LoadConst64
-  $ => E :AND
-  E :MSTORE(SP + 56)
-  0n => E  ;; LoadConst32
-  4294967296n => B
-  0 => D
-  0 => C
-  ${E / B} => A
-  E:ARITH
+  $ => B :AND
+  B :MSTORE(SP + 56)
+  0n => C  ;; LoadConst64
   $ => E :MLOAD(SP)
-  A => B
   $ => A :MLOAD(MEM:E)
   $ => E :ADD
-  $ => CTX :MLOAD(MEM:E + 1048600)
-  $ => E :MLOAD(SP + 56)
-  4294967296n => B
-  0 => D
-  0 => C
-  ${E / B} => A
-  E:ARITH
+  C :MSTORE(MEM:E)
+  0n => D  ;; LoadConst64
   $ => E :MLOAD(SP)
-  A => B
   $ => A :MLOAD(MEM:E)
+  $ => B :MLOAD(SP + 80)
   $ => E :ADD
-  CTX :MSTORE(MEM:E)
+  D :MSTORE(MEM:E + 8)
   64n => B  ;; LoadConst32
   $ => A :MLOAD(SP + 80)
   $ => C :ADD
   C => A
   4294967295n => B  ;; LoadConst64
   $ => A :AND
-  16n => B  ;; LoadConst32
+  24n => B  ;; LoadConst32
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
-  $ => E :AND
-  E :MSTORE(SP + 56)
-  0n => E  ;; LoadConst32
-  4294967296n => B
-  0 => D
-  0 => C
-  ${E / B} => A
-  E:ARITH
+  $ => B :AND
+  B => D
+  0n => B  ;; LoadConst32
   $ => E :MLOAD(SP)
-  A => B
   $ => A :MLOAD(MEM:E)
   $ => E :ADD
-  $ => CTX :MLOAD(MEM:E + 1048592)
-  $ => E :MLOAD(SP + 56)
-  4294967296n => B
-  0 => D
-  0 => C
-  ${E / B} => A
-  E:ARITH
+  $ => C :MLOAD(MEM:E + 1048600)
   $ => E :MLOAD(SP)
-  A => B
   $ => A :MLOAD(MEM:E)
+  D => B
   $ => E :ADD
-  CTX :MSTORE(MEM:E)
+  C :MSTORE(MEM:E)
   64n => B  ;; LoadConst32
   $ => A :MLOAD(SP + 80)
   $ => D :ADD
   D => A
   4294967295n => B  ;; LoadConst64
   $ => A :AND
+  16n => B  ;; LoadConst32
+  $ => A :ADD
+  4294967295n => B  ;; LoadConst64
+  $ => B :AND
+  B => D
+  0n => B  ;; LoadConst32
+  $ => E :MLOAD(SP)
+  $ => A :MLOAD(MEM:E)
+  $ => E :ADD
+  $ => C :MLOAD(MEM:E + 1048592)
+  $ => E :MLOAD(SP)
+  $ => A :MLOAD(MEM:E)
+  D => B
+  $ => E :ADD
+  C :MSTORE(MEM:E)
+  64n => B  ;; LoadConst32
+  $ => A :MLOAD(SP + 80)
+  $ => E :ADD
+  E => A
+  4294967295n => B  ;; LoadConst64
+  $ => A :AND
   8n => B  ;; LoadConst32
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
-  $ => E :AND
-  E :MSTORE(SP + 56)
-  0n => E  ;; LoadConst32
-  4294967296n => B
-  0 => D
-  0 => C
-  ${E / B} => A
-  E:ARITH
+  $ => B :AND
+  B => D
+  0n => B  ;; LoadConst32
   $ => E :MLOAD(SP)
-  A => B
   $ => A :MLOAD(MEM:E)
   $ => E :ADD
-  $ => CTX :MLOAD(MEM:E + 1048584)
-  $ => E :MLOAD(SP + 56)
-  4294967296n => B
-  0 => D
-  0 => C
-  ${E / B} => A
-  E:ARITH
+  $ => C :MLOAD(MEM:E + 1048584)
   $ => E :MLOAD(SP)
-  A => B
   $ => A :MLOAD(MEM:E)
+  D => B
   $ => E :ADD
-  CTX :MSTORE(MEM:E)
+  C :MSTORE(MEM:E)
   111n => B  ;; LoadConst32
   $ => A :MLOAD(SP + 80)
-  $ => E :ADD
-  E => A
+  $ => B :ADD
+  B => A
   4294967295n => B  ;; LoadConst64
-  $ => E :AND
-  E :MSTORE(SP + 56)
-  0n => E  ;; LoadConst32
-  4294967296n => B
-  0 => D
-  0 => C
-  ${E / B} => A
-  E:ARITH
+  $ => B :AND
+  B => D
+  0n => B  ;; LoadConst32
   $ => E :MLOAD(SP)
-  A => B
   $ => A :MLOAD(MEM:E)
   $ => E :ADD
-  $ => CTX :MLOAD(MEM:E + 1048615)
-  $ => E :MLOAD(SP + 56)
-  4294967296n => B
-  0 => D
-  0 => C
-  ${E / B} => A
-  E:ARITH
+  $ => C :MLOAD(MEM:E + 1048615)
   $ => E :MLOAD(SP)
-  A => B
+  $ => A :MLOAD(MEM:E)
+  D => B
+  $ => E :ADD
+  C :MSTORE(MEM:E)
+  0n => B  ;; LoadConst32
+  $ => E :MLOAD(SP)
   $ => A :MLOAD(MEM:E)
   $ => E :ADD
-  CTX :MSTORE(MEM:E)
-  0n => E  ;; LoadConst32
-  4294967296n => B
-  0 => D
-  0 => C
-  ${E / B} => A
-  E:ARITH
+  $ => D :MLOAD(MEM:E + 1048576)
   $ => E :MLOAD(SP)
-  A => B
+  $ => A :MLOAD(MEM:E)
+  $ => B :MLOAD(SP + 80)
+  $ => E :ADD
+  D :MSTORE(MEM:E + 64)
+  0n => C  ;; LoadConst64
+  $ => E :MLOAD(SP)
   $ => A :MLOAD(MEM:E)
   $ => E :ADD
-  $ => CTX :MLOAD(MEM:E + 1048576)
-  $ => E :MLOAD(SP + 80)
-  4294967296n => B
-  0 => D
-  0 => C
-  ${E / B} => A
-  E:ARITH
+  C :MSTORE(MEM:E + 96)
+  0n => B  ;; LoadConst32
   $ => E :MLOAD(SP)
-  A => B
   $ => A :MLOAD(MEM:E)
   $ => E :ADD
-  CTX :MSTORE(MEM:E + 64)
-  0n => CTX  ;; LoadConst64
-  $ => E :MLOAD(SP + 80)
-  4294967296n => B
-  0 => D
-  0 => C
-  ${E / B} => A
-  E:ARITH
+  $ => C :MLOAD(MEM:E + 1048608)
   $ => E :MLOAD(SP)
-  A => B
   $ => A :MLOAD(MEM:E)
+  $ => B :MLOAD(SP + 80)
   $ => E :ADD
-  CTX :MSTORE(MEM:E + 96)
-  0n => E  ;; LoadConst32
-  4294967296n => B
-  0 => D
-  0 => C
-  ${E / B} => A
-  E:ARITH
-  $ => E :MLOAD(SP)
-  A => B
-  $ => A :MLOAD(MEM:E)
-  $ => E :ADD
-  $ => CTX :MLOAD(MEM:E + 1048608)
-  $ => E :MLOAD(SP + 80)
-  4294967296n => B
-  0 => D
-  0 => C
-  ${E / B} => A
-  E:ARITH
-  $ => E :MLOAD(SP)
-  A => B
-  $ => A :MLOAD(MEM:E)
-  $ => E :ADD
-  CTX :MSTORE(MEM:E + 104)
+  C :MSTORE(MEM:E + 104)
   115n => B  ;; LoadConst32
   $ => A :MLOAD(SP + 80)
-  $ => D :ADD
-  D => A
-  4294967295n => B  ;; LoadConst64
-  $ => E :AND
-  E :MSTORE(SP + 56)
-  $ => E :MLOAD(SP + 80)
-  4294967296n => B
-  0 => D
-  0 => C
-  ${E / B} => A
-  E:ARITH
-  $ => E :MLOAD(SP)
-  A => B
-  $ => A :MLOAD(MEM:E)
-  $ => E :ADD
-  $ => CTX :MLOAD(MEM:E + 8)
-  $ => E :MLOAD(SP + 56)
-  4294967296n => B
-  0 => D
-  0 => C
-  ${E / B} => A
-  E:ARITH
-  A => B
-  $ => E :MLOAD(SP)
-  $ => A :MLOAD(MEM:E)
-  $ => E :ADD
-  CTX :MSTORE(MEM:E)
-  123n => B  ;; LoadConst32
-  $ => A :MLOAD(SP + 80)
   $ => E :ADD
   E => A
   4294967295n => B  ;; LoadConst64
-  $ => E :AND
-  E :MSTORE(SP + 48)
-  $ => E :MLOAD(SP + 32)
-  4294967296n => B
-  0 => D
-  0 => C
-  ${E / B} => A
-  E:ARITH
+  $ => B :AND
   $ => E :MLOAD(SP)
-  A => B
+  B :MSTORE(SP + 48)
   $ => A :MLOAD(MEM:E)
+  $ => B :MLOAD(SP + 80)
   $ => E :ADD
-  $ => CTX :MLOAD(MEM:E)
-  $ => E :MLOAD(SP + 48)
-  4294967296n => B
-  0 => D
-  0 => C
-  ${E / B} => A
-  E:ARITH
+  $ => C :MLOAD(MEM:E + 8)
   $ => E :MLOAD(SP)
-  A => B
   $ => A :MLOAD(MEM:E)
+  $ => B :MLOAD(SP + 48)
   $ => E :ADD
-  CTX :MSTORE(MEM:E)
+  C :MSTORE(MEM:E)
+  123n => B  ;; LoadConst32
+  $ => A :MLOAD(SP + 80)
+  $ => B :ADD
+  B => A
+  4294967295n => B  ;; LoadConst64
+  $ => B :AND
+  B => D
+  $ => E :MLOAD(SP)
+  $ => A :MLOAD(MEM:E)
+  CTX => B
+  $ => E :ADD
+  $ => C :MLOAD(MEM:E)
+  $ => E :MLOAD(SP)
+  $ => A :MLOAD(MEM:E)
+  D => B
+  $ => E :ADD
+  C :MSTORE(MEM:E)
   131n => B  ;; LoadConst32
   $ => A :MLOAD(SP + 80)
   $ => B :ADD
   B => A
   4294967295n => B  ;; LoadConst64
-  $ => E :AND
-  E :MSTORE(SP + 48)
-  $ => E :MLOAD(SP + 24)
-  4294967296n => B
-  0 => D
-  0 => C
-  ${E / B} => A
-  E:ARITH
+  $ => B :AND
+  B => C
   $ => E :MLOAD(SP)
-  A => B
   $ => A :MLOAD(MEM:E)
+  $ => B :MLOAD(SP + 16)
   $ => E :ADD
-  $ => CTX :MLOAD(MEM:E)
-  $ => E :MLOAD(SP + 48)
-  4294967296n => B
-  0 => D
-  0 => C
-  ${E / B} => A
-  E:ARITH
+  $ => D :MLOAD(MEM:E)
   $ => E :MLOAD(SP)
-  A => B
   $ => A :MLOAD(MEM:E)
+  C => B
   $ => E :ADD
-  CTX :MSTORE(MEM:E)
+  D :MSTORE(MEM:E)
   139n => B  ;; LoadConst32
-  $ => A :MLOAD(SP + 80)
-  $ => B :ADD
-  B => A
-  4294967295n => B  ;; LoadConst64
-  $ => E :AND
-  E :MSTORE(SP + 48)
-  $ => E :MLOAD(SP + 16)
-  4294967296n => B
-  0 => D
-  0 => C
-  ${E / B} => A
-  E:ARITH
-  $ => E :MLOAD(SP)
-  A => B
-  $ => A :MLOAD(MEM:E)
-  $ => E :ADD
-  $ => CTX :MLOAD(MEM:E)
-  $ => E :MLOAD(SP + 48)
-  4294967296n => B
-  0 => D
-  0 => C
-  ${E / B} => A
-  E:ARITH
-  $ => E :MLOAD(SP)
-  A => B
-  $ => A :MLOAD(MEM:E)
-  $ => E :ADD
-  CTX :MSTORE(MEM:E)
-  147n => B  ;; LoadConst32
   $ => A :MLOAD(SP + 80)
   $ => C :ADD
   C => A
   4294967295n => B  ;; LoadConst64
-  $ => E :AND
-  E :MSTORE(SP + 48)
-  $ => E :MLOAD(SP + 8)
-  4294967296n => B
-  0 => D
-  0 => C
-  ${E / B} => A
-  E:ARITH
+  $ => B :AND
+  B => D
   $ => E :MLOAD(SP)
-  A => B
   $ => A :MLOAD(MEM:E)
+  $ => B :MLOAD(SP + 8)
   $ => E :ADD
-  $ => CTX :MLOAD(MEM:E)
-  $ => E :MLOAD(SP + 48)
-  4294967296n => B
-  0 => D
-  0 => C
-  ${E / B} => A
-  E:ARITH
+  $ => C :MLOAD(MEM:E)
   $ => E :MLOAD(SP)
-  A => B
   $ => A :MLOAD(MEM:E)
+  D => B
   $ => E :ADD
-  CTX :MSTORE(MEM:E)
-  155n => B  ;; LoadConst32
+  C :MSTORE(MEM:E)
+  147n => B  ;; LoadConst32
   $ => A :MLOAD(SP + 80)
   $ => D :ADD
   D => A
   4294967295n => B  ;; LoadConst64
-  $ => E :AND
-  E :MSTORE(SP + 48)
-  $ => E :MLOAD(SP + 72)
-  4294967296n => B
-  0 => D
-  0 => C
-  ${E / B} => A
-  E:ARITH
+  $ => B :AND
+  B => D
   $ => E :MLOAD(SP)
-  A => B
   $ => A :MLOAD(MEM:E)
+  $ => B :MLOAD(SP + 72)
   $ => E :ADD
-  $ => CTX :MLOAD(MEM:E)
-  $ => E :MLOAD(SP + 48)
-  4294967296n => B
-  0 => D
-  0 => C
-  ${E / B} => A
-  E:ARITH
+  $ => C :MLOAD(MEM:E)
   $ => E :MLOAD(SP)
-  A => B
   $ => A :MLOAD(MEM:E)
+  D => B
   $ => E :ADD
-  CTX :MSTORE(MEM:E)
-  160n => B  ;; LoadConst32
+  C :MSTORE(MEM:E)
+  155n => B  ;; LoadConst32
   $ => A :MLOAD(SP + 80)
   $ => E :ADD
   E => A
   4294967295n => B  ;; LoadConst64
-  $ => E :AND
-  E :MSTORE(SP + 48)
-  $ => E :MLOAD(SP + 64)
-  4294967296n => B
-  0 => D
-  0 => C
-  ${E / B} => A
-  E:ARITH
+  $ => B :AND
+  B => D
   $ => E :MLOAD(SP)
-  A => B
   $ => A :MLOAD(MEM:E)
+  $ => B :MLOAD(SP + 64)
   $ => E :ADD
-  $ => CTX :MLOAD(MEM:E)
-  $ => E :MLOAD(SP + 48)
-  4294967296n => B
-  0 => D
-  0 => C
-  ${E / B} => A
-  E:ARITH
+  $ => C :MLOAD(MEM:E)
   $ => E :MLOAD(SP)
-  A => B
   $ => A :MLOAD(MEM:E)
+  D => B
   $ => E :ADD
-  CTX :MSTORE(MEM:E)
-  11n => CTX  ;; LoadConst32
-  $ => E :MLOAD(SP + 80)
-  4294967296n => B
-  0 => D
-  0 => C
-  ${E / B} => A
-  E:ARITH
+  C :MSTORE(MEM:E)
+  160n => B  ;; LoadConst32
+  $ => A :MLOAD(SP + 80)
+  $ => B :ADD
+  B => A
+  4294967295n => B  ;; LoadConst64
+  $ => B :AND
+  B => D
   $ => E :MLOAD(SP)
-  A => B
   $ => A :MLOAD(MEM:E)
+  $ => B :MLOAD(SP + 56)
   $ => E :ADD
-  CTX :MSTORE(MEM:E + 168)
+  $ => C :MLOAD(MEM:E)
+  $ => E :MLOAD(SP)
+  $ => A :MLOAD(MEM:E)
+  D => B
+  $ => E :ADD
+  C :MSTORE(MEM:E)
+  11n => D  ;; LoadConst32
+  $ => E :MLOAD(SP)
+  $ => A :MLOAD(MEM:E)
+  $ => B :MLOAD(SP + 80)
+  $ => E :ADD
+  D :MSTORE(MEM:E + 168)
   172n => B  ;; LoadConst32
   $ => A :MLOAD(SP + 80)
-  $ => B :ADD
-  B => A
+  $ => C :ADD
+  C => A
   4294967295n => B  ;; LoadConst64
-  $ => E :AND
-  E :MSTORE(SP + 48)
+  $ => B :AND
+  B => D
   4n => B  ;; LoadConst32
   $ => A :MLOAD(SP + 80)
-  $ => B :ADD
-  B => A
+  $ => C :ADD
+  C => A
   4294967295n => B  ;; LoadConst64
-  $ => E :AND
-  4294967296n => B
-  0 => D
-  0 => C
-  ${E / B} => A
-  E:ARITH
+  $ => B :AND
   $ => E :MLOAD(SP)
-  A => B
   $ => A :MLOAD(MEM:E)
   $ => E :ADD
-  $ => CTX :MLOAD(MEM:E)
-  $ => E :MLOAD(SP + 48)
-  4294967296n => B
-  0 => D
-  0 => C
-  ${E / B} => A
-  E:ARITH
+  $ => C :MLOAD(MEM:E)
   $ => E :MLOAD(SP)
-  A => B
+  $ => A :MLOAD(MEM:E)
+  D => B
+  $ => E :ADD
+  C :MSTORE(MEM:E)
+  $ => E :MLOAD(SP)
+  $ => A :MLOAD(MEM:E)
+  $ => B :MLOAD(SP + 80)
+  $ => E :ADD
+  $ => C :MLOAD(MEM:E + 1)
+  $ => E :MLOAD(SP)
   $ => A :MLOAD(MEM:E)
   $ => E :ADD
-  CTX :MSTORE(MEM:E)
-  $ => E :MLOAD(SP + 80)
-  4294967296n => B
-  0 => D
-  0 => C
-  ${E / B} => A
-  E:ARITH
+  C :MSTORE(MEM:E + 169)
+  128n => C  ;; LoadConst32
   $ => E :MLOAD(SP)
-  A => B
   $ => A :MLOAD(MEM:E)
+  $ => B :MLOAD(SP + 48)
   $ => E :ADD
-  $ => CTX :MLOAD(MEM:E + 1)
-  $ => E :MLOAD(SP + 80)
-  4294967296n => B
-  0 => D
-  0 => C
-  ${E / B} => A
-  E:ARITH
+  C :MSTORE(MEM:E)
   $ => E :MLOAD(SP)
-  A => B
   $ => A :MLOAD(MEM:E)
-  $ => E :ADD
-  CTX :MSTORE(MEM:E + 169)
-  128n => CTX  ;; LoadConst32
-  $ => E :MLOAD(SP + 56)
-  4294967296n => B
-  0 => D
-  0 => C
-  ${E / B} => A
-  E:ARITH
-  $ => E :MLOAD(SP)
-  A => B
-  $ => A :MLOAD(MEM:E)
-  $ => E :ADD
-  CTX :MSTORE(MEM:E)
-  $ => E :MLOAD(SP + 80)
-  4294967296n => B
-  0 => D
-  0 => C
-  ${E / B} => A
-  E:ARITH
-  $ => E :MLOAD(SP)
-  A => B
-  $ => A :MLOAD(MEM:E)
+  $ => B :MLOAD(SP + 80)
   $ => E :ADD
   $ => A :MLOAD(MEM:E + 96)
   A :MSTORE(SP + 48)
@@ -653,8 +404,7 @@ function_1:
   E :MSTORE(SP + 40)
   65024n => B  ;; LoadConst64
   $ => A :MLOAD(SP + 40)
-  $ => B :AND
-  B => C
+  $ => C :AND
   40n => A  ;; LoadConst64
   63n => B  ;; LoadConst64
   $ => E :AND
@@ -669,8 +419,7 @@ function_1:
   E :MSTORE(SP + 32)
   16711680n => B  ;; LoadConst64
   $ => A :MLOAD(SP + 40)
-  $ => B :AND
-  B => C
+  $ => C :AND
   24n => A  ;; LoadConst64
   63n => B  ;; LoadConst64
   $ => E :AND
@@ -770,11 +519,11 @@ function_1:
   $ => B :OR
   $ => A :MLOAD(SP + 24)
   $ => A :OR
-  A => C
+  A => D
   64n => B  ;; LoadConst32
   $ => A :MLOAD(SP + 80)
-  $ => E :ADD
-  E => A
+  $ => B :ADD
+  B => A
   4294967295n => B  ;; LoadConst64
   $ => A :AND
   40n => B  ;; LoadConst32
@@ -782,8 +531,8 @@ function_1:
   4294967295n => B  ;; LoadConst64
   $ => B :AND
   B :MSTORE(SP + 8)
-  0n => B  ;; LoadConst32
-  B => B
+  0n => C  ;; LoadConst32
+  C => B
   0 => A
   $ => A :EQ
   A :JMPZ(label_1_1)
@@ -801,9 +550,9 @@ label_1_2:
   4294967295n => B  ;; LoadConst64
   $ => A :AND
   0n => B  ;; LoadConst32
-  52n => D  ;; LoadConst32
+  52n => E  ;; LoadConst32
   SP + 1 => SP
-  D :MSTORE(SP)
+  E :MSTORE(SP)
   $ => CTX :MLOAD(SP)
   zkPC + 2 => RR
   :JMP(function_4)
@@ -811,7 +560,7 @@ label_1_2:
   :JMP(label_1_3)
 label_1_3:
   6341068275337658368n => B  ;; LoadConst64
-  C => A
+  D => A
   $ => B :OR
   B :MSTORE(SP + 72)
   11n => A  ;; LoadConst32
@@ -825,47 +574,41 @@ label_1_3:
   A :JMPZ(label_1_5)
   160n => B  ;; LoadConst32
   $ => A :MLOAD(SP + 80)
-  $ => D :ADD
-  D => A
-  4294967295n => B  ;; LoadConst64
-  $ => E :AND
-  4294967296n => B
-  0 => D
-  0 => C
-  ${E / B} => A
-  E:ARITH
-  $ => E :MLOAD(SP)
-  A => B
-  $ => A :MLOAD(MEM:E)
-  $ => E :ADD
-  $ => C :MLOAD(SP + 72)
-  C :MSTORE(MEM:E)
-  64n => B  ;; LoadConst32
-  $ => A :MLOAD(SP + 80)
   $ => E :ADD
   E => A
   4294967295n => B  ;; LoadConst64
-  $ => A :AND
-  1n => B  ;; LoadConst32
-  SP + 1 => SP
-  B :MSTORE(SP)
-  $ => B :MLOAD(SP + 8)
-  $ => CTX :MLOAD(SP)
-  zkPC + 2 => RR
-  :JMP(function_2)
-  SP - 1 => SP
-  $ => E :MLOAD(SP + 80)
-  :JMP(label_1_6)
-label_1_5:
+  $ => B :AND
+  $ => E :MLOAD(SP)
+  $ => A :MLOAD(MEM:E)
+  $ => E :ADD
+  $ => B :MLOAD(SP + 72)
+  B :MSTORE(MEM:E)
   64n => B  ;; LoadConst32
   $ => A :MLOAD(SP + 80)
   $ => B :ADD
   B => A
   4294967295n => B  ;; LoadConst64
   $ => A :AND
-  1n => D  ;; LoadConst32
+  1n => C  ;; LoadConst32
   SP + 1 => SP
-  D :MSTORE(SP)
+  C :MSTORE(SP)
+  $ => B :MLOAD(SP + 8)
+  $ => CTX :MLOAD(SP)
+  zkPC + 2 => RR
+  :JMP(function_2)
+  SP - 1 => SP
+  $ => E :MLOAD(SP)
+  :JMP(label_1_6)
+label_1_5:
+  64n => B  ;; LoadConst32
+  $ => A :MLOAD(SP + 80)
+  $ => C :ADD
+  C => A
+  4294967295n => B  ;; LoadConst64
+  $ => A :AND
+  1n => C  ;; LoadConst32
+  SP + 1 => SP
+  C :MSTORE(SP)
   $ => B :MLOAD(SP + 8)
   $ => CTX :MLOAD(SP)
   zkPC + 2 => RR
@@ -873,234 +616,137 @@ label_1_5:
   SP - 1 => SP
   224n => B  ;; LoadConst32
   $ => A :MLOAD(SP + 80)
-  $ => C :ADD
-  C => A
-  4294967295n => B  ;; LoadConst64
-  $ => E :AND
-  0n => CTX  ;; LoadConst64
-  4294967296n => B
-  0 => D
-  0 => C
-  ${E / B} => A
-  E:ARITH
-  $ => E :MLOAD(SP)
-  A => B
-  $ => A :MLOAD(MEM:E)
-  $ => E :ADD
-  CTX :MSTORE(MEM:E)
-  216n => B  ;; LoadConst32
-  $ => A :MLOAD(SP + 80)
   $ => D :ADD
   D => A
   4294967295n => B  ;; LoadConst64
-  $ => E :AND
-  0n => CTX  ;; LoadConst64
-  4294967296n => B
-  0 => D
-  0 => C
-  ${E / B} => A
-  E:ARITH
+  $ => B :AND
+  0n => C  ;; LoadConst64
   $ => E :MLOAD(SP)
-  A => B
   $ => A :MLOAD(MEM:E)
   $ => E :ADD
-  CTX :MSTORE(MEM:E)
-  208n => B  ;; LoadConst32
+  C :MSTORE(MEM:E)
+  216n => B  ;; LoadConst32
   $ => A :MLOAD(SP + 80)
   $ => E :ADD
   E => A
   4294967295n => B  ;; LoadConst64
-  $ => E :AND
-  0n => CTX  ;; LoadConst64
-  4294967296n => B
-  0 => D
-  0 => C
-  ${E / B} => A
-  E:ARITH
+  $ => B :AND
+  0n => C  ;; LoadConst64
   $ => E :MLOAD(SP)
-  A => B
   $ => A :MLOAD(MEM:E)
   $ => E :ADD
-  CTX :MSTORE(MEM:E)
+  C :MSTORE(MEM:E)
+  208n => B  ;; LoadConst32
+  $ => A :MLOAD(SP + 80)
+  $ => B :ADD
+  B => A
+  4294967295n => B  ;; LoadConst64
+  $ => B :AND
+  0n => C  ;; LoadConst64
+  $ => E :MLOAD(SP)
+  $ => A :MLOAD(MEM:E)
+  $ => E :ADD
+  C :MSTORE(MEM:E)
   200n => B  ;; LoadConst32
   $ => A :MLOAD(SP + 80)
   $ => B :ADD
   B => A
   4294967295n => B  ;; LoadConst64
-  $ => E :AND
-  0n => CTX  ;; LoadConst64
-  4294967296n => B
-  0 => D
-  0 => C
-  ${E / B} => A
-  E:ARITH
+  $ => B :AND
+  0n => D  ;; LoadConst64
   $ => E :MLOAD(SP)
-  A => B
   $ => A :MLOAD(MEM:E)
   $ => E :ADD
-  CTX :MSTORE(MEM:E)
+  D :MSTORE(MEM:E)
   192n => B  ;; LoadConst32
-  $ => A :MLOAD(SP + 80)
-  $ => B :ADD
-  B => A
-  4294967295n => B  ;; LoadConst64
-  $ => E :AND
-  0n => CTX  ;; LoadConst64
-  4294967296n => B
-  0 => D
-  0 => C
-  ${E / B} => A
-  E:ARITH
-  $ => E :MLOAD(SP)
-  A => B
-  $ => A :MLOAD(MEM:E)
-  $ => E :ADD
-  CTX :MSTORE(MEM:E)
-  184n => B  ;; LoadConst32
   $ => A :MLOAD(SP + 80)
   $ => C :ADD
   C => A
   4294967295n => B  ;; LoadConst64
-  $ => E :AND
-  0n => CTX  ;; LoadConst64
-  4294967296n => B
-  0 => D
-  0 => C
-  ${E / B} => A
-  E:ARITH
+  $ => B :AND
+  0n => C  ;; LoadConst64
   $ => E :MLOAD(SP)
-  A => B
   $ => A :MLOAD(MEM:E)
   $ => E :ADD
-  CTX :MSTORE(MEM:E)
-  0n => CTX  ;; LoadConst64
-  $ => E :MLOAD(SP + 80)
-  4294967296n => B
-  0 => D
-  0 => C
-  ${E / B} => A
-  E:ARITH
+  C :MSTORE(MEM:E)
+  184n => B  ;; LoadConst32
+  $ => A :MLOAD(SP + 80)
+  $ => D :ADD
+  D => A
+  4294967295n => B  ;; LoadConst64
+  $ => B :AND
+  0n => C  ;; LoadConst64
   $ => E :MLOAD(SP)
-  A => B
   $ => A :MLOAD(MEM:E)
   $ => E :ADD
-  CTX :MSTORE(MEM:E + 176)
-  $ => E :MLOAD(SP + 80)
-  4294967296n => B
-  0 => D
-  0 => C
-  ${E / B} => A
-  E:ARITH
+  C :MSTORE(MEM:E)
+  0n => C  ;; LoadConst64
   $ => E :MLOAD(SP)
-  A => B
+  $ => A :MLOAD(MEM:E)
+  $ => B :MLOAD(SP + 80)
+  $ => E :ADD
+  C :MSTORE(MEM:E + 176)
+  $ => E :MLOAD(SP)
   $ => A :MLOAD(MEM:E)
   $ => E :ADD
-  $ => C :MLOAD(SP + 72)
-  C :MSTORE(MEM:E + 232)
+  $ => B :MLOAD(SP + 72)
+  B :MSTORE(MEM:E + 232)
   64n => B  ;; LoadConst32
   $ => A :MLOAD(SP + 80)
   $ => B :ADD
   B => A
   4294967295n => B  ;; LoadConst64
   $ => A :AND
-  A => D
+  A => C
   176n => B  ;; LoadConst32
   $ => A :MLOAD(SP + 80)
   $ => B :ADD
   B => A
   4294967295n => B  ;; LoadConst64
   $ => B :AND
-  1n => C  ;; LoadConst32
+  1n => D  ;; LoadConst32
   SP + 1 => SP
-  C :MSTORE(SP)
-  D => A
+  D :MSTORE(SP)
+  C => A
   $ => CTX :MLOAD(SP)
   zkPC + 2 => RR
   :JMP(function_2)
   SP - 1 => SP
-  $ => E :MLOAD(SP + 80)
+  $ => E :MLOAD(SP)
   :JMP(label_1_6)
 label_1_6:
-  $ => E :MLOAD(SP + 80)
-  4294967296n => B
-  0 => D
-  0 => C
-  ${E / B} => A
-  E:ARITH
   $ => E :MLOAD(SP)
-  A => B
   $ => A :MLOAD(MEM:E)
+  $ => B :MLOAD(SP + 80)
   $ => E :ADD
   $ => A :MLOAD(MEM:E + 92)
-  $ => E :MLOAD(SP + 80)
-  A :MSTORE(SP + 72)
-  4294967296n => B
-  0 => D
-  0 => C
-  ${E / B} => A
-  E:ARITH
   $ => E :MLOAD(SP)
-  A => B
+  A :MSTORE(SP + 72)
   $ => A :MLOAD(MEM:E)
   $ => E :ADD
   $ => A :MLOAD(MEM:E + 88)
-  $ => E :MLOAD(SP + 80)
-  A :MSTORE(SP + 64)
-  4294967296n => B
-  0 => D
-  0 => C
-  ${E / B} => A
-  E:ARITH
   $ => E :MLOAD(SP)
-  A => B
+  A :MSTORE(SP + 64)
   $ => A :MLOAD(MEM:E)
   $ => E :ADD
   $ => A :MLOAD(MEM:E + 84)
-  $ => E :MLOAD(SP + 80)
-  A :MSTORE(SP + 56)
-  4294967296n => B
-  0 => D
-  0 => C
-  ${E / B} => A
-  E:ARITH
   $ => E :MLOAD(SP)
-  A => B
+  A :MSTORE(SP + 56)
   $ => A :MLOAD(MEM:E)
   $ => E :ADD
   $ => A :MLOAD(MEM:E + 80)
-  $ => E :MLOAD(SP + 80)
-  A :MSTORE(SP + 48)
-  4294967296n => B
-  0 => D
-  0 => C
-  ${E / B} => A
-  E:ARITH
   $ => E :MLOAD(SP)
-  A => B
+  A :MSTORE(SP + 48)
   $ => A :MLOAD(MEM:E)
   $ => E :ADD
   $ => A :MLOAD(MEM:E + 76)
-  $ => E :MLOAD(SP + 80)
-  A :MSTORE(SP + 40)
-  4294967296n => B
-  0 => D
-  0 => C
-  ${E / B} => A
-  E:ARITH
   $ => E :MLOAD(SP)
-  A => B
+  A :MSTORE(SP + 40)
   $ => A :MLOAD(MEM:E)
   $ => E :ADD
   $ => A :MLOAD(MEM:E + 72)
-  $ => E :MLOAD(SP + 80)
-  A :MSTORE(SP + 32)
-  4294967296n => B
-  0 => D
-  0 => C
-  ${E / B} => A
-  E:ARITH
   $ => E :MLOAD(SP)
-  A => B
+  A :MSTORE(SP + 32)
   $ => A :MLOAD(MEM:E)
   $ => E :ADD
   $ => A :MLOAD(MEM:E + 64)
@@ -1122,8 +768,8 @@ label_1_6:
   A => CTX
   65280n => B  ;; LoadConst32
   $ => A :MLOAD(SP + 24)
-  $ => E :AND
-  E => C
+  $ => B :AND
+  B => C
   8n => A  ;; LoadConst32
   31n => B  ;; LoadConst64
   $ => E :AND
@@ -1174,19 +820,19 @@ label_1_6:
   4294967295n => B  ;; LoadConst64
   $ => B :AND
   $ => A :MLOAD(SP + 16)
-  $ => E :OR
+  $ => A :OR
+  B => C
+  A => B
   $ => A :MLOAD(SP + 8)
-  B => D
-  E => B
   $ => A :OR
   65280n => B  ;; LoadConst32
-  $ => E :AND
-  E :MSTORE(SP + 8)
+  $ => B :AND
+  B :MSTORE(SP + 8)
   A :MSTORE(SP + 16)
   16n => A  ;; LoadConst32
   31n => B  ;; LoadConst64
   $ => E :AND
-  D => A
+  C => A
 ;;NEED_INCLUDE: 2-exp
   zkPC + 2 => RR
     :JMP(@two_power + E)
@@ -1215,12 +861,7 @@ label_1_6:
   4294967295n => B  ;; LoadConst64
   $ => B :AND
   $ => A :MLOAD(SP + 8)
-  $ => E :OR
-  4294967296n => B
-  0 => D
-  0 => C
-  ${E / B} => A
-  E:ARITH
+  $ => A :OR
   A => C
   32n => A  ;; LoadConst64
   63n => B  ;; LoadConst64
@@ -1237,16 +878,10 @@ label_1_6:
   4278190080n => B  ;; LoadConst32
   $ => A :MLOAD(SP + 16)
   $ => A :AND
-  $ => E :MLOAD(SP + 80)
-  A :MSTORE(SP + 16)
-  4294967296n => B
-  0 => D
-  0 => C
-  ${E / B} => A
-  E:ARITH
   $ => E :MLOAD(SP)
-  A => B
+  A :MSTORE(SP + 16)
   $ => A :MLOAD(MEM:E)
+  $ => B :MLOAD(SP + 80)
   $ => E :ADD
   $ => A :MLOAD(MEM:E + 68)
   A => CTX
@@ -1264,11 +899,11 @@ label_1_6:
   E :ARITH
   4294967295n => B  ;; LoadConst64
   $ => A :AND
-  A => C
+  A => D
   16n => A  ;; LoadConst32
   31n => B  ;; LoadConst64
   $ => E :AND
-  C => A
+  D => A
 ;;NEED_INCLUDE: 2-exp
   zkPC + 2 => RR
     :JMP(@two_power + E)
@@ -1280,13 +915,7 @@ label_1_6:
   4294967295n => B  ;; LoadConst64
   $ => B :AND
   $ => A :MLOAD(SP + 16)
-  $ => E :OR
-  4294967296n => B
-  0 => D
-  0 => C
-  ${E / B} => A
-  E:ARITH
-  A => B
+  $ => B :OR
   $ => A :MLOAD(SP + 8)
   $ => A :OR
   A :MSTORE(SP + 16)
@@ -1309,8 +938,8 @@ label_1_6:
   A :MSTORE(SP + 8)
   65280n => B  ;; LoadConst32
   CTX => A
-  $ => E :AND
-  E => C
+  $ => B :AND
+  B => C
   8n => A  ;; LoadConst32
   31n => B  ;; LoadConst64
   $ => E :AND
@@ -1325,11 +954,11 @@ label_1_6:
   E => A
   4294967295n => B  ;; LoadConst64
   $ => A :AND
-  A => D
+  A => C
   16n => A  ;; LoadConst32
   31n => B  ;; LoadConst64
   $ => E :AND
-  D => A
+  C => A
 ;;NEED_INCLUDE: 2-exp
   zkPC + 2 => RR
     :JMP(@two_power + E)
@@ -1341,20 +970,14 @@ label_1_6:
   4294967295n => B  ;; LoadConst64
   $ => B :AND
   $ => A :MLOAD(SP + 8)
-  $ => E :OR
-  4294967296n => B
-  0 => D
-  0 => C
-  ${E / B} => A
-  E:ARITH
-  A => B
+  $ => B :OR
   $ => A :MLOAD(SP + 16)
   $ => A :OR
-  A => C
+  A => D
   8n => A  ;; LoadConst64
   63n => B  ;; LoadConst64
   $ => E :AND
-  C => A
+  D => A
 ;;NEED_INCLUDE: 2-exp
   zkPC + 2 => RR
     :JMP(@two_power + E)
@@ -1362,17 +985,11 @@ label_1_6:
   $${var _mul = A * B}
   ${_mul >> 64} => D
   ${_mul} => E :ARITH
-  E :MSTORE(SP + 8)
+  E => C
   255n => B  ;; LoadConst32
   CTX => A
-  $ => E :AND
-  4294967296n => B
-  0 => D
-  0 => C
-  ${E / B} => A
-  E:ARITH
-  A => B
-  $ => A :MLOAD(SP + 8)
+  $ => B :AND
+  C => A
   $ => A :OR
   13352372148217134600n => B  ;; LoadConst64
   $ => CTX :MLOAD(SP)
@@ -1446,266 +1063,6 @@ label_1_6:
   4294967295n => B  ;; LoadConst64
   $ => B :AND
   $ => A :MLOAD(SP + 16)
-  $ => A :OR
-  B => C
-  A => B
-  $ => A :MLOAD(SP + 8)
-  $ => A :OR
-  65280n => B  ;; LoadConst32
-  $ => B :AND
-  B :MSTORE(SP + 8)
-  A :MSTORE(SP + 16)
-  16n => A  ;; LoadConst32
-  31n => B  ;; LoadConst64
-  $ => E :AND
-  C => A
-;;NEED_INCLUDE: 2-exp
-  zkPC + 2 => RR
-    :JMP(@two_power + E)
-  0 => C
-  $${var _mul = A * B}
-  ${_mul >> 64} => D
-  ${_mul} => E :ARITH
-  E => A
-  4294967295n => B  ;; LoadConst64
-  $ => B :AND
-  $ => A :MLOAD(SP + 8)
-  $ => A :OR
-  A :MSTORE(SP + 8)
-  16n => A  ;; LoadConst32
-  31n => B  ;; LoadConst64
-  $ => E :AND
-  CTX => A
-;;NEED_INCLUDE: 2-exp
-  zkPC + 2 => RR
-    :JMP(@two_power + E)
-  A => E
-  0 => D
-  ${E / B} => A
-  ${E % B} => C
-  E :ARITH
-  4294967295n => B  ;; LoadConst64
-  $ => B :AND
-  $ => A :MLOAD(SP + 8)
-  $ => E :OR
-  4294967296n => B
-  0 => D
-  0 => C
-  ${E / B} => A
-  E:ARITH
-  A => C
-  32n => A  ;; LoadConst64
-  63n => B  ;; LoadConst64
-  $ => E :AND
-  C => A
-;;NEED_INCLUDE: 2-exp
-  zkPC + 2 => RR
-    :JMP(@two_power + E)
-  0 => C
-  $${var _mul = A * B}
-  ${_mul >> 64} => D
-  ${_mul} => E :ARITH
-  E => CTX
-  4278190080n => B  ;; LoadConst32
-  $ => A :MLOAD(SP + 16)
-  $ => A :AND
-  A :MSTORE(SP + 8)
-  24n => A  ;; LoadConst32
-  31n => B  ;; LoadConst64
-  $ => E :AND
-  $ => A :MLOAD(SP + 40)
-;;NEED_INCLUDE: 2-exp
-  zkPC + 2 => RR
-    :JMP(@two_power + E)
-  A => E
-  0 => D
-  ${E / B} => A
-  ${E % B} => C
-  E :ARITH
-  4294967295n => B  ;; LoadConst64
-  $ => A :AND
-  A => C
-  16n => A  ;; LoadConst32
-  31n => B  ;; LoadConst64
-  $ => E :AND
-  C => A
-;;NEED_INCLUDE: 2-exp
-  zkPC + 2 => RR
-    :JMP(@two_power + E)
-  0 => C
-  $${var _mul = A * B}
-  ${_mul >> 64} => D
-  ${_mul} => E :ARITH
-  E => A
-  4294967295n => B  ;; LoadConst64
-  $ => B :AND
-  $ => A :MLOAD(SP + 8)
-  $ => E :OR
-  4294967296n => B
-  0 => D
-  0 => C
-  ${E / B} => A
-  E:ARITH
-  A => B
-  CTX => A
-  $ => A :OR
-  A => CTX
-  8n => A  ;; LoadConst32
-  31n => B  ;; LoadConst64
-  $ => E :AND
-  $ => A :MLOAD(SP + 40)
-;;NEED_INCLUDE: 2-exp
-  zkPC + 2 => RR
-    :JMP(@two_power + E)
-  A => E
-  0 => D
-  ${E / B} => A
-  ${E % B} => C
-  E :ARITH
-  4294967295n => B  ;; LoadConst64
-  $ => A :AND
-  65280n => B  ;; LoadConst32
-  $ => A :AND
-  A :MSTORE(SP + 8)
-  65280n => B  ;; LoadConst32
-  $ => A :MLOAD(SP + 40)
-  $ => B :AND
-  B => C
-  8n => A  ;; LoadConst32
-  31n => B  ;; LoadConst64
-  $ => E :AND
-  C => A
-;;NEED_INCLUDE: 2-exp
-  zkPC + 2 => RR
-    :JMP(@two_power + E)
-  0 => C
-  $${var _mul = A * B}
-  ${_mul >> 64} => D
-  ${_mul} => E :ARITH
-  E => A
-  4294967295n => B  ;; LoadConst64
-  $ => A :AND
-  A => C
-  16n => A  ;; LoadConst32
-  31n => B  ;; LoadConst64
-  $ => E :AND
-  C => A
-;;NEED_INCLUDE: 2-exp
-  zkPC + 2 => RR
-    :JMP(@two_power + E)
-  A => E
-  0 => D
-  ${E / B} => A
-  ${E % B} => C
-  E :ARITH
-  4294967295n => B  ;; LoadConst64
-  $ => B :AND
-  $ => A :MLOAD(SP + 8)
-  $ => E :OR
-  4294967296n => B
-  0 => D
-  0 => C
-  ${E / B} => A
-  E:ARITH
-  A => B
-  CTX => A
-  $ => A :OR
-  A => C
-  8n => A  ;; LoadConst64
-  63n => B  ;; LoadConst64
-  $ => E :AND
-  C => A
-;;NEED_INCLUDE: 2-exp
-  zkPC + 2 => RR
-    :JMP(@two_power + E)
-  0 => C
-  $${var _mul = A * B}
-  ${_mul >> 64} => D
-  ${_mul} => E :ARITH
-  E => CTX
-  255n => B  ;; LoadConst32
-  $ => A :MLOAD(SP + 40)
-  $ => E :AND
-  4294967296n => B
-  0 => D
-  0 => C
-  ${E / B} => A
-  E:ARITH
-  A => B
-  CTX => A
-  $ => A :OR
-  11902541952223915002n => B  ;; LoadConst64
-  $ => CTX :MLOAD(SP)
-  B :ASSERT
-  24n => A  ;; LoadConst32
-  31n => B  ;; LoadConst64
-  $ => E :AND
-  $ => A :MLOAD(SP + 48)
-;;NEED_INCLUDE: 2-exp
-  zkPC + 2 => RR
-    :JMP(@two_power + E)
-  0 => C
-  $${var _mul = A * B}
-  ${_mul >> 64} => D
-  ${_mul} => E :ARITH
-  E => A
-  4294967295n => B  ;; LoadConst64
-  $ => A :AND
-  A => CTX
-  65280n => B  ;; LoadConst32
-  $ => A :MLOAD(SP + 48)
-  $ => B :AND
-  B => C
-  8n => A  ;; LoadConst32
-  31n => B  ;; LoadConst64
-  $ => E :AND
-  C => A
-;;NEED_INCLUDE: 2-exp
-  zkPC + 2 => RR
-    :JMP(@two_power + E)
-  0 => C
-  $${var _mul = A * B}
-  ${_mul >> 64} => D
-  ${_mul} => E :ARITH
-  E => A
-  4294967295n => B  ;; LoadConst64
-  $ => B :AND
-  CTX => A
-  $ => A :OR
-  B => CTX
-  A :MSTORE(SP + 8)
-  8n => A  ;; LoadConst32
-  31n => B  ;; LoadConst64
-  $ => E :AND
-  $ => A :MLOAD(SP + 48)
-;;NEED_INCLUDE: 2-exp
-  zkPC + 2 => RR
-    :JMP(@two_power + E)
-  A => E
-  0 => D
-  ${E / B} => A
-  ${E % B} => C
-  E :ARITH
-  4294967295n => B  ;; LoadConst64
-  $ => A :AND
-  65280n => B  ;; LoadConst32
-  $ => A :AND
-  A :MSTORE(SP + 16)
-  24n => A  ;; LoadConst32
-  31n => B  ;; LoadConst64
-  $ => E :AND
-  $ => A :MLOAD(SP + 48)
-;;NEED_INCLUDE: 2-exp
-  zkPC + 2 => RR
-    :JMP(@two_power + E)
-  A => E
-  0 => D
-  ${E / B} => A
-  ${E % B} => C
-  E :ARITH
-  4294967295n => B  ;; LoadConst64
-  $ => B :AND
-  $ => A :MLOAD(SP + 16)
   $ => C :OR
   $ => A :MLOAD(SP + 8)
   C => D
@@ -1748,12 +1105,7 @@ label_1_6:
   4294967295n => B  ;; LoadConst64
   $ => B :AND
   $ => A :MLOAD(SP + 8)
-  $ => E :OR
-  4294967296n => B
-  0 => D
-  0 => C
-  ${E / B} => A
-  E:ARITH
+  $ => A :OR
   A => C
   32n => A  ;; LoadConst64
   63n => B  ;; LoadConst64
@@ -1774,7 +1126,7 @@ label_1_6:
   24n => A  ;; LoadConst32
   31n => B  ;; LoadConst64
   $ => E :AND
-  $ => A :MLOAD(SP + 56)
+  $ => A :MLOAD(SP + 40)
 ;;NEED_INCLUDE: 2-exp
   zkPC + 2 => RR
     :JMP(@two_power + E)
@@ -1801,20 +1153,14 @@ label_1_6:
   4294967295n => B  ;; LoadConst64
   $ => B :AND
   $ => A :MLOAD(SP + 8)
-  $ => E :OR
-  4294967296n => B
-  0 => D
-  0 => C
-  ${E / B} => A
-  E:ARITH
-  A => B
+  $ => B :OR
   CTX => A
   $ => A :OR
   A => CTX
   8n => A  ;; LoadConst32
   31n => B  ;; LoadConst64
   $ => E :AND
-  $ => A :MLOAD(SP + 56)
+  $ => A :MLOAD(SP + 40)
 ;;NEED_INCLUDE: 2-exp
   zkPC + 2 => RR
     :JMP(@two_power + E)
@@ -1829,13 +1175,13 @@ label_1_6:
   $ => A :AND
   A :MSTORE(SP + 8)
   65280n => B  ;; LoadConst32
-  $ => A :MLOAD(SP + 56)
+  $ => A :MLOAD(SP + 40)
   $ => B :AND
-  B => C
+  B => D
   8n => A  ;; LoadConst32
   31n => B  ;; LoadConst64
   $ => E :AND
-  C => A
+  D => A
 ;;NEED_INCLUDE: 2-exp
   zkPC + 2 => RR
     :JMP(@two_power + E)
@@ -1862,13 +1208,7 @@ label_1_6:
   4294967295n => B  ;; LoadConst64
   $ => B :AND
   $ => A :MLOAD(SP + 8)
-  $ => E :OR
-  4294967296n => B
-  0 => D
-  0 => C
-  ${E / B} => A
-  E:ARITH
-  A => B
+  $ => B :OR
   CTX => A
   $ => A :OR
   A => C
@@ -1883,25 +1223,18 @@ label_1_6:
   $${var _mul = A * B}
   ${_mul >> 64} => D
   ${_mul} => E :ARITH
-  E => CTX
   255n => B  ;; LoadConst32
-  $ => A :MLOAD(SP + 56)
-  $ => E :AND
-  4294967296n => B
-  0 => D
-  0 => C
-  ${E / B} => A
-  E:ARITH
-  A => B
-  CTX => A
+  $ => A :MLOAD(SP + 40)
+  $ => B :AND
+  E => A
   $ => A :OR
-  14160706888648589550n => B  ;; LoadConst64
+  11902541952223915002n => B  ;; LoadConst64
   $ => CTX :MLOAD(SP)
   B :ASSERT
   24n => A  ;; LoadConst32
   31n => B  ;; LoadConst64
   $ => E :AND
-  $ => A :MLOAD(SP + 64)
+  $ => A :MLOAD(SP + 48)
 ;;NEED_INCLUDE: 2-exp
   zkPC + 2 => RR
     :JMP(@two_power + E)
@@ -1914,12 +1247,13 @@ label_1_6:
   $ => A :AND
   A => CTX
   65280n => B  ;; LoadConst32
-  $ => A :MLOAD(SP + 64)
+  $ => A :MLOAD(SP + 48)
   $ => C :AND
+  C => D
   8n => A  ;; LoadConst32
   31n => B  ;; LoadConst64
   $ => E :AND
-  C => A
+  D => A
 ;;NEED_INCLUDE: 2-exp
   zkPC + 2 => RR
     :JMP(@two_power + E)
@@ -1937,7 +1271,7 @@ label_1_6:
   8n => A  ;; LoadConst32
   31n => B  ;; LoadConst64
   $ => E :AND
-  $ => A :MLOAD(SP + 64)
+  $ => A :MLOAD(SP + 48)
 ;;NEED_INCLUDE: 2-exp
   zkPC + 2 => RR
     :JMP(@two_power + E)
@@ -1954,7 +1288,7 @@ label_1_6:
   24n => A  ;; LoadConst32
   31n => B  ;; LoadConst64
   $ => E :AND
-  $ => A :MLOAD(SP + 64)
+  $ => A :MLOAD(SP + 48)
 ;;NEED_INCLUDE: 2-exp
   zkPC + 2 => RR
     :JMP(@two_power + E)
@@ -2007,12 +1341,243 @@ label_1_6:
   4294967295n => B  ;; LoadConst64
   $ => B :AND
   $ => A :MLOAD(SP + 8)
-  $ => E :OR
-  4294967296n => B
-  0 => D
+  $ => A :OR
+  A => D
+  32n => A  ;; LoadConst64
+  63n => B  ;; LoadConst64
+  $ => E :AND
+  D => A
+;;NEED_INCLUDE: 2-exp
+  zkPC + 2 => RR
+    :JMP(@two_power + E)
   0 => C
+  $${var _mul = A * B}
+  ${_mul >> 64} => D
+  ${_mul} => E :ARITH
+  E => CTX
+  4278190080n => B  ;; LoadConst32
+  $ => A :MLOAD(SP + 16)
+  $ => A :AND
+  A :MSTORE(SP + 8)
+  24n => A  ;; LoadConst32
+  31n => B  ;; LoadConst64
+  $ => E :AND
+  $ => A :MLOAD(SP + 56)
+;;NEED_INCLUDE: 2-exp
+  zkPC + 2 => RR
+    :JMP(@two_power + E)
+  A => E
+  0 => D
   ${E / B} => A
-  E:ARITH
+  ${E % B} => C
+  E :ARITH
+  4294967295n => B  ;; LoadConst64
+  $ => A :AND
+  A => C
+  16n => A  ;; LoadConst32
+  31n => B  ;; LoadConst64
+  $ => E :AND
+  C => A
+;;NEED_INCLUDE: 2-exp
+  zkPC + 2 => RR
+    :JMP(@two_power + E)
+  0 => C
+  $${var _mul = A * B}
+  ${_mul >> 64} => D
+  ${_mul} => E :ARITH
+  E => A
+  4294967295n => B  ;; LoadConst64
+  $ => B :AND
+  $ => A :MLOAD(SP + 8)
+  $ => B :OR
+  CTX => A
+  $ => A :OR
+  A => CTX
+  8n => A  ;; LoadConst32
+  31n => B  ;; LoadConst64
+  $ => E :AND
+  $ => A :MLOAD(SP + 56)
+;;NEED_INCLUDE: 2-exp
+  zkPC + 2 => RR
+    :JMP(@two_power + E)
+  A => E
+  0 => D
+  ${E / B} => A
+  ${E % B} => C
+  E :ARITH
+  4294967295n => B  ;; LoadConst64
+  $ => A :AND
+  65280n => B  ;; LoadConst32
+  $ => A :AND
+  A :MSTORE(SP + 8)
+  65280n => B  ;; LoadConst32
+  $ => A :MLOAD(SP + 56)
+  $ => C :AND
+  8n => A  ;; LoadConst32
+  31n => B  ;; LoadConst64
+  $ => E :AND
+  C => A
+;;NEED_INCLUDE: 2-exp
+  zkPC + 2 => RR
+    :JMP(@two_power + E)
+  0 => C
+  $${var _mul = A * B}
+  ${_mul >> 64} => D
+  ${_mul} => E :ARITH
+  E => A
+  4294967295n => B  ;; LoadConst64
+  $ => A :AND
+  A => D
+  16n => A  ;; LoadConst32
+  31n => B  ;; LoadConst64
+  $ => E :AND
+  D => A
+;;NEED_INCLUDE: 2-exp
+  zkPC + 2 => RR
+    :JMP(@two_power + E)
+  A => E
+  0 => D
+  ${E / B} => A
+  ${E % B} => C
+  E :ARITH
+  4294967295n => B  ;; LoadConst64
+  $ => B :AND
+  $ => A :MLOAD(SP + 8)
+  $ => B :OR
+  CTX => A
+  $ => A :OR
+  A => C
+  8n => A  ;; LoadConst64
+  63n => B  ;; LoadConst64
+  $ => E :AND
+  C => A
+;;NEED_INCLUDE: 2-exp
+  zkPC + 2 => RR
+    :JMP(@two_power + E)
+  0 => C
+  $${var _mul = A * B}
+  ${_mul >> 64} => D
+  ${_mul} => E :ARITH
+  E => D
+  255n => B  ;; LoadConst32
+  $ => A :MLOAD(SP + 56)
+  $ => B :AND
+  D => A
+  $ => A :OR
+  14160706888648589550n => B  ;; LoadConst64
+  $ => CTX :MLOAD(SP)
+  B :ASSERT
+  24n => A  ;; LoadConst32
+  31n => B  ;; LoadConst64
+  $ => E :AND
+  $ => A :MLOAD(SP + 64)
+;;NEED_INCLUDE: 2-exp
+  zkPC + 2 => RR
+    :JMP(@two_power + E)
+  0 => C
+  $${var _mul = A * B}
+  ${_mul >> 64} => D
+  ${_mul} => E :ARITH
+  E => A
+  4294967295n => B  ;; LoadConst64
+  $ => A :AND
+  A => CTX
+  65280n => B  ;; LoadConst32
+  $ => A :MLOAD(SP + 64)
+  $ => D :AND
+  D => C
+  8n => A  ;; LoadConst32
+  31n => B  ;; LoadConst64
+  $ => E :AND
+  C => A
+;;NEED_INCLUDE: 2-exp
+  zkPC + 2 => RR
+    :JMP(@two_power + E)
+  0 => C
+  $${var _mul = A * B}
+  ${_mul >> 64} => D
+  ${_mul} => E :ARITH
+  E => A
+  4294967295n => B  ;; LoadConst64
+  $ => B :AND
+  CTX => A
+  $ => A :OR
+  B => CTX
+  A :MSTORE(SP + 8)
+  8n => A  ;; LoadConst32
+  31n => B  ;; LoadConst64
+  $ => E :AND
+  $ => A :MLOAD(SP + 64)
+;;NEED_INCLUDE: 2-exp
+  zkPC + 2 => RR
+    :JMP(@two_power + E)
+  A => E
+  0 => D
+  ${E / B} => A
+  ${E % B} => C
+  E :ARITH
+  4294967295n => B  ;; LoadConst64
+  $ => A :AND
+  65280n => B  ;; LoadConst32
+  $ => A :AND
+  A :MSTORE(SP + 16)
+  24n => A  ;; LoadConst32
+  31n => B  ;; LoadConst64
+  $ => E :AND
+  $ => A :MLOAD(SP + 64)
+;;NEED_INCLUDE: 2-exp
+  zkPC + 2 => RR
+    :JMP(@two_power + E)
+  A => E
+  0 => D
+  ${E / B} => A
+  ${E % B} => C
+  E :ARITH
+  4294967295n => B  ;; LoadConst64
+  $ => B :AND
+  $ => A :MLOAD(SP + 16)
+  $ => D :OR
+  $ => A :MLOAD(SP + 8)
+  B => C
+  D => B
+  $ => A :OR
+  65280n => B  ;; LoadConst32
+  $ => D :AND
+  D :MSTORE(SP + 8)
+  A :MSTORE(SP + 16)
+  16n => A  ;; LoadConst32
+  31n => B  ;; LoadConst64
+  $ => E :AND
+  C => A
+;;NEED_INCLUDE: 2-exp
+  zkPC + 2 => RR
+    :JMP(@two_power + E)
+  0 => C
+  $${var _mul = A * B}
+  ${_mul >> 64} => D
+  ${_mul} => E :ARITH
+  E => A
+  4294967295n => B  ;; LoadConst64
+  $ => B :AND
+  $ => A :MLOAD(SP + 8)
+  $ => A :OR
+  A :MSTORE(SP + 8)
+  16n => A  ;; LoadConst32
+  31n => B  ;; LoadConst64
+  $ => E :AND
+  CTX => A
+;;NEED_INCLUDE: 2-exp
+  zkPC + 2 => RR
+    :JMP(@two_power + E)
+  A => E
+  0 => D
+  ${E / B} => A
+  ${E % B} => C
+  E :ARITH
+  4294967295n => B  ;; LoadConst64
+  $ => B :AND
+  $ => A :MLOAD(SP + 8)
+  $ => A :OR
   A => C
   32n => A  ;; LoadConst64
   63n => B  ;; LoadConst64
@@ -2044,11 +1609,11 @@ label_1_6:
   E :ARITH
   4294967295n => B  ;; LoadConst64
   $ => A :AND
-  A => D
+  A => C
   16n => A  ;; LoadConst32
   31n => B  ;; LoadConst64
   $ => E :AND
-  D => A
+  C => A
 ;;NEED_INCLUDE: 2-exp
   zkPC + 2 => RR
     :JMP(@two_power + E)
@@ -2060,13 +1625,7 @@ label_1_6:
   4294967295n => B  ;; LoadConst64
   $ => B :AND
   $ => A :MLOAD(SP + 8)
-  $ => E :OR
-  4294967296n => B
-  0 => D
-  0 => C
-  ${E / B} => A
-  E:ARITH
-  A => B
+  $ => B :OR
   CTX => A
   $ => A :OR
   A => CTX
@@ -2089,7 +1648,8 @@ label_1_6:
   A :MSTORE(SP + 8)
   65280n => B  ;; LoadConst32
   $ => A :MLOAD(SP + 72)
-  $ => C :AND
+  $ => D :AND
+  D => C
   8n => A  ;; LoadConst32
   31n => B  ;; LoadConst64
   $ => E :AND
@@ -2120,20 +1680,14 @@ label_1_6:
   4294967295n => B  ;; LoadConst64
   $ => B :AND
   $ => A :MLOAD(SP + 8)
-  $ => E :OR
-  4294967296n => B
-  0 => D
-  0 => C
-  ${E / B} => A
-  E:ARITH
-  A => B
+  $ => B :OR
   CTX => A
   $ => A :OR
-  A => D
+  A => C
   8n => A  ;; LoadConst64
   63n => B  ;; LoadConst64
   $ => E :AND
-  D => A
+  C => A
 ;;NEED_INCLUDE: 2-exp
   zkPC + 2 => RR
     :JMP(@two_power + E)
@@ -2141,17 +1695,11 @@ label_1_6:
   $${var _mul = A * B}
   ${_mul >> 64} => D
   ${_mul} => E :ARITH
-  E => CTX
+  E => C
   255n => B  ;; LoadConst32
   $ => A :MLOAD(SP + 72)
-  $ => E :AND
-  4294967296n => B
-  0 => D
-  0 => C
-  ${E / B} => A
-  E:ARITH
-  A => B
-  CTX => A
+  $ => B :AND
+  C => A
   $ => A :OR
   10414846460208074217n => B  ;; LoadConst64
   $ => CTX :MLOAD(SP)
@@ -2160,9 +1708,9 @@ label_1_6:
   $ => A :MLOAD(SP + 80)
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
-  $ => A :AND
+  $ => B :AND
   $ => E :MLOAD(SP)
-  A :MSTORE(MEM:E + 8)
+  B :MSTORE(MEM:E + 8)
   $ => C :MLOAD(SP - 1)
   $ => D :MLOAD(SP - 2)
   $ => E :MLOAD(SP - 3)
@@ -2201,103 +1749,48 @@ function_3:
   B :MSTORE(SP + 8)
   CTX :MSTORE(SP + 16)
   $ => A :MLOAD(fp + 16)
-  $ => E :MLOAD(SP)
-  A => CTX
-  4294967296n => B
-  0 => D
-  0 => C
-  ${E / B} => A
-  E:ARITH
   $ => E :MLOAD(SP + 16)
-  A => B
+  A => CTX
   $ => A :MLOAD(MEM:E)
+  $ => B :MLOAD(SP)
   $ => E :ADD
   $ => A :MLOAD(MEM:E + 28)
-  $ => E :MLOAD(SP)
+  $ => E :MLOAD(SP + 16)
   A :MSTORE(SP + 80)
-  4294967296n => B
-  0 => D
-  0 => C
-  ${E / B} => A
-  E:ARITH
-  $ => E :MLOAD(SP + 16)
-  A => B
   $ => A :MLOAD(MEM:E)
   $ => E :ADD
-  $ => A :MLOAD(MEM:E + 24)
-  $ => E :MLOAD(SP)
-  A :MSTORE(SP + 88)
-  4294967296n => B
-  0 => D
-  0 => C
-  ${E / B} => A
-  E:ARITH
+  $ => D :MLOAD(MEM:E + 24)
   $ => E :MLOAD(SP + 16)
-  A => B
+  D :MSTORE(SP + 88)
   $ => A :MLOAD(MEM:E)
   $ => E :ADD
-  $ => A :MLOAD(MEM:E + 20)
-  $ => E :MLOAD(SP)
-  A :MSTORE(SP + 96)
-  4294967296n => B
-  0 => D
-  0 => C
-  ${E / B} => A
-  E:ARITH
+  $ => C :MLOAD(MEM:E + 20)
   $ => E :MLOAD(SP + 16)
-  A => B
+  C :MSTORE(SP + 96)
   $ => A :MLOAD(MEM:E)
   $ => E :ADD
-  $ => A :MLOAD(MEM:E + 16)
-  $ => E :MLOAD(SP)
-  A :MSTORE(SP + 104)
-  4294967296n => B
-  0 => D
-  0 => C
-  ${E / B} => A
-  E:ARITH
+  $ => C :MLOAD(MEM:E + 16)
   $ => E :MLOAD(SP + 16)
-  A => B
+  C :MSTORE(SP + 104)
   $ => A :MLOAD(MEM:E)
   $ => E :ADD
-  $ => B :MLOAD(MEM:E + 12)
-  $ => E :MLOAD(SP)
-  B :MSTORE(SP + 112)
-  4294967296n => B
-  0 => D
-  0 => C
-  ${E / B} => A
-  E:ARITH
+  $ => A :MLOAD(MEM:E + 12)
   $ => E :MLOAD(SP + 16)
-  A => B
+  A :MSTORE(SP + 112)
   $ => A :MLOAD(MEM:E)
   $ => E :ADD
   $ => A :MLOAD(MEM:E + 8)
-  $ => E :MLOAD(SP)
+  $ => E :MLOAD(SP + 16)
   A :MSTORE(SP + 120)
-  4294967296n => B
-  0 => D
-  0 => C
-  ${E / B} => A
-  E:ARITH
-  $ => E :MLOAD(SP + 16)
-  A => B
   $ => A :MLOAD(MEM:E)
   $ => E :ADD
-  $ => A :MLOAD(MEM:E + 4)
-  $ => E :MLOAD(SP)
-  A :MSTORE(SP + 128)
-  4294967296n => B
-  0 => D
-  0 => C
-  ${E / B} => A
-  E:ARITH
+  $ => D :MLOAD(MEM:E + 4)
   $ => E :MLOAD(SP + 16)
-  A => B
+  D :MSTORE(SP + 128)
   $ => A :MLOAD(MEM:E)
   $ => E :ADD
-  $ => A :MLOAD(MEM:E)
-  A :MSTORE(SP + 136)
+  $ => C :MLOAD(MEM:E)
+  C :MSTORE(SP + 136)
   0n => B  ;; LoadConst32
   CTX => A
   $ => A :EQ
@@ -2307,7 +1800,7 @@ function_3:
   A :JMPZ(label_3_1)
   :JMP(label_3_2)
 label_3_1:
-  $ => E :MLOAD(SP)
+  $ => E :MLOAD(SP + 16)
   $ => CTX :MLOAD(SP + 80)
   :JMP(label_3_7)
 label_3_2:
@@ -2326,8 +1819,8 @@ label_3_2:
   4294967295n => B  ;; LoadConst64
   $ => B :AND
   $ => A :MLOAD(SP + 8)
-  $ => C :ADD
-  C => A
+  $ => B :ADD
+  B => A
   4294967295n => B  ;; LoadConst64
   $ => CTX :AND
   CTX :MSTORE(SP + 3688)
@@ -2351,16 +1844,16 @@ label_3_2:
   $ => A :MLOAD(SP + 120)
   :JMP(label_3_3)
 label_3_3:
-  $ => C :XOR
-  C => A
+  $ => D :XOR
+  D => A
   $ => B :MLOAD(SP + 32)
   $ => A :AND
   $ => B :MLOAD(SP + 24)
-  A => D
+  A => C
   $ => A :MLOAD(SP + 8)
-  $ => C :AND
-  D => A
-  C => B
+  $ => D :AND
+  C => A
+  D => B
   $ => A :XOR
   A :MSTORE(SP + 3680)
   30n => CTX  ;; LoadConst32
@@ -2537,34 +2030,28 @@ label_3_3:
   $ => A :MLOAD(SP + 3664)
   $ => B :XOR
   $ => A :MLOAD(SP + 40)
-  $ => D :ADD
-  D => A
+  $ => B :ADD
+  B => A
   4294967295n => B  ;; LoadConst64
   $ => A :AND
   $ => B :MLOAD(SP + 64)
-  A => D
+  A => E
   $ => A :MLOAD(SP + 56)
-  $ => C :XOR
-  C => A
+  $ => D :XOR
+  D => A
   $ => B :MLOAD(SP + 48)
   $ => A :AND
   $ => B :MLOAD(SP + 56)
-  $ => A :XOR
-  A => B
-  D => A
+  $ => D :XOR
+  D => B
+  E => A
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
   $ => A :AND
-  $ => E :MLOAD(SP + 72)
-  A => CTX
-  4294967296n => B
-  0 => D
-  0 => C
-  ${E / B} => A
-  E:ARITH
   $ => E :MLOAD(SP + 16)
-  A => B
+  A => CTX
   $ => A :MLOAD(MEM:E)
+  $ => B :MLOAD(SP + 72)
   $ => E :ADD
   $ => A :MLOAD(MEM:E)
   A :MSTORE(SP + 3664)
@@ -2585,8 +2072,8 @@ label_3_3:
   A :MSTORE(SP + 3656)
   65280n => B  ;; LoadConst32
   $ => A :MLOAD(SP + 3664)
-  $ => B :AND
-  B => C
+  $ => D :AND
+  D => C
   8n => A  ;; LoadConst32
   31n => B  ;; LoadConst64
   $ => E :AND
@@ -2738,33 +2225,27 @@ label_3_3:
   $ => A :MLOAD(SP + 3624)
   $ => A :XOR
   $ => B :MLOAD(SP + 32)
-  A => D
+  A => E
   $ => A :MLOAD(SP + 24)
-  $ => C :XOR
+  $ => D :XOR
   $ => A :MLOAD(SP + 3632)
-  C => B
-  $ => B :AND
+  D => B
+  $ => D :AND
+  D => C
   $ => A :MLOAD(SP + 24)
-  B => E
   $ => B :MLOAD(SP + 32)
-  $ => C :AND
-  E => A
-  C => B
+  $ => D :AND
+  C => A
+  D => B
   $ => B :XOR
-  D => A
+  E => A
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
   $ => A :AND
-  $ => E :MLOAD(SP + 72)
-  A :MSTORE(SP + 3624)
-  4294967296n => B
-  0 => D
-  0 => C
-  ${E / B} => A
-  E:ARITH
   $ => E :MLOAD(SP + 16)
-  A => B
+  A :MSTORE(SP + 3624)
   $ => A :MLOAD(MEM:E)
+  $ => B :MLOAD(SP + 72)
   $ => E :ADD
   $ => A :MLOAD(MEM:E + 4)
   A => CTX
@@ -2785,8 +2266,8 @@ label_3_3:
   A :MSTORE(SP + 3616)
   65280n => B  ;; LoadConst32
   CTX => A
-  $ => B :AND
-  B => C
+  $ => D :AND
+  D => C
   8n => A  ;; LoadConst32
   31n => B  ;; LoadConst64
   $ => E :AND
@@ -2840,13 +2321,13 @@ label_3_3:
   $ => A :MLOAD(SP + 3616)
   $ => B :OR
   $ => A :MLOAD(SP + 56)
-  $ => D :ADD
-  D => A
+  $ => C :ADD
+  C => A
   B :MSTORE(SP + 3608)
   4294967295n => B  ;; LoadConst64
   $ => A :AND
   $ => B :MLOAD(SP + 112)
-  A => D
+  A => C
   $ => A :MLOAD(SP + 3640)
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
@@ -2854,15 +2335,15 @@ label_3_3:
   A :MSTORE(SP + 3600)
   $ => B :MLOAD(SP + 48)
   $ => A :MLOAD(SP + 64)
-  $ => C :XOR
-  C => B
+  $ => D :XOR
+  D => B
   $ => A :MLOAD(SP + 3600)
-  $ => B :AND
-  B => A
-  $ => B :MLOAD(SP + 64)
-  $ => A :XOR
-  A => B
+  $ => D :AND
   D => A
+  $ => B :MLOAD(SP + 64)
+  $ => D :XOR
+  C => A
+  D => B
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
   $ => A :AND
@@ -3049,33 +2530,27 @@ label_3_3:
   $ => A :MLOAD(SP + 3568)
   $ => A :XOR
   $ => B :MLOAD(SP + 32)
-  A => D
+  A => E
   $ => A :MLOAD(SP + 3632)
-  $ => C :XOR
+  $ => D :XOR
   $ => A :MLOAD(SP + 3576)
-  C => B
-  $ => B :AND
+  D => B
+  $ => D :AND
+  D => C
   $ => A :MLOAD(SP + 3632)
-  B => E
   $ => B :MLOAD(SP + 32)
-  $ => C :AND
-  E => A
-  C => B
+  $ => D :AND
+  C => A
+  D => B
   $ => B :XOR
-  D => A
+  E => A
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
   $ => A :AND
-  $ => E :MLOAD(SP + 72)
-  A :MSTORE(SP + 3568)
-  4294967296n => B
-  0 => D
-  0 => C
-  ${E / B} => A
-  E:ARITH
   $ => E :MLOAD(SP + 16)
-  A => B
+  A :MSTORE(SP + 3568)
   $ => A :MLOAD(MEM:E)
+  $ => B :MLOAD(SP + 72)
   $ => E :ADD
   $ => A :MLOAD(MEM:E + 8)
   A => CTX
@@ -3096,8 +2571,8 @@ label_3_3:
   A :MSTORE(SP + 3560)
   65280n => B  ;; LoadConst32
   CTX => A
-  $ => B :AND
-  B => C
+  $ => D :AND
+  D => C
   8n => A  ;; LoadConst32
   31n => B  ;; LoadConst64
   $ => E :AND
@@ -3151,13 +2626,13 @@ label_3_3:
   $ => A :MLOAD(SP + 3560)
   $ => B :OR
   $ => A :MLOAD(SP + 64)
-  $ => D :ADD
-  D => A
+  $ => C :ADD
+  C => A
   B :MSTORE(SP + 3552)
   4294967295n => B  ;; LoadConst64
   $ => A :AND
   $ => B :MLOAD(SP + 8)
-  A => D
+  A => C
   $ => A :MLOAD(SP + 3584)
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
@@ -3165,15 +2640,15 @@ label_3_3:
   A :MSTORE(SP + 3544)
   $ => B :MLOAD(SP + 48)
   $ => A :MLOAD(SP + 3600)
-  $ => C :XOR
+  $ => D :XOR
   $ => A :MLOAD(SP + 3544)
-  C => B
-  $ => B :AND
-  B => A
-  $ => B :MLOAD(SP + 48)
-  $ => A :XOR
-  A => B
+  D => B
+  $ => D :AND
   D => A
+  $ => B :MLOAD(SP + 48)
+  $ => D :XOR
+  C => A
+  D => B
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
   $ => A :AND
@@ -3360,33 +2835,27 @@ label_3_3:
   $ => A :MLOAD(SP + 3512)
   $ => A :XOR
   $ => B :MLOAD(SP + 3632)
-  A => D
+  A => C
   $ => A :MLOAD(SP + 3576)
-  $ => C :XOR
+  $ => D :XOR
   $ => A :MLOAD(SP + 3520)
-  C => B
-  $ => B :AND
+  D => B
+  $ => D :AND
+  D => E
   $ => A :MLOAD(SP + 3576)
-  B => E
   $ => B :MLOAD(SP + 3632)
-  $ => C :AND
+  $ => D :AND
   E => A
-  C => B
+  D => B
   $ => B :XOR
-  D => A
+  C => A
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
   $ => A :AND
-  $ => E :MLOAD(SP + 72)
-  A :MSTORE(SP + 3512)
-  4294967296n => B
-  0 => D
-  0 => C
-  ${E / B} => A
-  E:ARITH
   $ => E :MLOAD(SP + 16)
-  A => B
+  A :MSTORE(SP + 3512)
   $ => A :MLOAD(MEM:E)
+  $ => B :MLOAD(SP + 72)
   $ => E :ADD
   $ => A :MLOAD(MEM:E + 12)
   A => CTX
@@ -3407,8 +2876,8 @@ label_3_3:
   A :MSTORE(SP + 3504)
   65280n => B  ;; LoadConst32
   CTX => A
-  $ => B :AND
-  B => C
+  $ => D :AND
+  D => C
   8n => A  ;; LoadConst32
   31n => B  ;; LoadConst64
   $ => E :AND
@@ -3462,13 +2931,13 @@ label_3_3:
   $ => A :MLOAD(SP + 3504)
   $ => B :OR
   $ => A :MLOAD(SP + 48)
-  $ => D :ADD
-  D => A
+  $ => C :ADD
+  C => A
   B :MSTORE(SP + 3496)
   4294967295n => B  ;; LoadConst64
   $ => A :AND
   $ => B :MLOAD(SP + 24)
-  A => D
+  A => C
   $ => A :MLOAD(SP + 3528)
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
@@ -3476,15 +2945,15 @@ label_3_3:
   A :MSTORE(SP + 3488)
   $ => B :MLOAD(SP + 3600)
   $ => A :MLOAD(SP + 3544)
-  $ => C :XOR
+  $ => D :XOR
   $ => A :MLOAD(SP + 3488)
-  C => B
-  $ => B :AND
-  B => A
-  $ => B :MLOAD(SP + 3600)
-  $ => A :XOR
-  A => B
+  D => B
+  $ => D :AND
   D => A
+  $ => B :MLOAD(SP + 3600)
+  $ => D :XOR
+  C => A
+  D => B
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
   $ => A :AND
@@ -3671,33 +3140,27 @@ label_3_3:
   $ => A :MLOAD(SP + 3456)
   $ => A :XOR
   $ => B :MLOAD(SP + 3576)
-  A => D
+  A => E
   $ => A :MLOAD(SP + 3520)
-  $ => C :XOR
+  $ => D :XOR
   $ => A :MLOAD(SP + 3464)
-  C => B
-  $ => B :AND
+  D => B
+  $ => D :AND
+  D => C
   $ => A :MLOAD(SP + 3520)
-  B => E
   $ => B :MLOAD(SP + 3576)
-  $ => C :AND
-  E => A
-  C => B
+  $ => D :AND
+  C => A
+  D => B
   $ => B :XOR
-  D => A
+  E => A
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
   $ => A :AND
-  $ => E :MLOAD(SP + 72)
-  A :MSTORE(SP + 3456)
-  4294967296n => B
-  0 => D
-  0 => C
-  ${E / B} => A
-  E:ARITH
   $ => E :MLOAD(SP + 16)
-  A => B
+  A :MSTORE(SP + 3456)
   $ => A :MLOAD(MEM:E)
+  $ => B :MLOAD(SP + 72)
   $ => E :ADD
   $ => A :MLOAD(MEM:E + 16)
   A => CTX
@@ -3718,12 +3181,11 @@ label_3_3:
   A :MSTORE(SP + 3448)
   65280n => B  ;; LoadConst32
   CTX => A
-  $ => B :AND
-  B => C
+  $ => D :AND
   8n => A  ;; LoadConst32
   31n => B  ;; LoadConst64
   $ => E :AND
-  C => A
+  D => A
 ;;NEED_INCLUDE: 2-exp
   zkPC + 2 => RR
     :JMP(@two_power + E)
@@ -3778,7 +3240,7 @@ label_3_3:
   4294967295n => B  ;; LoadConst64
   $ => A :AND
   $ => B :MLOAD(SP + 32)
-  A => D
+  A => C
   $ => A :MLOAD(SP + 3472)
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
@@ -3786,15 +3248,15 @@ label_3_3:
   A :MSTORE(SP + 3432)
   $ => B :MLOAD(SP + 3544)
   $ => A :MLOAD(SP + 3488)
-  $ => C :XOR
+  $ => D :XOR
   $ => A :MLOAD(SP + 3432)
-  C => B
-  $ => B :AND
-  B => A
-  $ => B :MLOAD(SP + 3544)
-  $ => A :XOR
-  A => B
+  D => B
+  $ => D :AND
   D => A
+  $ => B :MLOAD(SP + 3544)
+  $ => D :XOR
+  C => A
+  D => B
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
   $ => A :AND
@@ -3981,33 +3443,27 @@ label_3_3:
   $ => A :MLOAD(SP + 3400)
   $ => A :XOR
   $ => B :MLOAD(SP + 3520)
-  A => D
+  A => C
   $ => A :MLOAD(SP + 3464)
-  $ => C :XOR
+  $ => D :XOR
   $ => A :MLOAD(SP + 3408)
-  C => B
-  $ => B :AND
+  D => B
+  $ => D :AND
+  D => E
   $ => A :MLOAD(SP + 3464)
-  B => E
   $ => B :MLOAD(SP + 3520)
-  $ => C :AND
+  $ => D :AND
   E => A
-  C => B
+  D => B
   $ => B :XOR
-  D => A
+  C => A
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
   $ => A :AND
-  $ => E :MLOAD(SP + 72)
-  A :MSTORE(SP + 3400)
-  4294967296n => B
-  0 => D
-  0 => C
-  ${E / B} => A
-  E:ARITH
   $ => E :MLOAD(SP + 16)
-  A => B
+  A :MSTORE(SP + 3400)
   $ => A :MLOAD(MEM:E)
+  $ => B :MLOAD(SP + 72)
   $ => E :ADD
   $ => A :MLOAD(MEM:E + 20)
   A => CTX
@@ -4028,8 +3484,8 @@ label_3_3:
   A :MSTORE(SP + 3392)
   65280n => B  ;; LoadConst32
   CTX => A
-  $ => B :AND
-  B => C
+  $ => D :AND
+  D => C
   8n => A  ;; LoadConst32
   31n => B  ;; LoadConst64
   $ => E :AND
@@ -4083,13 +3539,13 @@ label_3_3:
   $ => A :MLOAD(SP + 3392)
   $ => A :OR
   $ => B :MLOAD(SP + 3544)
-  $ => D :ADD
+  $ => B :ADD
   A :MSTORE(SP + 3384)
-  D => A
+  B => A
   4294967295n => B  ;; LoadConst64
   $ => A :AND
   $ => B :MLOAD(SP + 3632)
-  A => D
+  A => C
   $ => A :MLOAD(SP + 3416)
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
@@ -4097,15 +3553,15 @@ label_3_3:
   A :MSTORE(SP + 3376)
   $ => B :MLOAD(SP + 3488)
   $ => A :MLOAD(SP + 3432)
-  $ => C :XOR
+  $ => D :XOR
   $ => A :MLOAD(SP + 3376)
-  C => B
-  $ => B :AND
-  B => A
-  $ => B :MLOAD(SP + 3488)
-  $ => A :XOR
-  A => B
+  D => B
+  $ => D :AND
   D => A
+  $ => B :MLOAD(SP + 3488)
+  $ => D :XOR
+  C => A
+  D => B
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
   $ => A :AND
@@ -4292,33 +3748,27 @@ label_3_3:
   $ => A :MLOAD(SP + 3344)
   $ => A :XOR
   $ => B :MLOAD(SP + 3464)
-  A => D
+  A => C
   $ => A :MLOAD(SP + 3408)
-  $ => C :XOR
+  $ => D :XOR
   $ => A :MLOAD(SP + 3352)
-  C => B
-  $ => B :AND
+  D => B
+  $ => D :AND
+  D => E
   $ => A :MLOAD(SP + 3408)
-  B => E
   $ => B :MLOAD(SP + 3464)
-  $ => C :AND
+  $ => D :AND
   E => A
-  C => B
+  D => B
   $ => B :XOR
-  D => A
+  C => A
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
   $ => A :AND
-  $ => E :MLOAD(SP + 72)
-  A :MSTORE(SP + 3344)
-  4294967296n => B
-  0 => D
-  0 => C
-  ${E / B} => A
-  E:ARITH
   $ => E :MLOAD(SP + 16)
-  A => B
+  A :MSTORE(SP + 3344)
   $ => A :MLOAD(MEM:E)
+  $ => B :MLOAD(SP + 72)
   $ => E :ADD
   $ => A :MLOAD(MEM:E + 24)
   A => CTX
@@ -4339,8 +3789,8 @@ label_3_3:
   A :MSTORE(SP + 3336)
   65280n => B  ;; LoadConst32
   CTX => A
-  $ => B :AND
-  B => C
+  $ => D :AND
+  D => C
   8n => A  ;; LoadConst32
   31n => B  ;; LoadConst64
   $ => E :AND
@@ -4394,13 +3844,13 @@ label_3_3:
   $ => A :MLOAD(SP + 3336)
   $ => A :OR
   $ => B :MLOAD(SP + 3488)
-  $ => D :ADD
+  $ => B :ADD
   A :MSTORE(SP + 3328)
-  D => A
+  B => A
   4294967295n => B  ;; LoadConst64
   $ => A :AND
   $ => B :MLOAD(SP + 3576)
-  A => D
+  A => C
   $ => A :MLOAD(SP + 3360)
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
@@ -4408,15 +3858,15 @@ label_3_3:
   A :MSTORE(SP + 3320)
   $ => B :MLOAD(SP + 3432)
   $ => A :MLOAD(SP + 3376)
-  $ => C :XOR
+  $ => D :XOR
   $ => A :MLOAD(SP + 3320)
-  C => B
-  $ => B :AND
-  B => A
-  $ => B :MLOAD(SP + 3432)
-  $ => A :XOR
-  A => B
+  D => B
+  $ => D :AND
   D => A
+  $ => B :MLOAD(SP + 3432)
+  $ => D :XOR
+  C => A
+  D => B
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
   $ => A :AND
@@ -4603,33 +4053,27 @@ label_3_3:
   $ => A :MLOAD(SP + 3288)
   $ => A :XOR
   $ => B :MLOAD(SP + 3408)
-  A => D
+  A => C
   $ => A :MLOAD(SP + 3352)
-  $ => C :XOR
+  $ => D :XOR
   $ => A :MLOAD(SP + 3296)
-  C => B
-  $ => B :AND
+  D => B
+  $ => D :AND
+  D => E
   $ => A :MLOAD(SP + 3352)
-  B => E
   $ => B :MLOAD(SP + 3408)
-  $ => C :AND
+  $ => D :AND
   E => A
-  C => B
+  D => B
   $ => B :XOR
-  D => A
+  C => A
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
   $ => A :AND
-  $ => E :MLOAD(SP + 72)
-  A :MSTORE(SP + 3288)
-  4294967296n => B
-  0 => D
-  0 => C
-  ${E / B} => A
-  E:ARITH
   $ => E :MLOAD(SP + 16)
-  A => B
+  A :MSTORE(SP + 3288)
   $ => A :MLOAD(MEM:E)
+  $ => B :MLOAD(SP + 72)
   $ => E :ADD
   $ => A :MLOAD(MEM:E + 28)
   A => CTX
@@ -4650,12 +4094,12 @@ label_3_3:
   A :MSTORE(SP + 3280)
   65280n => B  ;; LoadConst32
   CTX => A
-  $ => B :AND
-  B => D
+  $ => D :AND
+  D => C
   8n => A  ;; LoadConst32
   31n => B  ;; LoadConst64
   $ => E :AND
-  D => A
+  C => A
 ;;NEED_INCLUDE: 2-exp
   zkPC + 2 => RR
     :JMP(@two_power + E)
@@ -4705,13 +4149,13 @@ label_3_3:
   $ => A :MLOAD(SP + 3280)
   $ => A :OR
   $ => B :MLOAD(SP + 3432)
-  $ => D :ADD
+  $ => B :ADD
   A :MSTORE(SP + 3272)
-  D => A
+  B => A
   4294967295n => B  ;; LoadConst64
   $ => A :AND
   $ => B :MLOAD(SP + 3520)
-  A => D
+  A => C
   $ => A :MLOAD(SP + 3304)
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
@@ -4719,15 +4163,15 @@ label_3_3:
   A :MSTORE(SP + 3264)
   $ => B :MLOAD(SP + 3376)
   $ => A :MLOAD(SP + 3320)
-  $ => C :XOR
+  $ => D :XOR
   $ => A :MLOAD(SP + 3264)
-  C => B
-  $ => B :AND
-  B => A
-  $ => B :MLOAD(SP + 3376)
-  $ => A :XOR
-  A => B
+  D => B
+  $ => D :AND
   D => A
+  $ => B :MLOAD(SP + 3376)
+  $ => D :XOR
+  C => A
+  D => B
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
   $ => A :AND
@@ -4914,33 +4358,27 @@ label_3_3:
   $ => A :MLOAD(SP + 3232)
   $ => A :XOR
   $ => B :MLOAD(SP + 3352)
-  A => E
+  A => C
   $ => A :MLOAD(SP + 3296)
-  $ => C :XOR
+  $ => D :XOR
   $ => A :MLOAD(SP + 3240)
-  C => B
-  $ => B :AND
+  D => B
+  $ => D :AND
+  D => E
   $ => A :MLOAD(SP + 3296)
-  B => D
   $ => B :MLOAD(SP + 3352)
-  $ => C :AND
-  D => A
-  C => B
-  $ => B :XOR
+  $ => D :AND
   E => A
+  D => B
+  $ => B :XOR
+  C => A
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
   $ => A :AND
-  $ => E :MLOAD(SP + 72)
-  A :MSTORE(SP + 3232)
-  4294967296n => B
-  0 => D
-  0 => C
-  ${E / B} => A
-  E:ARITH
   $ => E :MLOAD(SP + 16)
-  A => B
+  A :MSTORE(SP + 3232)
   $ => A :MLOAD(MEM:E)
+  $ => B :MLOAD(SP + 72)
   $ => E :ADD
   $ => A :MLOAD(MEM:E + 32)
   A => CTX
@@ -4961,8 +4399,8 @@ label_3_3:
   A :MSTORE(SP + 3224)
   65280n => B  ;; LoadConst32
   CTX => A
-  $ => B :AND
-  B => C
+  $ => D :AND
+  D => C
   8n => A  ;; LoadConst32
   31n => B  ;; LoadConst64
   $ => E :AND
@@ -5016,13 +4454,13 @@ label_3_3:
   $ => A :MLOAD(SP + 3224)
   $ => A :OR
   $ => B :MLOAD(SP + 3376)
-  $ => D :ADD
+  $ => B :ADD
   A :MSTORE(SP + 3216)
-  D => A
+  B => A
   4294967295n => B  ;; LoadConst64
   $ => A :AND
   $ => B :MLOAD(SP + 3464)
-  A => D
+  A => C
   $ => A :MLOAD(SP + 3248)
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
@@ -5030,15 +4468,15 @@ label_3_3:
   A :MSTORE(SP + 3208)
   $ => B :MLOAD(SP + 3320)
   $ => A :MLOAD(SP + 3264)
-  $ => C :XOR
+  $ => D :XOR
   $ => A :MLOAD(SP + 3208)
-  C => B
-  $ => B :AND
-  B => A
-  $ => B :MLOAD(SP + 3320)
-  $ => A :XOR
-  A => B
+  D => B
+  $ => D :AND
   D => A
+  $ => B :MLOAD(SP + 3320)
+  $ => D :XOR
+  C => A
+  D => B
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
   $ => A :AND
@@ -5225,33 +4663,27 @@ label_3_3:
   $ => A :MLOAD(SP + 3176)
   $ => A :XOR
   $ => B :MLOAD(SP + 3296)
-  A => D
+  A => C
   $ => A :MLOAD(SP + 3240)
-  $ => C :XOR
+  $ => D :XOR
   $ => A :MLOAD(SP + 3184)
-  C => B
-  $ => B :AND
+  D => B
+  $ => D :AND
+  D => E
   $ => A :MLOAD(SP + 3240)
-  B => E
   $ => B :MLOAD(SP + 3296)
-  $ => C :AND
+  $ => D :AND
   E => A
-  C => B
+  D => B
   $ => B :XOR
-  D => A
+  C => A
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
   $ => A :AND
-  $ => E :MLOAD(SP + 72)
-  A :MSTORE(SP + 3176)
-  4294967296n => B
-  0 => D
-  0 => C
-  ${E / B} => A
-  E:ARITH
   $ => E :MLOAD(SP + 16)
-  A => B
+  A :MSTORE(SP + 3176)
   $ => A :MLOAD(MEM:E)
+  $ => B :MLOAD(SP + 72)
   $ => E :ADD
   $ => A :MLOAD(MEM:E + 36)
   A => CTX
@@ -5272,8 +4704,8 @@ label_3_3:
   A :MSTORE(SP + 3168)
   65280n => B  ;; LoadConst32
   CTX => A
-  $ => B :AND
-  B => C
+  $ => D :AND
+  D => C
   8n => A  ;; LoadConst32
   31n => B  ;; LoadConst64
   $ => E :AND
@@ -5327,13 +4759,13 @@ label_3_3:
   $ => A :MLOAD(SP + 3168)
   $ => A :OR
   $ => B :MLOAD(SP + 3320)
-  $ => D :ADD
+  $ => B :ADD
   A :MSTORE(SP + 3160)
-  D => A
+  B => A
   4294967295n => B  ;; LoadConst64
   $ => A :AND
   $ => B :MLOAD(SP + 3408)
-  A => D
+  A => C
   $ => A :MLOAD(SP + 3192)
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
@@ -5341,15 +4773,15 @@ label_3_3:
   A :MSTORE(SP + 3152)
   $ => B :MLOAD(SP + 3264)
   $ => A :MLOAD(SP + 3208)
-  $ => C :XOR
+  $ => D :XOR
   $ => A :MLOAD(SP + 3152)
-  C => B
-  $ => B :AND
-  B => A
-  $ => B :MLOAD(SP + 3264)
-  $ => A :XOR
-  A => B
+  D => B
+  $ => D :AND
   D => A
+  $ => B :MLOAD(SP + 3264)
+  $ => D :XOR
+  C => A
+  D => B
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
   $ => A :AND
@@ -5536,33 +4968,27 @@ label_3_3:
   $ => A :MLOAD(SP + 3120)
   $ => A :XOR
   $ => B :MLOAD(SP + 3240)
-  A => D
+  A => C
   $ => A :MLOAD(SP + 3184)
-  $ => C :XOR
+  $ => D :XOR
   $ => A :MLOAD(SP + 3128)
-  C => B
-  $ => B :AND
+  D => B
+  $ => D :AND
+  D => E
   $ => A :MLOAD(SP + 3184)
-  B => E
   $ => B :MLOAD(SP + 3240)
-  $ => C :AND
+  $ => D :AND
   E => A
-  C => B
+  D => B
   $ => B :XOR
-  D => A
+  C => A
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
   $ => A :AND
-  $ => E :MLOAD(SP + 72)
-  A :MSTORE(SP + 3120)
-  4294967296n => B
-  0 => D
-  0 => C
-  ${E / B} => A
-  E:ARITH
   $ => E :MLOAD(SP + 16)
-  A => B
+  A :MSTORE(SP + 3120)
   $ => A :MLOAD(MEM:E)
+  $ => B :MLOAD(SP + 72)
   $ => E :ADD
   $ => A :MLOAD(MEM:E + 40)
   A => CTX
@@ -5583,8 +5009,8 @@ label_3_3:
   A :MSTORE(SP + 3112)
   65280n => B  ;; LoadConst32
   CTX => A
-  $ => B :AND
-  B => C
+  $ => D :AND
+  D => C
   8n => A  ;; LoadConst32
   31n => B  ;; LoadConst64
   $ => E :AND
@@ -5638,13 +5064,13 @@ label_3_3:
   $ => A :MLOAD(SP + 3112)
   $ => A :OR
   $ => B :MLOAD(SP + 3264)
-  $ => D :ADD
+  $ => B :ADD
   A :MSTORE(SP + 3104)
-  D => A
+  B => A
   4294967295n => B  ;; LoadConst64
   $ => A :AND
   $ => B :MLOAD(SP + 3352)
-  A => D
+  A => C
   $ => A :MLOAD(SP + 3136)
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
@@ -5652,15 +5078,15 @@ label_3_3:
   A :MSTORE(SP + 3096)
   $ => B :MLOAD(SP + 3208)
   $ => A :MLOAD(SP + 3152)
-  $ => C :XOR
+  $ => D :XOR
   $ => A :MLOAD(SP + 3096)
-  C => B
-  $ => B :AND
-  B => A
-  $ => B :MLOAD(SP + 3208)
-  $ => A :XOR
-  A => B
+  D => B
+  $ => D :AND
   D => A
+  $ => B :MLOAD(SP + 3208)
+  $ => D :XOR
+  C => A
+  D => B
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
   $ => A :AND
@@ -5847,33 +5273,27 @@ label_3_3:
   $ => A :MLOAD(SP + 3064)
   $ => A :XOR
   $ => B :MLOAD(SP + 3184)
-  A => D
+  A => C
   $ => A :MLOAD(SP + 3128)
-  $ => C :XOR
+  $ => D :XOR
   $ => A :MLOAD(SP + 3072)
-  C => B
-  $ => B :AND
+  D => B
+  $ => D :AND
+  D => E
   $ => A :MLOAD(SP + 3128)
-  B => E
   $ => B :MLOAD(SP + 3184)
-  $ => C :AND
+  $ => D :AND
   E => A
-  C => B
+  D => B
   $ => B :XOR
-  D => A
+  C => A
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
   $ => A :AND
-  $ => E :MLOAD(SP + 72)
-  A :MSTORE(SP + 3064)
-  4294967296n => B
-  0 => D
-  0 => C
-  ${E / B} => A
-  E:ARITH
   $ => E :MLOAD(SP + 16)
-  A => B
+  A :MSTORE(SP + 3064)
   $ => A :MLOAD(MEM:E)
+  $ => B :MLOAD(SP + 72)
   $ => E :ADD
   $ => A :MLOAD(MEM:E + 44)
   A => CTX
@@ -5894,8 +5314,8 @@ label_3_3:
   A :MSTORE(SP + 3056)
   65280n => B  ;; LoadConst32
   CTX => A
-  $ => B :AND
-  B => C
+  $ => D :AND
+  D => C
   8n => A  ;; LoadConst32
   31n => B  ;; LoadConst64
   $ => E :AND
@@ -5949,13 +5369,13 @@ label_3_3:
   $ => A :MLOAD(SP + 3056)
   $ => A :OR
   $ => B :MLOAD(SP + 3208)
-  $ => D :ADD
+  $ => B :ADD
   A :MSTORE(SP + 3048)
-  D => A
+  B => A
   4294967295n => B  ;; LoadConst64
   $ => A :AND
   $ => B :MLOAD(SP + 3296)
-  A => D
+  A => C
   $ => A :MLOAD(SP + 3080)
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
@@ -5963,15 +5383,15 @@ label_3_3:
   A :MSTORE(SP + 3040)
   $ => B :MLOAD(SP + 3152)
   $ => A :MLOAD(SP + 3096)
-  $ => C :XOR
+  $ => D :XOR
   $ => A :MLOAD(SP + 3040)
-  C => B
-  $ => B :AND
-  B => A
-  $ => B :MLOAD(SP + 3152)
-  $ => A :XOR
-  A => B
+  D => B
+  $ => D :AND
   D => A
+  $ => B :MLOAD(SP + 3152)
+  $ => D :XOR
+  C => A
+  D => B
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
   $ => A :AND
@@ -6158,33 +5578,27 @@ label_3_3:
   $ => A :MLOAD(SP + 3008)
   $ => A :XOR
   $ => B :MLOAD(SP + 3128)
-  A => D
+  A => C
   $ => A :MLOAD(SP + 3072)
-  $ => C :XOR
+  $ => D :XOR
   $ => A :MLOAD(SP + 3016)
-  C => B
-  $ => B :AND
+  D => B
+  $ => D :AND
+  D => E
   $ => A :MLOAD(SP + 3072)
-  B => E
   $ => B :MLOAD(SP + 3128)
-  $ => C :AND
+  $ => D :AND
   E => A
-  C => B
+  D => B
   $ => B :XOR
-  D => A
+  C => A
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
   $ => A :AND
-  $ => E :MLOAD(SP + 72)
-  A :MSTORE(SP + 3008)
-  4294967296n => B
-  0 => D
-  0 => C
-  ${E / B} => A
-  E:ARITH
   $ => E :MLOAD(SP + 16)
-  A => B
+  A :MSTORE(SP + 3008)
   $ => A :MLOAD(MEM:E)
+  $ => B :MLOAD(SP + 72)
   $ => E :ADD
   $ => A :MLOAD(MEM:E + 48)
   A => CTX
@@ -6205,12 +5619,12 @@ label_3_3:
   A :MSTORE(SP + 3000)
   65280n => B  ;; LoadConst32
   CTX => A
-  $ => B :AND
-  B => D
+  $ => D :AND
+  D => C
   8n => A  ;; LoadConst32
   31n => B  ;; LoadConst64
   $ => E :AND
-  D => A
+  C => A
 ;;NEED_INCLUDE: 2-exp
   zkPC + 2 => RR
     :JMP(@two_power + E)
@@ -6260,13 +5674,13 @@ label_3_3:
   $ => A :MLOAD(SP + 3000)
   $ => A :OR
   $ => B :MLOAD(SP + 3152)
-  $ => D :ADD
+  $ => B :ADD
   A :MSTORE(SP + 2992)
-  D => A
+  B => A
   4294967295n => B  ;; LoadConst64
   $ => A :AND
   $ => B :MLOAD(SP + 3240)
-  A => D
+  A => C
   $ => A :MLOAD(SP + 3024)
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
@@ -6274,15 +5688,15 @@ label_3_3:
   A :MSTORE(SP + 2984)
   $ => B :MLOAD(SP + 3096)
   $ => A :MLOAD(SP + 3040)
-  $ => C :XOR
+  $ => D :XOR
   $ => A :MLOAD(SP + 2984)
-  C => B
-  $ => B :AND
-  B => A
-  $ => B :MLOAD(SP + 3096)
-  $ => A :XOR
-  A => B
+  D => B
+  $ => D :AND
   D => A
+  $ => B :MLOAD(SP + 3096)
+  $ => D :XOR
+  C => A
+  D => B
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
   $ => A :AND
@@ -6469,33 +5883,27 @@ label_3_3:
   $ => A :MLOAD(SP + 2952)
   $ => A :XOR
   $ => B :MLOAD(SP + 3072)
-  A => E
+  A => C
   $ => A :MLOAD(SP + 3016)
-  $ => C :XOR
+  $ => D :XOR
   $ => A :MLOAD(SP + 2960)
-  C => B
-  $ => B :AND
+  D => B
+  $ => D :AND
+  D => E
   $ => A :MLOAD(SP + 3016)
-  B => D
   $ => B :MLOAD(SP + 3072)
-  $ => C :AND
-  D => A
-  C => B
-  $ => B :XOR
+  $ => D :AND
   E => A
+  D => B
+  $ => B :XOR
+  C => A
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
   $ => A :AND
-  $ => E :MLOAD(SP + 72)
-  A :MSTORE(SP + 2952)
-  4294967296n => B
-  0 => D
-  0 => C
-  ${E / B} => A
-  E:ARITH
   $ => E :MLOAD(SP + 16)
-  A => B
+  A :MSTORE(SP + 2952)
   $ => A :MLOAD(MEM:E)
+  $ => B :MLOAD(SP + 72)
   $ => E :ADD
   $ => A :MLOAD(MEM:E + 52)
   A => CTX
@@ -6516,8 +5924,8 @@ label_3_3:
   A :MSTORE(SP + 2944)
   65280n => B  ;; LoadConst32
   CTX => A
-  $ => B :AND
-  B => C
+  $ => D :AND
+  D => C
   8n => A  ;; LoadConst32
   31n => B  ;; LoadConst64
   $ => E :AND
@@ -6571,13 +5979,13 @@ label_3_3:
   $ => A :MLOAD(SP + 2944)
   $ => A :OR
   $ => B :MLOAD(SP + 3096)
-  $ => D :ADD
+  $ => B :ADD
   A :MSTORE(SP + 2936)
-  D => A
+  B => A
   4294967295n => B  ;; LoadConst64
   $ => A :AND
   $ => B :MLOAD(SP + 3184)
-  A => D
+  A => E
   $ => A :MLOAD(SP + 2968)
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
@@ -6585,15 +5993,15 @@ label_3_3:
   A :MSTORE(SP + 2928)
   $ => B :MLOAD(SP + 3040)
   $ => A :MLOAD(SP + 2984)
-  $ => C :XOR
+  $ => D :XOR
   $ => A :MLOAD(SP + 2928)
-  C => B
-  $ => B :AND
-  B => A
-  $ => B :MLOAD(SP + 3040)
-  $ => A :XOR
-  A => B
+  D => B
+  $ => D :AND
   D => A
+  $ => B :MLOAD(SP + 3040)
+  $ => D :XOR
+  E => A
+  D => B
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
   $ => A :AND
@@ -6780,33 +6188,27 @@ label_3_3:
   $ => A :MLOAD(SP + 2896)
   $ => A :XOR
   $ => B :MLOAD(SP + 3016)
-  A => D
+  A => C
   $ => A :MLOAD(SP + 2960)
-  $ => C :XOR
+  $ => D :XOR
   $ => A :MLOAD(SP + 2904)
-  C => B
-  $ => B :AND
+  D => B
+  $ => D :AND
+  D => E
   $ => A :MLOAD(SP + 2960)
-  B => E
   $ => B :MLOAD(SP + 3016)
-  $ => C :AND
+  $ => D :AND
   E => A
-  C => B
+  D => B
   $ => B :XOR
-  D => A
+  C => A
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
   $ => A :AND
-  $ => E :MLOAD(SP + 72)
-  A :MSTORE(SP + 2896)
-  4294967296n => B
-  0 => D
-  0 => C
-  ${E / B} => A
-  E:ARITH
   $ => E :MLOAD(SP + 16)
-  A => B
+  A :MSTORE(SP + 2896)
   $ => A :MLOAD(MEM:E)
+  $ => B :MLOAD(SP + 72)
   $ => E :ADD
   $ => A :MLOAD(MEM:E + 56)
   A => CTX
@@ -6827,8 +6229,8 @@ label_3_3:
   A :MSTORE(SP + 2888)
   65280n => B  ;; LoadConst32
   CTX => A
-  $ => B :AND
-  B => C
+  $ => D :AND
+  D => C
   8n => A  ;; LoadConst32
   31n => B  ;; LoadConst64
   $ => E :AND
@@ -6883,12 +6285,12 @@ label_3_3:
   $ => A :OR
   $ => B :MLOAD(SP + 3040)
   A :MSTORE(SP + 2880)
-  $ => D :ADD
-  D => A
+  $ => B :ADD
+  B => A
   4294967295n => B  ;; LoadConst64
   $ => A :AND
   $ => B :MLOAD(SP + 3128)
-  A => D
+  A => C
   $ => A :MLOAD(SP + 2912)
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
@@ -6896,15 +6298,15 @@ label_3_3:
   A :MSTORE(SP + 2872)
   $ => B :MLOAD(SP + 2984)
   $ => A :MLOAD(SP + 2928)
-  $ => C :XOR
+  $ => D :XOR
   $ => A :MLOAD(SP + 2872)
-  C => B
-  $ => B :AND
-  B => A
-  $ => B :MLOAD(SP + 2984)
-  $ => A :XOR
-  A => B
+  D => B
+  $ => D :AND
   D => A
+  $ => B :MLOAD(SP + 2984)
+  $ => D :XOR
+  C => A
+  D => B
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
   $ => A :AND
@@ -7093,31 +6495,25 @@ label_3_3:
   $ => B :MLOAD(SP + 2960)
   A => E
   $ => A :MLOAD(SP + 2904)
-  $ => C :XOR
+  $ => D :XOR
   $ => A :MLOAD(SP + 2848)
-  C => B
-  $ => B :AND
+  D => B
+  $ => D :AND
+  D => C
   $ => A :MLOAD(SP + 2904)
-  B => D
   $ => B :MLOAD(SP + 2960)
-  $ => C :AND
-  D => A
-  C => B
+  $ => D :AND
+  C => A
+  D => B
   $ => B :XOR
   E => A
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
   $ => A :AND
-  $ => E :MLOAD(SP + 72)
-  A :MSTORE(SP + 2840)
-  4294967296n => B
-  0 => D
-  0 => C
-  ${E / B} => A
-  E:ARITH
   $ => E :MLOAD(SP + 16)
-  A => B
+  A :MSTORE(SP + 2840)
   $ => A :MLOAD(MEM:E)
+  $ => B :MLOAD(SP + 72)
   $ => E :ADD
   $ => A :MLOAD(MEM:E + 60)
   A => CTX
@@ -7138,8 +6534,8 @@ label_3_3:
   A :MSTORE(SP + 2832)
   65280n => B  ;; LoadConst32
   CTX => A
-  $ => B :AND
-  B => C
+  $ => D :AND
+  D => C
   8n => A  ;; LoadConst32
   31n => B  ;; LoadConst64
   $ => E :AND
@@ -7194,8 +6590,8 @@ label_3_3:
   $ => A :OR
   $ => B :MLOAD(SP + 2984)
   A :MSTORE(SP + 2824)
-  $ => D :ADD
-  D => A
+  $ => B :ADD
+  B => A
   4294967295n => B  ;; LoadConst64
   $ => A :AND
   $ => B :MLOAD(SP + 3072)
@@ -7207,15 +6603,15 @@ label_3_3:
   A :MSTORE(SP + 2816)
   $ => B :MLOAD(SP + 2928)
   $ => A :MLOAD(SP + 2872)
-  $ => C :XOR
+  $ => D :XOR
   $ => A :MLOAD(SP + 2816)
-  C => B
-  $ => B :AND
-  B => A
+  D => B
+  $ => D :AND
+  D => A
   $ => B :MLOAD(SP + 2928)
-  $ => A :XOR
-  A => B
+  $ => D :XOR
   E => A
+  D => B
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
   $ => A :AND
@@ -7402,20 +6798,20 @@ label_3_3:
   $ => A :MLOAD(SP + 2784)
   $ => A :XOR
   $ => B :MLOAD(SP + 2904)
-  A => E
+  A => C
   $ => A :MLOAD(SP + 2848)
-  $ => C :XOR
+  $ => D :XOR
   $ => A :MLOAD(SP + 2792)
-  C => B
-  $ => B :AND
+  D => B
+  $ => D :AND
+  D => E
   $ => A :MLOAD(SP + 2848)
-  B => D
   $ => B :MLOAD(SP + 2904)
-  $ => C :AND
-  D => A
-  C => B
-  $ => B :XOR
+  $ => D :AND
   E => A
+  D => B
+  $ => B :XOR
+  C => A
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
   $ => A :AND
@@ -7579,12 +6975,12 @@ label_3_3:
   $ => A :AND
   $ => B :MLOAD(SP + 2928)
   A :MSTORE(SP + 2768)
-  $ => D :ADD
-  D => A
+  $ => B :ADD
+  B => A
   4294967295n => B  ;; LoadConst64
   $ => A :AND
   $ => B :MLOAD(SP + 3016)
-  A => D
+  A => C
   $ => A :MLOAD(SP + 2800)
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
@@ -7592,15 +6988,15 @@ label_3_3:
   A :MSTORE(SP + 2760)
   $ => B :MLOAD(SP + 2872)
   $ => A :MLOAD(SP + 2816)
-  $ => C :XOR
+  $ => D :XOR
   $ => A :MLOAD(SP + 2760)
-  C => B
-  $ => B :AND
-  B => A
-  $ => B :MLOAD(SP + 2872)
-  $ => A :XOR
-  A => B
+  D => B
+  $ => D :AND
   D => A
+  $ => B :MLOAD(SP + 2872)
+  $ => D :XOR
+  C => A
+  D => B
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
   $ => A :AND
@@ -7787,20 +7183,20 @@ label_3_3:
   $ => A :MLOAD(SP + 2728)
   $ => A :XOR
   $ => B :MLOAD(SP + 2848)
-  A => E
+  A => C
   $ => A :MLOAD(SP + 2792)
-  $ => C :XOR
+  $ => D :XOR
   $ => A :MLOAD(SP + 2736)
-  C => B
-  $ => B :AND
+  D => B
+  $ => D :AND
+  D => E
   $ => A :MLOAD(SP + 2792)
-  B => D
   $ => B :MLOAD(SP + 2848)
-  $ => C :AND
-  D => A
-  C => B
-  $ => B :XOR
+  $ => D :AND
   E => A
+  D => B
+  $ => B :XOR
+  C => A
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
   $ => A :AND
@@ -7964,12 +7360,12 @@ label_3_3:
   $ => A :AND
   $ => B :MLOAD(SP + 2872)
   A :MSTORE(SP + 2712)
-  $ => D :ADD
-  D => A
+  $ => B :ADD
+  B => A
   4294967295n => B  ;; LoadConst64
   $ => A :AND
   $ => B :MLOAD(SP + 2960)
-  A => D
+  A => E
   $ => A :MLOAD(SP + 2744)
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
@@ -7977,15 +7373,15 @@ label_3_3:
   A :MSTORE(SP + 2704)
   $ => B :MLOAD(SP + 2816)
   $ => A :MLOAD(SP + 2760)
-  $ => C :XOR
+  $ => D :XOR
   $ => A :MLOAD(SP + 2704)
-  C => B
-  $ => B :AND
-  B => A
-  $ => B :MLOAD(SP + 2816)
-  $ => A :XOR
-  A => B
+  D => B
+  $ => D :AND
   D => A
+  $ => B :MLOAD(SP + 2816)
+  $ => D :XOR
+  E => A
+  D => B
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
   $ => A :AND
@@ -8172,20 +7568,20 @@ label_3_3:
   $ => A :MLOAD(SP + 2672)
   $ => A :XOR
   $ => B :MLOAD(SP + 2792)
-  A => E
+  A => C
   $ => A :MLOAD(SP + 2736)
-  $ => C :XOR
+  $ => D :XOR
   $ => A :MLOAD(SP + 2680)
-  C => B
-  $ => B :AND
+  D => B
+  $ => D :AND
+  D => E
   $ => A :MLOAD(SP + 2736)
-  B => D
   $ => B :MLOAD(SP + 2792)
-  $ => C :AND
-  D => A
-  C => B
-  $ => B :XOR
+  $ => D :AND
   E => A
+  D => B
+  $ => B :XOR
+  C => A
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
   $ => A :AND
@@ -8349,12 +7745,12 @@ label_3_3:
   $ => A :AND
   $ => B :MLOAD(SP + 2816)
   A :MSTORE(SP + 2656)
-  $ => D :ADD
-  D => A
+  $ => B :ADD
+  B => A
   4294967295n => B  ;; LoadConst64
   $ => A :AND
   $ => B :MLOAD(SP + 2904)
-  A => D
+  A => C
   $ => A :MLOAD(SP + 2688)
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
@@ -8362,15 +7758,15 @@ label_3_3:
   A :MSTORE(SP + 2648)
   $ => B :MLOAD(SP + 2760)
   $ => A :MLOAD(SP + 2704)
-  $ => C :XOR
+  $ => D :XOR
   $ => A :MLOAD(SP + 2648)
-  C => B
-  $ => B :AND
-  B => A
-  $ => B :MLOAD(SP + 2760)
-  $ => A :XOR
-  A => B
+  D => B
+  $ => D :AND
   D => A
+  $ => B :MLOAD(SP + 2760)
+  $ => D :XOR
+  C => A
+  D => B
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
   $ => A :AND
@@ -8557,20 +7953,20 @@ label_3_3:
   $ => A :MLOAD(SP + 2616)
   $ => A :XOR
   $ => B :MLOAD(SP + 2736)
-  A => E
+  A => C
   $ => A :MLOAD(SP + 2680)
-  $ => C :XOR
+  $ => D :XOR
   $ => A :MLOAD(SP + 2624)
-  C => B
-  $ => B :AND
+  D => B
+  $ => D :AND
+  D => E
   $ => A :MLOAD(SP + 2680)
-  B => D
   $ => B :MLOAD(SP + 2736)
-  $ => C :AND
-  D => A
-  C => B
-  $ => B :XOR
+  $ => D :AND
   E => A
+  D => B
+  $ => B :XOR
+  C => A
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
   $ => A :AND
@@ -8734,12 +8130,12 @@ label_3_3:
   $ => A :AND
   $ => B :MLOAD(SP + 2760)
   A :MSTORE(SP + 2600)
-  $ => D :ADD
-  D => A
+  $ => B :ADD
+  B => A
   4294967295n => B  ;; LoadConst64
   $ => A :AND
   $ => B :MLOAD(SP + 2848)
-  A => D
+  A => C
   $ => A :MLOAD(SP + 2632)
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
@@ -8747,15 +8143,15 @@ label_3_3:
   A :MSTORE(SP + 2592)
   $ => B :MLOAD(SP + 2704)
   $ => A :MLOAD(SP + 2648)
-  $ => C :XOR
+  $ => D :XOR
   $ => A :MLOAD(SP + 2592)
-  C => B
-  $ => B :AND
-  B => A
-  $ => B :MLOAD(SP + 2704)
-  $ => A :XOR
-  A => B
+  D => B
+  $ => D :AND
   D => A
+  $ => B :MLOAD(SP + 2704)
+  $ => D :XOR
+  C => A
+  D => B
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
   $ => A :AND
@@ -8942,20 +8338,20 @@ label_3_3:
   $ => A :MLOAD(SP + 2560)
   $ => A :XOR
   $ => B :MLOAD(SP + 2680)
-  A => E
+  A => C
   $ => A :MLOAD(SP + 2624)
-  $ => C :XOR
+  $ => D :XOR
   $ => A :MLOAD(SP + 2568)
-  C => B
-  $ => B :AND
+  D => B
+  $ => D :AND
+  D => E
   $ => A :MLOAD(SP + 2624)
-  B => D
   $ => B :MLOAD(SP + 2680)
-  $ => C :AND
-  D => A
-  C => B
-  $ => B :XOR
+  $ => D :AND
   E => A
+  D => B
+  $ => B :XOR
+  C => A
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
   $ => A :AND
@@ -9119,8 +8515,8 @@ label_3_3:
   $ => A :AND
   $ => B :MLOAD(SP + 2704)
   A :MSTORE(SP + 2544)
-  $ => D :ADD
-  D => A
+  $ => B :ADD
+  B => A
   4294967295n => B  ;; LoadConst64
   $ => A :AND
   $ => B :MLOAD(SP + 2792)
@@ -9132,15 +8528,15 @@ label_3_3:
   A :MSTORE(SP + 2536)
   $ => B :MLOAD(SP + 2648)
   $ => A :MLOAD(SP + 2592)
-  $ => C :XOR
+  $ => D :XOR
   $ => A :MLOAD(SP + 2536)
-  C => B
-  $ => B :AND
-  B => A
+  D => B
+  $ => D :AND
+  D => A
   $ => B :MLOAD(SP + 2648)
-  $ => A :XOR
-  A => B
+  $ => D :XOR
   E => A
+  D => B
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
   $ => A :AND
@@ -9327,20 +8723,20 @@ label_3_3:
   $ => A :MLOAD(SP + 2504)
   $ => A :XOR
   $ => B :MLOAD(SP + 2624)
-  A => E
+  A => C
   $ => A :MLOAD(SP + 2568)
-  $ => C :XOR
+  $ => D :XOR
   $ => A :MLOAD(SP + 2512)
-  C => B
-  $ => B :AND
+  D => B
+  $ => D :AND
+  D => E
   $ => A :MLOAD(SP + 2568)
-  B => D
   $ => B :MLOAD(SP + 2624)
-  $ => C :AND
-  D => A
-  C => B
-  $ => B :XOR
+  $ => D :AND
   E => A
+  D => B
+  $ => B :XOR
+  C => A
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
   $ => A :AND
@@ -9504,12 +8900,12 @@ label_3_3:
   $ => A :AND
   $ => B :MLOAD(SP + 2648)
   A :MSTORE(SP + 2488)
-  $ => D :ADD
-  D => A
+  $ => B :ADD
+  B => A
   4294967295n => B  ;; LoadConst64
   $ => A :AND
   $ => B :MLOAD(SP + 2736)
-  A => D
+  A => C
   $ => A :MLOAD(SP + 2520)
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
@@ -9517,15 +8913,15 @@ label_3_3:
   A :MSTORE(SP + 2480)
   $ => B :MLOAD(SP + 2592)
   $ => A :MLOAD(SP + 2536)
-  $ => C :XOR
+  $ => D :XOR
   $ => A :MLOAD(SP + 2480)
-  C => B
-  $ => B :AND
-  B => A
-  $ => B :MLOAD(SP + 2592)
-  $ => A :XOR
-  A => B
+  D => B
+  $ => D :AND
   D => A
+  $ => B :MLOAD(SP + 2592)
+  $ => D :XOR
+  C => A
+  D => B
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
   $ => A :AND
@@ -9712,20 +9108,20 @@ label_3_3:
   $ => A :MLOAD(SP + 2448)
   $ => A :XOR
   $ => B :MLOAD(SP + 2568)
-  A => E
+  A => C
   $ => A :MLOAD(SP + 2512)
-  $ => C :XOR
+  $ => D :XOR
   $ => A :MLOAD(SP + 2456)
-  C => B
-  $ => B :AND
+  D => B
+  $ => D :AND
+  D => E
   $ => A :MLOAD(SP + 2512)
-  B => D
   $ => B :MLOAD(SP + 2568)
-  $ => C :AND
-  D => A
-  C => B
-  $ => B :XOR
+  $ => D :AND
   E => A
+  D => B
+  $ => B :XOR
+  C => A
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
   $ => A :AND
@@ -9889,12 +9285,12 @@ label_3_3:
   $ => A :AND
   $ => B :MLOAD(SP + 2592)
   A :MSTORE(SP + 2432)
-  $ => D :ADD
-  D => A
+  $ => B :ADD
+  B => A
   4294967295n => B  ;; LoadConst64
   $ => A :AND
   $ => B :MLOAD(SP + 2680)
-  A => D
+  A => E
   $ => A :MLOAD(SP + 2464)
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
@@ -9902,15 +9298,15 @@ label_3_3:
   A :MSTORE(SP + 2424)
   $ => B :MLOAD(SP + 2536)
   $ => A :MLOAD(SP + 2480)
-  $ => C :XOR
+  $ => D :XOR
   $ => A :MLOAD(SP + 2424)
-  C => B
-  $ => B :AND
-  B => A
-  $ => B :MLOAD(SP + 2536)
-  $ => A :XOR
-  A => B
+  D => B
+  $ => D :AND
   D => A
+  $ => B :MLOAD(SP + 2536)
+  $ => D :XOR
+  E => A
+  D => B
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
   $ => A :AND
@@ -10097,20 +9493,20 @@ label_3_3:
   $ => A :MLOAD(SP + 2392)
   $ => A :XOR
   $ => B :MLOAD(SP + 2512)
-  A => E
+  A => C
   $ => A :MLOAD(SP + 2456)
-  $ => C :XOR
+  $ => D :XOR
   $ => A :MLOAD(SP + 2400)
-  C => B
-  $ => B :AND
+  D => B
+  $ => D :AND
+  D => E
   $ => A :MLOAD(SP + 2456)
-  B => D
   $ => B :MLOAD(SP + 2512)
-  $ => C :AND
-  D => A
-  C => B
-  $ => B :XOR
+  $ => D :AND
   E => A
+  D => B
+  $ => B :XOR
+  C => A
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
   $ => A :AND
@@ -10274,12 +9670,12 @@ label_3_3:
   $ => A :AND
   $ => B :MLOAD(SP + 2536)
   A :MSTORE(SP + 2376)
-  $ => D :ADD
-  D => A
+  $ => B :ADD
+  B => A
   4294967295n => B  ;; LoadConst64
   $ => A :AND
   $ => B :MLOAD(SP + 2624)
-  A => D
+  A => C
   $ => A :MLOAD(SP + 2408)
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
@@ -10287,15 +9683,15 @@ label_3_3:
   A :MSTORE(SP + 2368)
   $ => B :MLOAD(SP + 2480)
   $ => A :MLOAD(SP + 2424)
-  $ => C :XOR
+  $ => D :XOR
   $ => A :MLOAD(SP + 2368)
-  C => B
-  $ => B :AND
-  B => A
-  $ => B :MLOAD(SP + 2480)
-  $ => A :XOR
-  A => B
+  D => B
+  $ => D :AND
   D => A
+  $ => B :MLOAD(SP + 2480)
+  $ => D :XOR
+  C => A
+  D => B
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
   $ => A :AND
@@ -10482,20 +9878,20 @@ label_3_3:
   $ => A :MLOAD(SP + 2336)
   $ => A :XOR
   $ => B :MLOAD(SP + 2456)
-  A => E
+  A => C
   $ => A :MLOAD(SP + 2400)
-  $ => C :XOR
+  $ => D :XOR
   $ => A :MLOAD(SP + 2344)
-  C => B
-  $ => B :AND
+  D => B
+  $ => D :AND
+  D => E
   $ => A :MLOAD(SP + 2400)
-  B => D
   $ => B :MLOAD(SP + 2456)
-  $ => C :AND
-  D => A
-  C => B
-  $ => B :XOR
+  $ => D :AND
   E => A
+  D => B
+  $ => B :XOR
+  C => A
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
   $ => A :AND
@@ -10659,12 +10055,12 @@ label_3_3:
   $ => A :AND
   $ => B :MLOAD(SP + 2480)
   A :MSTORE(SP + 2320)
-  $ => D :ADD
-  D => A
+  $ => B :ADD
+  B => A
   4294967295n => B  ;; LoadConst64
   $ => A :AND
   $ => B :MLOAD(SP + 2568)
-  A => D
+  A => C
   $ => A :MLOAD(SP + 2352)
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
@@ -10672,15 +10068,15 @@ label_3_3:
   A :MSTORE(SP + 2312)
   $ => B :MLOAD(SP + 2424)
   $ => A :MLOAD(SP + 2368)
-  $ => C :XOR
+  $ => D :XOR
   $ => A :MLOAD(SP + 2312)
-  C => B
-  $ => B :AND
-  B => A
-  $ => B :MLOAD(SP + 2424)
-  $ => A :XOR
-  A => B
+  D => B
+  $ => D :AND
   D => A
+  $ => B :MLOAD(SP + 2424)
+  $ => D :XOR
+  C => A
+  D => B
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
   $ => A :AND
@@ -10867,20 +10263,20 @@ label_3_3:
   $ => A :MLOAD(SP + 2280)
   $ => A :XOR
   $ => B :MLOAD(SP + 2400)
-  A => E
+  A => C
   $ => A :MLOAD(SP + 2344)
-  $ => C :XOR
+  $ => D :XOR
   $ => A :MLOAD(SP + 2288)
-  C => B
-  $ => B :AND
+  D => B
+  $ => D :AND
+  D => E
   $ => A :MLOAD(SP + 2344)
-  B => D
   $ => B :MLOAD(SP + 2400)
-  $ => C :AND
-  D => A
-  C => B
-  $ => B :XOR
+  $ => D :AND
   E => A
+  D => B
+  $ => B :XOR
+  C => A
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
   $ => A :AND
@@ -11044,8 +10440,8 @@ label_3_3:
   $ => A :AND
   $ => B :MLOAD(SP + 2424)
   A :MSTORE(SP + 2264)
-  $ => D :ADD
-  D => A
+  $ => B :ADD
+  B => A
   4294967295n => B  ;; LoadConst64
   $ => A :AND
   $ => B :MLOAD(SP + 2512)
@@ -11057,15 +10453,15 @@ label_3_3:
   A :MSTORE(SP + 2256)
   $ => B :MLOAD(SP + 2368)
   $ => A :MLOAD(SP + 2312)
-  $ => C :XOR
+  $ => D :XOR
   $ => A :MLOAD(SP + 2256)
-  C => B
-  $ => B :AND
-  B => A
+  D => B
+  $ => D :AND
+  D => A
   $ => B :MLOAD(SP + 2368)
-  $ => A :XOR
-  A => B
+  $ => D :XOR
   E => A
+  D => B
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
   $ => A :AND
@@ -11252,20 +10648,20 @@ label_3_3:
   $ => A :MLOAD(SP + 2224)
   $ => A :XOR
   $ => B :MLOAD(SP + 2344)
-  A => E
+  A => C
   $ => A :MLOAD(SP + 2288)
-  $ => C :XOR
+  $ => D :XOR
   $ => A :MLOAD(SP + 2232)
-  C => B
-  $ => B :AND
+  D => B
+  $ => D :AND
+  D => E
   $ => A :MLOAD(SP + 2288)
-  B => D
   $ => B :MLOAD(SP + 2344)
-  $ => C :AND
-  D => A
-  C => B
-  $ => B :XOR
+  $ => D :AND
   E => A
+  D => B
+  $ => B :XOR
+  C => A
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
   $ => A :AND
@@ -11429,12 +10825,12 @@ label_3_3:
   $ => A :AND
   $ => B :MLOAD(SP + 2368)
   A :MSTORE(SP + 2208)
-  $ => D :ADD
-  D => A
+  $ => B :ADD
+  B => A
   4294967295n => B  ;; LoadConst64
   $ => A :AND
   $ => B :MLOAD(SP + 2456)
-  A => D
+  A => C
   $ => A :MLOAD(SP + 2240)
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
@@ -11442,15 +10838,15 @@ label_3_3:
   A :MSTORE(SP + 2200)
   $ => B :MLOAD(SP + 2312)
   $ => A :MLOAD(SP + 2256)
-  $ => C :XOR
+  $ => D :XOR
   $ => A :MLOAD(SP + 2200)
-  C => B
-  $ => B :AND
-  B => A
-  $ => B :MLOAD(SP + 2312)
-  $ => A :XOR
-  A => B
+  D => B
+  $ => D :AND
   D => A
+  $ => B :MLOAD(SP + 2312)
+  $ => D :XOR
+  C => A
+  D => B
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
   $ => A :AND
@@ -11637,20 +11033,20 @@ label_3_3:
   $ => A :MLOAD(SP + 2168)
   $ => A :XOR
   $ => B :MLOAD(SP + 2288)
-  A => E
+  A => C
   $ => A :MLOAD(SP + 2232)
-  $ => C :XOR
+  $ => D :XOR
   $ => A :MLOAD(SP + 2176)
-  C => B
-  $ => B :AND
+  D => B
+  $ => D :AND
+  D => E
   $ => A :MLOAD(SP + 2232)
-  B => D
   $ => B :MLOAD(SP + 2288)
-  $ => C :AND
-  D => A
-  C => B
-  $ => B :XOR
+  $ => D :AND
   E => A
+  D => B
+  $ => B :XOR
+  C => A
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
   $ => A :AND
@@ -11814,12 +11210,12 @@ label_3_3:
   $ => A :AND
   $ => B :MLOAD(SP + 2312)
   A :MSTORE(SP + 2152)
-  $ => D :ADD
-  D => A
+  $ => B :ADD
+  B => A
   4294967295n => B  ;; LoadConst64
   $ => A :AND
   $ => B :MLOAD(SP + 2400)
-  A => D
+  A => E
   $ => A :MLOAD(SP + 2184)
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
@@ -11827,15 +11223,15 @@ label_3_3:
   A :MSTORE(SP + 2144)
   $ => B :MLOAD(SP + 2256)
   $ => A :MLOAD(SP + 2200)
-  $ => C :XOR
+  $ => D :XOR
   $ => A :MLOAD(SP + 2144)
-  C => B
-  $ => B :AND
-  B => A
-  $ => B :MLOAD(SP + 2256)
-  $ => A :XOR
-  A => B
+  D => B
+  $ => D :AND
   D => A
+  $ => B :MLOAD(SP + 2256)
+  $ => D :XOR
+  E => A
+  D => B
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
   $ => A :AND
@@ -12022,20 +11418,20 @@ label_3_3:
   $ => A :MLOAD(SP + 2112)
   $ => A :XOR
   $ => B :MLOAD(SP + 2232)
-  A => E
+  A => C
   $ => A :MLOAD(SP + 2176)
-  $ => C :XOR
+  $ => D :XOR
   $ => A :MLOAD(SP + 2120)
-  C => B
-  $ => B :AND
+  D => B
+  $ => D :AND
+  D => E
   $ => A :MLOAD(SP + 2176)
-  B => D
   $ => B :MLOAD(SP + 2232)
-  $ => C :AND
-  D => A
-  C => B
-  $ => B :XOR
+  $ => D :AND
   E => A
+  D => B
+  $ => B :XOR
+  C => A
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
   $ => A :AND
@@ -12199,12 +11595,12 @@ label_3_3:
   $ => A :AND
   $ => B :MLOAD(SP + 2256)
   A :MSTORE(SP + 2096)
-  $ => D :ADD
-  D => A
+  $ => B :ADD
+  B => A
   4294967295n => B  ;; LoadConst64
   $ => A :AND
   $ => B :MLOAD(SP + 2344)
-  A => D
+  A => C
   $ => A :MLOAD(SP + 2128)
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
@@ -12212,15 +11608,15 @@ label_3_3:
   A :MSTORE(SP + 2088)
   $ => B :MLOAD(SP + 2200)
   $ => A :MLOAD(SP + 2144)
-  $ => C :XOR
+  $ => D :XOR
   $ => A :MLOAD(SP + 2088)
-  C => B
-  $ => B :AND
-  B => A
-  $ => B :MLOAD(SP + 2200)
-  $ => A :XOR
-  A => B
+  D => B
+  $ => D :AND
   D => A
+  $ => B :MLOAD(SP + 2200)
+  $ => D :XOR
+  C => A
+  D => B
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
   $ => A :AND
@@ -12407,20 +11803,20 @@ label_3_3:
   $ => A :MLOAD(SP + 2056)
   $ => A :XOR
   $ => B :MLOAD(SP + 2176)
-  A => E
+  A => C
   $ => A :MLOAD(SP + 2120)
-  $ => C :XOR
+  $ => D :XOR
   $ => A :MLOAD(SP + 2064)
-  C => B
-  $ => B :AND
+  D => B
+  $ => D :AND
+  D => E
   $ => A :MLOAD(SP + 2120)
-  B => D
   $ => B :MLOAD(SP + 2176)
-  $ => C :AND
-  D => A
-  C => B
-  $ => B :XOR
+  $ => D :AND
   E => A
+  D => B
+  $ => B :XOR
+  C => A
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
   $ => A :AND
@@ -12584,12 +11980,12 @@ label_3_3:
   $ => A :AND
   $ => B :MLOAD(SP + 2200)
   A :MSTORE(SP + 2040)
-  $ => D :ADD
-  D => A
+  $ => B :ADD
+  B => A
   4294967295n => B  ;; LoadConst64
   $ => A :AND
   $ => B :MLOAD(SP + 2288)
-  A => D
+  A => C
   $ => A :MLOAD(SP + 2072)
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
@@ -12597,15 +11993,15 @@ label_3_3:
   A :MSTORE(SP + 2032)
   $ => B :MLOAD(SP + 2144)
   $ => A :MLOAD(SP + 2088)
-  $ => C :XOR
+  $ => D :XOR
   $ => A :MLOAD(SP + 2032)
-  C => B
-  $ => B :AND
-  B => A
-  $ => B :MLOAD(SP + 2144)
-  $ => A :XOR
-  A => B
+  D => B
+  $ => D :AND
   D => A
+  $ => B :MLOAD(SP + 2144)
+  $ => D :XOR
+  C => A
+  D => B
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
   $ => A :AND
@@ -12792,20 +12188,20 @@ label_3_3:
   $ => A :MLOAD(SP + 2000)
   $ => A :XOR
   $ => B :MLOAD(SP + 2120)
-  A => E
+  A => C
   $ => A :MLOAD(SP + 2064)
-  $ => C :XOR
+  $ => D :XOR
   $ => A :MLOAD(SP + 2008)
-  C => B
-  $ => B :AND
+  D => B
+  $ => D :AND
+  D => E
   $ => A :MLOAD(SP + 2064)
-  B => D
   $ => B :MLOAD(SP + 2120)
-  $ => C :AND
-  D => A
-  C => B
-  $ => B :XOR
+  $ => D :AND
   E => A
+  D => B
+  $ => B :XOR
+  C => A
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
   $ => A :AND
@@ -12969,8 +12365,8 @@ label_3_3:
   $ => A :AND
   $ => B :MLOAD(SP + 2144)
   A :MSTORE(SP + 1984)
-  $ => D :ADD
-  D => A
+  $ => B :ADD
+  B => A
   4294967295n => B  ;; LoadConst64
   $ => A :AND
   $ => B :MLOAD(SP + 2232)
@@ -12982,15 +12378,15 @@ label_3_3:
   A :MSTORE(SP + 1976)
   $ => B :MLOAD(SP + 2088)
   $ => A :MLOAD(SP + 2032)
-  $ => C :XOR
+  $ => D :XOR
   $ => A :MLOAD(SP + 1976)
-  C => B
-  $ => B :AND
-  B => A
+  D => B
+  $ => D :AND
+  D => A
   $ => B :MLOAD(SP + 2088)
-  $ => A :XOR
-  A => B
+  $ => D :XOR
   E => A
+  D => B
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
   $ => A :AND
@@ -13177,20 +12573,20 @@ label_3_3:
   $ => A :MLOAD(SP + 1944)
   $ => A :XOR
   $ => B :MLOAD(SP + 2064)
-  A => E
+  A => C
   $ => A :MLOAD(SP + 2008)
-  $ => C :XOR
+  $ => D :XOR
   $ => A :MLOAD(SP + 1952)
-  C => B
-  $ => B :AND
+  D => B
+  $ => D :AND
+  D => E
   $ => A :MLOAD(SP + 2008)
-  B => D
   $ => B :MLOAD(SP + 2064)
-  $ => C :AND
-  D => A
-  C => B
-  $ => B :XOR
+  $ => D :AND
   E => A
+  D => B
+  $ => B :XOR
+  C => A
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
   $ => A :AND
@@ -13354,12 +12750,12 @@ label_3_3:
   $ => A :AND
   $ => B :MLOAD(SP + 2088)
   A :MSTORE(SP + 1928)
-  $ => D :ADD
-  D => A
+  $ => B :ADD
+  B => A
   4294967295n => B  ;; LoadConst64
   $ => A :AND
   $ => B :MLOAD(SP + 2176)
-  A => D
+  A => C
   $ => A :MLOAD(SP + 1960)
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
@@ -13367,15 +12763,15 @@ label_3_3:
   A :MSTORE(SP + 1920)
   $ => B :MLOAD(SP + 2032)
   $ => A :MLOAD(SP + 1976)
-  $ => C :XOR
+  $ => D :XOR
   $ => A :MLOAD(SP + 1920)
-  C => B
-  $ => B :AND
-  B => A
-  $ => B :MLOAD(SP + 2032)
-  $ => A :XOR
-  A => B
+  D => B
+  $ => D :AND
   D => A
+  $ => B :MLOAD(SP + 2032)
+  $ => D :XOR
+  C => A
+  D => B
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
   $ => A :AND
@@ -13562,20 +12958,20 @@ label_3_3:
   $ => A :MLOAD(SP + 1888)
   $ => A :XOR
   $ => B :MLOAD(SP + 2008)
-  A => E
+  A => C
   $ => A :MLOAD(SP + 1952)
-  $ => C :XOR
+  $ => D :XOR
   $ => A :MLOAD(SP + 1896)
-  C => B
-  $ => B :AND
+  D => B
+  $ => D :AND
+  D => E
   $ => A :MLOAD(SP + 1952)
-  B => D
   $ => B :MLOAD(SP + 2008)
-  $ => C :AND
-  D => A
-  C => B
-  $ => B :XOR
+  $ => D :AND
   E => A
+  D => B
+  $ => B :XOR
+  C => A
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
   $ => A :AND
@@ -13739,12 +13135,12 @@ label_3_3:
   $ => A :AND
   $ => B :MLOAD(SP + 2032)
   A :MSTORE(SP + 1872)
-  $ => D :ADD
-  D => A
+  $ => B :ADD
+  B => A
   4294967295n => B  ;; LoadConst64
   $ => A :AND
   $ => B :MLOAD(SP + 2120)
-  A => D
+  A => E
   $ => A :MLOAD(SP + 1904)
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
@@ -13752,15 +13148,15 @@ label_3_3:
   A :MSTORE(SP + 1864)
   $ => B :MLOAD(SP + 1976)
   $ => A :MLOAD(SP + 1920)
-  $ => C :XOR
+  $ => D :XOR
   $ => A :MLOAD(SP + 1864)
-  C => B
-  $ => B :AND
-  B => A
-  $ => B :MLOAD(SP + 1976)
-  $ => A :XOR
-  A => B
+  D => B
+  $ => D :AND
   D => A
+  $ => B :MLOAD(SP + 1976)
+  $ => D :XOR
+  E => A
+  D => B
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
   $ => A :AND
@@ -13947,20 +13343,20 @@ label_3_3:
   $ => A :MLOAD(SP + 1832)
   $ => A :XOR
   $ => B :MLOAD(SP + 1952)
-  A => E
+  A => C
   $ => A :MLOAD(SP + 1896)
-  $ => C :XOR
+  $ => D :XOR
   $ => A :MLOAD(SP + 1840)
-  C => B
-  $ => B :AND
+  D => B
+  $ => D :AND
+  D => E
   $ => A :MLOAD(SP + 1896)
-  B => D
   $ => B :MLOAD(SP + 1952)
-  $ => C :AND
-  D => A
-  C => B
-  $ => B :XOR
+  $ => D :AND
   E => A
+  D => B
+  $ => B :XOR
+  C => A
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
   $ => A :AND
@@ -14124,12 +13520,12 @@ label_3_3:
   $ => A :AND
   $ => B :MLOAD(SP + 1976)
   A :MSTORE(SP + 1816)
-  $ => D :ADD
-  D => A
+  $ => B :ADD
+  B => A
   4294967295n => B  ;; LoadConst64
   $ => A :AND
   $ => B :MLOAD(SP + 2064)
-  A => D
+  A => C
   $ => A :MLOAD(SP + 1848)
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
@@ -14137,15 +13533,15 @@ label_3_3:
   A :MSTORE(SP + 1808)
   $ => B :MLOAD(SP + 1920)
   $ => A :MLOAD(SP + 1864)
-  $ => C :XOR
+  $ => D :XOR
   $ => A :MLOAD(SP + 1808)
-  C => B
-  $ => B :AND
-  B => A
-  $ => B :MLOAD(SP + 1920)
-  $ => A :XOR
-  A => B
+  D => B
+  $ => D :AND
   D => A
+  $ => B :MLOAD(SP + 1920)
+  $ => D :XOR
+  C => A
+  D => B
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
   $ => A :AND
@@ -14332,20 +13728,20 @@ label_3_3:
   $ => A :MLOAD(SP + 1776)
   $ => A :XOR
   $ => B :MLOAD(SP + 1896)
-  A => E
+  A => C
   $ => A :MLOAD(SP + 1840)
-  $ => C :XOR
+  $ => D :XOR
   $ => A :MLOAD(SP + 1784)
-  C => B
-  $ => B :AND
+  D => B
+  $ => D :AND
+  D => E
   $ => A :MLOAD(SP + 1840)
-  B => D
   $ => B :MLOAD(SP + 1896)
-  $ => C :AND
-  D => A
-  C => B
-  $ => B :XOR
+  $ => D :AND
   E => A
+  D => B
+  $ => B :XOR
+  C => A
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
   $ => A :AND
@@ -14509,12 +13905,12 @@ label_3_3:
   $ => A :AND
   $ => B :MLOAD(SP + 1920)
   A :MSTORE(SP + 1760)
-  $ => D :ADD
-  D => A
+  $ => B :ADD
+  B => A
   4294967295n => B  ;; LoadConst64
   $ => A :AND
   $ => B :MLOAD(SP + 2008)
-  A => D
+  A => C
   $ => A :MLOAD(SP + 1792)
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
@@ -14522,15 +13918,15 @@ label_3_3:
   A :MSTORE(SP + 1752)
   $ => B :MLOAD(SP + 1864)
   $ => A :MLOAD(SP + 1808)
-  $ => C :XOR
+  $ => D :XOR
   $ => A :MLOAD(SP + 1752)
-  C => B
-  $ => B :AND
-  B => A
-  $ => B :MLOAD(SP + 1864)
-  $ => A :XOR
-  A => B
+  D => B
+  $ => D :AND
   D => A
+  $ => B :MLOAD(SP + 1864)
+  $ => D :XOR
+  C => A
+  D => B
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
   $ => A :AND
@@ -14717,20 +14113,20 @@ label_3_3:
   $ => A :MLOAD(SP + 1720)
   $ => A :XOR
   $ => B :MLOAD(SP + 1840)
-  A => E
+  A => C
   $ => A :MLOAD(SP + 1784)
-  $ => C :XOR
+  $ => D :XOR
   $ => A :MLOAD(SP + 1728)
-  C => B
-  $ => B :AND
+  D => B
+  $ => D :AND
+  D => E
   $ => A :MLOAD(SP + 1784)
-  B => D
   $ => B :MLOAD(SP + 1840)
-  $ => C :AND
-  D => A
-  C => B
-  $ => B :XOR
+  $ => D :AND
   E => A
+  D => B
+  $ => B :XOR
+  C => A
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
   $ => A :AND
@@ -14894,8 +14290,8 @@ label_3_3:
   $ => A :AND
   $ => B :MLOAD(SP + 1864)
   A :MSTORE(SP + 1704)
-  $ => D :ADD
-  D => A
+  $ => B :ADD
+  B => A
   4294967295n => B  ;; LoadConst64
   $ => A :AND
   $ => B :MLOAD(SP + 1952)
@@ -14907,15 +14303,15 @@ label_3_3:
   A :MSTORE(SP + 1696)
   $ => B :MLOAD(SP + 1808)
   $ => A :MLOAD(SP + 1752)
-  $ => C :XOR
+  $ => D :XOR
   $ => A :MLOAD(SP + 1696)
-  C => B
-  $ => B :AND
-  B => A
+  D => B
+  $ => D :AND
+  D => A
   $ => B :MLOAD(SP + 1808)
-  $ => A :XOR
-  A => B
+  $ => D :XOR
   E => A
+  D => B
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
   $ => A :AND
@@ -15102,20 +14498,20 @@ label_3_3:
   $ => A :MLOAD(SP + 1664)
   $ => A :XOR
   $ => B :MLOAD(SP + 1784)
-  A => E
+  A => C
   $ => A :MLOAD(SP + 1728)
-  $ => C :XOR
+  $ => D :XOR
   $ => A :MLOAD(SP + 1672)
-  C => B
-  $ => B :AND
+  D => B
+  $ => D :AND
+  D => E
   $ => A :MLOAD(SP + 1728)
-  B => D
   $ => B :MLOAD(SP + 1784)
-  $ => C :AND
-  D => A
-  C => B
-  $ => B :XOR
+  $ => D :AND
   E => A
+  D => B
+  $ => B :XOR
+  C => A
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
   $ => A :AND
@@ -15279,12 +14675,12 @@ label_3_3:
   $ => A :AND
   $ => B :MLOAD(SP + 1808)
   A :MSTORE(SP + 1648)
-  $ => D :ADD
-  D => A
+  $ => B :ADD
+  B => A
   4294967295n => B  ;; LoadConst64
   $ => A :AND
   $ => B :MLOAD(SP + 1896)
-  A => D
+  A => C
   $ => A :MLOAD(SP + 1680)
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
@@ -15292,15 +14688,15 @@ label_3_3:
   A :MSTORE(SP + 1640)
   $ => B :MLOAD(SP + 1752)
   $ => A :MLOAD(SP + 1696)
-  $ => C :XOR
+  $ => D :XOR
   $ => A :MLOAD(SP + 1640)
-  C => B
-  $ => B :AND
-  B => A
-  $ => B :MLOAD(SP + 1752)
-  $ => A :XOR
-  A => B
+  D => B
+  $ => D :AND
   D => A
+  $ => B :MLOAD(SP + 1752)
+  $ => D :XOR
+  C => A
+  D => B
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
   $ => A :AND
@@ -15487,20 +14883,20 @@ label_3_3:
   $ => A :MLOAD(SP + 1608)
   $ => A :XOR
   $ => B :MLOAD(SP + 1728)
-  A => E
+  A => C
   $ => A :MLOAD(SP + 1672)
-  $ => C :XOR
+  $ => D :XOR
   $ => A :MLOAD(SP + 1616)
-  C => B
-  $ => B :AND
+  D => B
+  $ => D :AND
+  D => E
   $ => A :MLOAD(SP + 1672)
-  B => D
   $ => B :MLOAD(SP + 1728)
-  $ => C :AND
-  D => A
-  C => B
-  $ => B :XOR
+  $ => D :AND
   E => A
+  D => B
+  $ => B :XOR
+  C => A
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
   $ => A :AND
@@ -15664,12 +15060,12 @@ label_3_3:
   $ => A :AND
   $ => B :MLOAD(SP + 1752)
   A :MSTORE(SP + 1592)
-  $ => D :ADD
-  D => A
+  $ => B :ADD
+  B => A
   4294967295n => B  ;; LoadConst64
   $ => A :AND
   $ => B :MLOAD(SP + 1840)
-  A => D
+  A => E
   $ => A :MLOAD(SP + 1624)
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
@@ -15677,15 +15073,15 @@ label_3_3:
   A :MSTORE(SP + 1584)
   $ => B :MLOAD(SP + 1696)
   $ => A :MLOAD(SP + 1640)
-  $ => C :XOR
+  $ => D :XOR
   $ => A :MLOAD(SP + 1584)
-  C => B
-  $ => B :AND
-  B => A
-  $ => B :MLOAD(SP + 1696)
-  $ => A :XOR
-  A => B
+  D => B
+  $ => D :AND
   D => A
+  $ => B :MLOAD(SP + 1696)
+  $ => D :XOR
+  E => A
+  D => B
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
   $ => A :AND
@@ -15872,20 +15268,20 @@ label_3_3:
   $ => A :MLOAD(SP + 1552)
   $ => A :XOR
   $ => B :MLOAD(SP + 1672)
-  A => E
+  A => C
   $ => A :MLOAD(SP + 1616)
-  $ => C :XOR
+  $ => D :XOR
   $ => A :MLOAD(SP + 1560)
-  C => B
-  $ => B :AND
+  D => B
+  $ => D :AND
+  D => E
   $ => A :MLOAD(SP + 1616)
-  B => D
   $ => B :MLOAD(SP + 1672)
-  $ => C :AND
-  D => A
-  C => B
-  $ => B :XOR
+  $ => D :AND
   E => A
+  D => B
+  $ => B :XOR
+  C => A
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
   $ => A :AND
@@ -16049,12 +15445,12 @@ label_3_3:
   $ => A :AND
   $ => B :MLOAD(SP + 1696)
   A :MSTORE(SP + 1536)
-  $ => D :ADD
-  D => A
+  $ => B :ADD
+  B => A
   4294967295n => B  ;; LoadConst64
   $ => A :AND
   $ => B :MLOAD(SP + 1784)
-  A => D
+  A => C
   $ => A :MLOAD(SP + 1568)
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
@@ -16062,15 +15458,15 @@ label_3_3:
   A :MSTORE(SP + 1528)
   $ => B :MLOAD(SP + 1640)
   $ => A :MLOAD(SP + 1584)
-  $ => C :XOR
+  $ => D :XOR
   $ => A :MLOAD(SP + 1528)
-  C => B
-  $ => B :AND
-  B => A
-  $ => B :MLOAD(SP + 1640)
-  $ => A :XOR
-  A => B
+  D => B
+  $ => D :AND
   D => A
+  $ => B :MLOAD(SP + 1640)
+  $ => D :XOR
+  C => A
+  D => B
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
   $ => A :AND
@@ -16257,20 +15653,20 @@ label_3_3:
   $ => A :MLOAD(SP + 1496)
   $ => A :XOR
   $ => B :MLOAD(SP + 1616)
-  A => E
+  A => C
   $ => A :MLOAD(SP + 1560)
-  $ => C :XOR
+  $ => D :XOR
   $ => A :MLOAD(SP + 1504)
-  C => B
-  $ => B :AND
+  D => B
+  $ => D :AND
+  D => E
   $ => A :MLOAD(SP + 1560)
-  B => D
   $ => B :MLOAD(SP + 1616)
-  $ => C :AND
-  D => A
-  C => B
-  $ => B :XOR
+  $ => D :AND
   E => A
+  D => B
+  $ => B :XOR
+  C => A
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
   $ => A :AND
@@ -16434,12 +15830,12 @@ label_3_3:
   $ => A :AND
   $ => B :MLOAD(SP + 1640)
   A :MSTORE(SP + 1480)
-  $ => D :ADD
-  D => A
+  $ => B :ADD
+  B => A
   4294967295n => B  ;; LoadConst64
   $ => A :AND
   $ => B :MLOAD(SP + 1728)
-  A => D
+  A => C
   $ => A :MLOAD(SP + 1512)
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
@@ -16447,15 +15843,15 @@ label_3_3:
   A :MSTORE(SP + 1472)
   $ => B :MLOAD(SP + 1584)
   $ => A :MLOAD(SP + 1528)
-  $ => C :XOR
+  $ => D :XOR
   $ => A :MLOAD(SP + 1472)
-  C => B
-  $ => B :AND
-  B => A
-  $ => B :MLOAD(SP + 1584)
-  $ => A :XOR
-  A => B
+  D => B
+  $ => D :AND
   D => A
+  $ => B :MLOAD(SP + 1584)
+  $ => D :XOR
+  C => A
+  D => B
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
   $ => A :AND
@@ -16642,20 +16038,20 @@ label_3_3:
   $ => A :MLOAD(SP + 1440)
   $ => A :XOR
   $ => B :MLOAD(SP + 1560)
-  A => E
+  A => C
   $ => A :MLOAD(SP + 1504)
-  $ => C :XOR
+  $ => D :XOR
   $ => A :MLOAD(SP + 1448)
-  C => B
-  $ => B :AND
+  D => B
+  $ => D :AND
+  D => E
   $ => A :MLOAD(SP + 1504)
-  B => D
   $ => B :MLOAD(SP + 1560)
-  $ => C :AND
-  D => A
-  C => B
-  $ => B :XOR
+  $ => D :AND
   E => A
+  D => B
+  $ => B :XOR
+  C => A
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
   $ => A :AND
@@ -16819,8 +16215,8 @@ label_3_3:
   $ => A :AND
   $ => B :MLOAD(SP + 1584)
   A :MSTORE(SP + 1424)
-  $ => D :ADD
-  D => A
+  $ => B :ADD
+  B => A
   4294967295n => B  ;; LoadConst64
   $ => A :AND
   $ => B :MLOAD(SP + 1672)
@@ -16832,15 +16228,15 @@ label_3_3:
   A :MSTORE(SP + 1416)
   $ => B :MLOAD(SP + 1528)
   $ => A :MLOAD(SP + 1472)
-  $ => C :XOR
+  $ => D :XOR
   $ => A :MLOAD(SP + 1416)
-  C => B
-  $ => B :AND
-  B => A
+  D => B
+  $ => D :AND
+  D => A
   $ => B :MLOAD(SP + 1528)
-  $ => A :XOR
-  A => B
+  $ => D :XOR
   E => A
+  D => B
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
   $ => A :AND
@@ -17027,20 +16423,20 @@ label_3_3:
   $ => A :MLOAD(SP + 1384)
   $ => A :XOR
   $ => B :MLOAD(SP + 1504)
-  A => E
+  A => C
   $ => A :MLOAD(SP + 1448)
-  $ => C :XOR
+  $ => D :XOR
   $ => A :MLOAD(SP + 1392)
-  C => B
-  $ => B :AND
+  D => B
+  $ => D :AND
+  D => E
   $ => A :MLOAD(SP + 1448)
-  B => D
   $ => B :MLOAD(SP + 1504)
-  $ => C :AND
-  D => A
-  C => B
-  $ => B :XOR
+  $ => D :AND
   E => A
+  D => B
+  $ => B :XOR
+  C => A
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
   $ => A :AND
@@ -17204,12 +16600,12 @@ label_3_3:
   $ => A :AND
   $ => B :MLOAD(SP + 1528)
   A :MSTORE(SP + 1368)
-  $ => D :ADD
-  D => A
+  $ => B :ADD
+  B => A
   4294967295n => B  ;; LoadConst64
   $ => A :AND
   $ => B :MLOAD(SP + 1616)
-  A => D
+  A => C
   $ => A :MLOAD(SP + 1400)
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
@@ -17217,15 +16613,15 @@ label_3_3:
   A :MSTORE(SP + 1360)
   $ => B :MLOAD(SP + 1472)
   $ => A :MLOAD(SP + 1416)
-  $ => C :XOR
+  $ => D :XOR
   $ => A :MLOAD(SP + 1360)
-  C => B
-  $ => B :AND
-  B => A
-  $ => B :MLOAD(SP + 1472)
-  $ => A :XOR
-  A => B
+  D => B
+  $ => D :AND
   D => A
+  $ => B :MLOAD(SP + 1472)
+  $ => D :XOR
+  C => A
+  D => B
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
   $ => A :AND
@@ -17412,20 +16808,20 @@ label_3_3:
   $ => A :MLOAD(SP + 1328)
   $ => A :XOR
   $ => B :MLOAD(SP + 1448)
-  A => E
+  A => C
   $ => A :MLOAD(SP + 1392)
-  $ => C :XOR
+  $ => D :XOR
   $ => A :MLOAD(SP + 1336)
-  C => B
-  $ => B :AND
+  D => B
+  $ => D :AND
+  D => E
   $ => A :MLOAD(SP + 1392)
-  B => D
   $ => B :MLOAD(SP + 1448)
-  $ => C :AND
-  D => A
-  C => B
-  $ => B :XOR
+  $ => D :AND
   E => A
+  D => B
+  $ => B :XOR
+  C => A
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
   $ => A :AND
@@ -17589,12 +16985,12 @@ label_3_3:
   $ => A :AND
   $ => B :MLOAD(SP + 1472)
   A :MSTORE(SP + 1312)
-  $ => D :ADD
-  D => A
+  $ => B :ADD
+  B => A
   4294967295n => B  ;; LoadConst64
   $ => A :AND
   $ => B :MLOAD(SP + 1560)
-  A => D
+  A => E
   $ => A :MLOAD(SP + 1344)
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
@@ -17602,15 +16998,15 @@ label_3_3:
   A :MSTORE(SP + 1304)
   $ => B :MLOAD(SP + 1416)
   $ => A :MLOAD(SP + 1360)
-  $ => C :XOR
+  $ => D :XOR
   $ => A :MLOAD(SP + 1304)
-  C => B
-  $ => B :AND
-  B => A
-  $ => B :MLOAD(SP + 1416)
-  $ => A :XOR
-  A => B
+  D => B
+  $ => D :AND
   D => A
+  $ => B :MLOAD(SP + 1416)
+  $ => D :XOR
+  E => A
+  D => B
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
   $ => A :AND
@@ -17797,20 +17193,20 @@ label_3_3:
   $ => A :MLOAD(SP + 1272)
   $ => A :XOR
   $ => B :MLOAD(SP + 1392)
-  A => E
+  A => C
   $ => A :MLOAD(SP + 1336)
-  $ => C :XOR
+  $ => D :XOR
   $ => A :MLOAD(SP + 1280)
-  C => B
-  $ => B :AND
+  D => B
+  $ => D :AND
+  D => E
   $ => A :MLOAD(SP + 1336)
-  B => D
   $ => B :MLOAD(SP + 1392)
-  $ => C :AND
-  D => A
-  C => B
-  $ => B :XOR
+  $ => D :AND
   E => A
+  D => B
+  $ => B :XOR
+  C => A
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
   $ => A :AND
@@ -17974,12 +17370,12 @@ label_3_3:
   $ => A :AND
   $ => B :MLOAD(SP + 1416)
   A :MSTORE(SP + 1256)
-  $ => D :ADD
-  D => A
+  $ => B :ADD
+  B => A
   4294967295n => B  ;; LoadConst64
   $ => A :AND
   $ => B :MLOAD(SP + 1504)
-  A => D
+  A => C
   $ => A :MLOAD(SP + 1288)
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
@@ -17987,15 +17383,15 @@ label_3_3:
   A :MSTORE(SP + 1248)
   $ => B :MLOAD(SP + 1360)
   $ => A :MLOAD(SP + 1304)
-  $ => C :XOR
+  $ => D :XOR
   $ => A :MLOAD(SP + 1248)
-  C => B
-  $ => B :AND
-  B => A
-  $ => B :MLOAD(SP + 1360)
-  $ => A :XOR
-  A => B
+  D => B
+  $ => D :AND
   D => A
+  $ => B :MLOAD(SP + 1360)
+  $ => D :XOR
+  C => A
+  D => B
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
   $ => A :AND
@@ -18182,20 +17578,20 @@ label_3_3:
   $ => A :MLOAD(SP + 1216)
   $ => A :XOR
   $ => B :MLOAD(SP + 1336)
-  A => E
+  A => C
   $ => A :MLOAD(SP + 1280)
-  $ => C :XOR
+  $ => D :XOR
   $ => A :MLOAD(SP + 1224)
-  C => B
-  $ => B :AND
+  D => B
+  $ => D :AND
+  D => E
   $ => A :MLOAD(SP + 1280)
-  B => D
   $ => B :MLOAD(SP + 1336)
-  $ => C :AND
-  D => A
-  C => B
-  $ => B :XOR
+  $ => D :AND
   E => A
+  D => B
+  $ => B :XOR
+  C => A
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
   $ => A :AND
@@ -18359,12 +17755,12 @@ label_3_3:
   $ => A :AND
   $ => B :MLOAD(SP + 1360)
   A :MSTORE(SP + 1200)
-  $ => D :ADD
-  D => A
+  $ => B :ADD
+  B => A
   4294967295n => B  ;; LoadConst64
   $ => A :AND
   $ => B :MLOAD(SP + 1448)
-  A => D
+  A => C
   $ => A :MLOAD(SP + 1232)
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
@@ -18372,15 +17768,15 @@ label_3_3:
   A :MSTORE(SP + 1192)
   $ => B :MLOAD(SP + 1304)
   $ => A :MLOAD(SP + 1248)
-  $ => C :XOR
+  $ => D :XOR
   $ => A :MLOAD(SP + 1192)
-  C => B
-  $ => B :AND
-  B => A
-  $ => B :MLOAD(SP + 1304)
-  $ => A :XOR
-  A => B
+  D => B
+  $ => D :AND
   D => A
+  $ => B :MLOAD(SP + 1304)
+  $ => D :XOR
+  C => A
+  D => B
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
   $ => A :AND
@@ -18567,20 +17963,20 @@ label_3_3:
   $ => A :MLOAD(SP + 1160)
   $ => A :XOR
   $ => B :MLOAD(SP + 1280)
-  A => E
+  A => C
   $ => A :MLOAD(SP + 1224)
-  $ => C :XOR
+  $ => D :XOR
   $ => A :MLOAD(SP + 1168)
-  C => B
-  $ => B :AND
+  D => B
+  $ => D :AND
+  D => E
   $ => A :MLOAD(SP + 1224)
-  B => D
   $ => B :MLOAD(SP + 1280)
-  $ => C :AND
-  D => A
-  C => B
-  $ => B :XOR
+  $ => D :AND
   E => A
+  D => B
+  $ => B :XOR
+  C => A
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
   $ => A :AND
@@ -18744,8 +18140,8 @@ label_3_3:
   $ => A :AND
   $ => B :MLOAD(SP + 1304)
   A :MSTORE(SP + 1144)
-  $ => D :ADD
-  D => A
+  $ => B :ADD
+  B => A
   4294967295n => B  ;; LoadConst64
   $ => A :AND
   $ => B :MLOAD(SP + 1392)
@@ -18757,15 +18153,15 @@ label_3_3:
   A :MSTORE(SP + 1136)
   $ => B :MLOAD(SP + 1248)
   $ => A :MLOAD(SP + 1192)
-  $ => C :XOR
+  $ => D :XOR
   $ => A :MLOAD(SP + 1136)
-  C => B
-  $ => B :AND
-  B => A
+  D => B
+  $ => D :AND
+  D => A
   $ => B :MLOAD(SP + 1248)
-  $ => A :XOR
-  A => B
+  $ => D :XOR
   E => A
+  D => B
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
   $ => A :AND
@@ -18952,20 +18348,20 @@ label_3_3:
   $ => A :MLOAD(SP + 1104)
   $ => A :XOR
   $ => B :MLOAD(SP + 1224)
-  A => E
+  A => C
   $ => A :MLOAD(SP + 1168)
-  $ => C :XOR
+  $ => D :XOR
   $ => A :MLOAD(SP + 1112)
-  C => B
-  $ => B :AND
+  D => B
+  $ => D :AND
+  D => E
   $ => A :MLOAD(SP + 1168)
-  B => D
   $ => B :MLOAD(SP + 1224)
-  $ => C :AND
-  D => A
-  C => B
-  $ => B :XOR
+  $ => D :AND
   E => A
+  D => B
+  $ => B :XOR
+  C => A
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
   $ => A :AND
@@ -19129,12 +18525,12 @@ label_3_3:
   $ => A :AND
   $ => B :MLOAD(SP + 1248)
   A :MSTORE(SP + 1088)
-  $ => D :ADD
-  D => A
+  $ => B :ADD
+  B => A
   4294967295n => B  ;; LoadConst64
   $ => A :AND
   $ => B :MLOAD(SP + 1336)
-  A => D
+  A => C
   $ => A :MLOAD(SP + 1120)
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
@@ -19142,15 +18538,15 @@ label_3_3:
   A :MSTORE(SP + 1080)
   $ => B :MLOAD(SP + 1192)
   $ => A :MLOAD(SP + 1136)
-  $ => C :XOR
+  $ => D :XOR
   $ => A :MLOAD(SP + 1080)
-  C => B
-  $ => B :AND
-  B => A
-  $ => B :MLOAD(SP + 1192)
-  $ => A :XOR
-  A => B
+  D => B
+  $ => D :AND
   D => A
+  $ => B :MLOAD(SP + 1192)
+  $ => D :XOR
+  C => A
+  D => B
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
   $ => A :AND
@@ -19337,20 +18733,20 @@ label_3_3:
   $ => A :MLOAD(SP + 1048)
   $ => A :XOR
   $ => B :MLOAD(SP + 1168)
-  A => E
+  A => C
   $ => A :MLOAD(SP + 1112)
-  $ => C :XOR
+  $ => D :XOR
   $ => A :MLOAD(SP + 1056)
-  C => B
-  $ => B :AND
+  D => B
+  $ => D :AND
+  D => E
   $ => A :MLOAD(SP + 1112)
-  B => D
   $ => B :MLOAD(SP + 1168)
-  $ => C :AND
-  D => A
-  C => B
-  $ => B :XOR
+  $ => D :AND
   E => A
+  D => B
+  $ => B :XOR
+  C => A
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
   $ => A :AND
@@ -19514,12 +18910,12 @@ label_3_3:
   $ => A :AND
   $ => B :MLOAD(SP + 1192)
   A :MSTORE(SP + 1032)
-  $ => D :ADD
-  D => A
+  $ => B :ADD
+  B => A
   4294967295n => B  ;; LoadConst64
   $ => A :AND
   $ => B :MLOAD(SP + 1280)
-  A => D
+  A => E
   $ => A :MLOAD(SP + 1064)
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
@@ -19527,15 +18923,15 @@ label_3_3:
   A :MSTORE(SP + 1024)
   $ => B :MLOAD(SP + 1136)
   $ => A :MLOAD(SP + 1080)
-  $ => C :XOR
+  $ => D :XOR
   $ => A :MLOAD(SP + 1024)
-  C => B
-  $ => B :AND
-  B => A
-  $ => B :MLOAD(SP + 1136)
-  $ => A :XOR
-  A => B
+  D => B
+  $ => D :AND
   D => A
+  $ => B :MLOAD(SP + 1136)
+  $ => D :XOR
+  E => A
+  D => B
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
   $ => A :AND
@@ -19722,20 +19118,20 @@ label_3_3:
   $ => A :MLOAD(SP + 992)
   $ => A :XOR
   $ => B :MLOAD(SP + 1112)
-  A => E
+  A => C
   $ => A :MLOAD(SP + 1056)
-  $ => C :XOR
+  $ => D :XOR
   $ => A :MLOAD(SP + 1000)
-  C => B
-  $ => B :AND
+  D => B
+  $ => D :AND
+  D => E
   $ => A :MLOAD(SP + 1056)
-  B => D
   $ => B :MLOAD(SP + 1112)
-  $ => C :AND
-  D => A
-  C => B
-  $ => B :XOR
+  $ => D :AND
   E => A
+  D => B
+  $ => B :XOR
+  C => A
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
   $ => A :AND
@@ -19899,12 +19295,12 @@ label_3_3:
   $ => A :AND
   $ => B :MLOAD(SP + 1136)
   A :MSTORE(SP + 976)
-  $ => D :ADD
-  D => A
+  $ => B :ADD
+  B => A
   4294967295n => B  ;; LoadConst64
   $ => A :AND
   $ => B :MLOAD(SP + 1224)
-  A => D
+  A => C
   $ => A :MLOAD(SP + 1008)
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
@@ -19912,15 +19308,15 @@ label_3_3:
   A :MSTORE(SP + 968)
   $ => B :MLOAD(SP + 1080)
   $ => A :MLOAD(SP + 1024)
-  $ => C :XOR
+  $ => D :XOR
   $ => A :MLOAD(SP + 968)
-  C => B
-  $ => B :AND
-  B => A
-  $ => B :MLOAD(SP + 1080)
-  $ => A :XOR
-  A => B
+  D => B
+  $ => D :AND
   D => A
+  $ => B :MLOAD(SP + 1080)
+  $ => D :XOR
+  C => A
+  D => B
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
   $ => A :AND
@@ -20107,20 +19503,20 @@ label_3_3:
   $ => A :MLOAD(SP + 936)
   $ => A :XOR
   $ => B :MLOAD(SP + 1056)
-  A => E
+  A => C
   $ => A :MLOAD(SP + 1000)
-  $ => C :XOR
+  $ => D :XOR
   $ => A :MLOAD(SP + 944)
-  C => B
-  $ => B :AND
+  D => B
+  $ => D :AND
+  D => E
   $ => A :MLOAD(SP + 1000)
-  B => D
   $ => B :MLOAD(SP + 1056)
-  $ => C :AND
-  D => A
-  C => B
-  $ => B :XOR
+  $ => D :AND
   E => A
+  D => B
+  $ => B :XOR
+  C => A
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
   $ => A :AND
@@ -20283,13 +19679,13 @@ label_3_3:
   4294967295n => B  ;; LoadConst64
   $ => A :AND
   $ => B :MLOAD(SP + 1080)
-  $ => D :ADD
+  $ => B :ADD
   A :MSTORE(SP + 920)
-  D => A
+  B => A
   4294967295n => B  ;; LoadConst64
   $ => A :AND
   $ => B :MLOAD(SP + 1168)
-  A => D
+  A => C
   $ => A :MLOAD(SP + 952)
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
@@ -20297,15 +19693,15 @@ label_3_3:
   A :MSTORE(SP + 912)
   $ => B :MLOAD(SP + 1024)
   $ => A :MLOAD(SP + 968)
-  $ => C :XOR
+  $ => D :XOR
   $ => A :MLOAD(SP + 912)
-  C => B
-  $ => B :AND
-  B => A
-  $ => B :MLOAD(SP + 1024)
-  $ => A :XOR
-  A => B
+  D => B
+  $ => D :AND
   D => A
+  $ => B :MLOAD(SP + 1024)
+  $ => D :XOR
+  C => A
+  D => B
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
   $ => A :AND
@@ -20492,20 +19888,20 @@ label_3_3:
   $ => A :MLOAD(SP + 880)
   $ => A :XOR
   $ => B :MLOAD(SP + 1000)
-  A => D
+  A => E
   $ => A :MLOAD(SP + 944)
-  $ => C :XOR
+  $ => D :XOR
   $ => A :MLOAD(SP + 888)
-  C => B
-  $ => B :AND
+  D => B
+  $ => D :AND
+  D => C
   $ => A :MLOAD(SP + 944)
-  B => E
   $ => B :MLOAD(SP + 1000)
-  $ => C :AND
-  E => A
-  C => B
+  $ => D :AND
+  C => A
+  D => B
   $ => B :XOR
-  D => A
+  E => A
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
   $ => A :AND
@@ -20668,9 +20064,9 @@ label_3_3:
   4294967295n => B  ;; LoadConst64
   $ => A :AND
   $ => B :MLOAD(SP + 1024)
-  $ => D :ADD
+  $ => B :ADD
   A :MSTORE(SP + 864)
-  D => A
+  B => A
   4294967295n => B  ;; LoadConst64
   $ => A :AND
   $ => B :MLOAD(SP + 1112)
@@ -20682,15 +20078,15 @@ label_3_3:
   A :MSTORE(SP + 856)
   $ => B :MLOAD(SP + 968)
   $ => A :MLOAD(SP + 912)
-  $ => C :XOR
+  $ => D :XOR
   $ => A :MLOAD(SP + 856)
-  C => B
-  $ => B :AND
-  B => A
+  D => B
+  $ => D :AND
+  D => A
   $ => B :MLOAD(SP + 968)
-  $ => A :XOR
-  A => B
+  $ => D :XOR
   E => A
+  D => B
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
   $ => A :AND
@@ -20877,20 +20273,20 @@ label_3_3:
   $ => A :MLOAD(SP + 824)
   $ => A :XOR
   $ => B :MLOAD(SP + 944)
-  A => D
+  A => C
   $ => A :MLOAD(SP + 888)
-  $ => C :XOR
+  $ => D :XOR
   $ => A :MLOAD(SP + 832)
-  C => B
-  $ => B :AND
+  D => B
+  $ => D :AND
+  D => E
   $ => A :MLOAD(SP + 888)
-  B => E
   $ => B :MLOAD(SP + 944)
-  $ => C :AND
+  $ => D :AND
   E => A
-  C => B
+  D => B
   $ => B :XOR
-  D => A
+  C => A
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
   $ => A :AND
@@ -21053,13 +20449,13 @@ label_3_3:
   4294967295n => B  ;; LoadConst64
   $ => A :AND
   $ => B :MLOAD(SP + 968)
-  $ => D :ADD
+  $ => B :ADD
   A :MSTORE(SP + 808)
-  D => A
+  B => A
   4294967295n => B  ;; LoadConst64
   $ => A :AND
   $ => B :MLOAD(SP + 1056)
-  A => D
+  A => C
   $ => A :MLOAD(SP + 840)
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
@@ -21067,15 +20463,15 @@ label_3_3:
   A :MSTORE(SP + 800)
   $ => B :MLOAD(SP + 912)
   $ => A :MLOAD(SP + 856)
-  $ => C :XOR
+  $ => D :XOR
   $ => A :MLOAD(SP + 800)
-  C => B
-  $ => B :AND
-  B => A
-  $ => B :MLOAD(SP + 912)
-  $ => A :XOR
-  A => B
+  D => B
+  $ => D :AND
   D => A
+  $ => B :MLOAD(SP + 912)
+  $ => D :XOR
+  C => A
+  D => B
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
   $ => A :AND
@@ -21262,20 +20658,20 @@ label_3_3:
   $ => A :MLOAD(SP + 768)
   $ => A :XOR
   $ => B :MLOAD(SP + 888)
-  A => D
+  A => C
   $ => A :MLOAD(SP + 832)
-  $ => C :XOR
+  $ => D :XOR
   $ => A :MLOAD(SP + 776)
-  C => B
-  $ => B :AND
+  D => B
+  $ => D :AND
+  D => E
   $ => A :MLOAD(SP + 832)
-  B => E
   $ => B :MLOAD(SP + 888)
-  $ => C :AND
+  $ => D :AND
   E => A
-  C => B
+  D => B
   $ => B :XOR
-  D => A
+  C => A
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
   $ => A :AND
@@ -21438,13 +20834,13 @@ label_3_3:
   4294967295n => B  ;; LoadConst64
   $ => A :AND
   $ => B :MLOAD(SP + 912)
-  $ => D :ADD
+  $ => B :ADD
   A :MSTORE(SP + 752)
-  D => A
+  B => A
   4294967295n => B  ;; LoadConst64
   $ => A :AND
   $ => B :MLOAD(SP + 1000)
-  A => D
+  A => E
   $ => A :MLOAD(SP + 784)
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
@@ -21452,15 +20848,15 @@ label_3_3:
   A :MSTORE(SP + 744)
   $ => B :MLOAD(SP + 856)
   $ => A :MLOAD(SP + 800)
-  $ => C :XOR
+  $ => D :XOR
   $ => A :MLOAD(SP + 744)
-  C => B
-  $ => B :AND
-  B => A
-  $ => B :MLOAD(SP + 856)
-  $ => A :XOR
-  A => B
+  D => B
+  $ => D :AND
   D => A
+  $ => B :MLOAD(SP + 856)
+  $ => D :XOR
+  E => A
+  D => B
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
   $ => A :AND
@@ -21647,20 +21043,20 @@ label_3_3:
   $ => A :MLOAD(SP + 712)
   $ => A :XOR
   $ => B :MLOAD(SP + 832)
-  A => D
+  A => E
   $ => A :MLOAD(SP + 776)
-  $ => C :XOR
+  $ => D :XOR
   $ => A :MLOAD(SP + 720)
-  C => B
-  $ => B :AND
+  D => B
+  $ => D :AND
+  D => C
   $ => A :MLOAD(SP + 776)
-  B => E
   $ => B :MLOAD(SP + 832)
-  $ => C :AND
-  E => A
-  C => B
+  $ => D :AND
+  C => A
+  D => B
   $ => B :XOR
-  D => A
+  E => A
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
   $ => A :AND
@@ -21823,13 +21219,13 @@ label_3_3:
   4294967295n => B  ;; LoadConst64
   $ => A :AND
   $ => B :MLOAD(SP + 856)
-  $ => D :ADD
+  $ => B :ADD
   A :MSTORE(SP + 696)
-  D => A
+  B => A
   4294967295n => B  ;; LoadConst64
   $ => A :AND
   $ => B :MLOAD(SP + 944)
-  A => D
+  A => C
   $ => A :MLOAD(SP + 728)
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
@@ -21837,15 +21233,15 @@ label_3_3:
   A :MSTORE(SP + 688)
   $ => B :MLOAD(SP + 800)
   $ => A :MLOAD(SP + 744)
-  $ => C :XOR
+  $ => D :XOR
   $ => A :MLOAD(SP + 688)
-  C => B
-  $ => B :AND
-  B => A
-  $ => B :MLOAD(SP + 800)
-  $ => A :XOR
-  A => B
+  D => B
+  $ => D :AND
   D => A
+  $ => B :MLOAD(SP + 800)
+  $ => D :XOR
+  C => A
+  D => B
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
   $ => A :AND
@@ -22032,20 +21428,20 @@ label_3_3:
   $ => A :MLOAD(SP + 656)
   $ => A :XOR
   $ => B :MLOAD(SP + 776)
-  A => E
+  A => C
   $ => A :MLOAD(SP + 720)
-  $ => C :XOR
+  $ => D :XOR
   $ => A :MLOAD(SP + 664)
-  C => B
-  $ => B :AND
+  D => B
+  $ => D :AND
+  D => E
   $ => A :MLOAD(SP + 720)
-  B => D
   $ => B :MLOAD(SP + 776)
-  $ => C :AND
-  D => A
-  C => B
-  $ => B :XOR
+  $ => D :AND
   E => A
+  D => B
+  $ => B :XOR
+  C => A
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
   $ => A :AND
@@ -22208,13 +21604,13 @@ label_3_3:
   4294967295n => B  ;; LoadConst64
   $ => A :AND
   $ => B :MLOAD(SP + 800)
-  $ => D :ADD
+  $ => B :ADD
   A :MSTORE(SP + 640)
-  D => A
+  B => A
   4294967295n => B  ;; LoadConst64
   $ => A :AND
   $ => B :MLOAD(SP + 888)
-  A => D
+  A => C
   $ => A :MLOAD(SP + 672)
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
@@ -22222,15 +21618,15 @@ label_3_3:
   A :MSTORE(SP + 632)
   $ => B :MLOAD(SP + 744)
   $ => A :MLOAD(SP + 688)
-  $ => C :XOR
+  $ => D :XOR
   $ => A :MLOAD(SP + 632)
-  C => B
-  $ => B :AND
-  B => A
-  $ => B :MLOAD(SP + 744)
-  $ => A :XOR
-  A => B
+  D => B
+  $ => D :AND
   D => A
+  $ => B :MLOAD(SP + 744)
+  $ => D :XOR
+  C => A
+  D => B
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
   $ => A :AND
@@ -22417,20 +21813,20 @@ label_3_3:
   $ => A :MLOAD(SP + 600)
   $ => A :XOR
   $ => B :MLOAD(SP + 720)
-  A => D
+  A => E
   $ => A :MLOAD(SP + 664)
-  $ => C :XOR
+  $ => D :XOR
   $ => A :MLOAD(SP + 608)
-  C => B
-  $ => B :AND
+  D => B
+  $ => D :AND
+  D => C
   $ => A :MLOAD(SP + 664)
-  B => E
   $ => B :MLOAD(SP + 720)
-  $ => C :AND
-  E => A
-  C => B
+  $ => D :AND
+  C => A
+  D => B
   $ => B :XOR
-  D => A
+  E => A
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
   $ => A :AND
@@ -22593,9 +21989,9 @@ label_3_3:
   4294967295n => B  ;; LoadConst64
   $ => A :AND
   $ => B :MLOAD(SP + 744)
-  $ => D :ADD
+  $ => B :ADD
   A :MSTORE(SP + 584)
-  D => A
+  B => A
   4294967295n => B  ;; LoadConst64
   $ => A :AND
   $ => B :MLOAD(SP + 832)
@@ -22607,15 +22003,15 @@ label_3_3:
   A :MSTORE(SP + 576)
   $ => B :MLOAD(SP + 688)
   $ => A :MLOAD(SP + 632)
-  $ => C :XOR
+  $ => D :XOR
   $ => A :MLOAD(SP + 576)
-  C => B
-  $ => B :AND
-  B => A
+  D => B
+  $ => D :AND
+  D => A
   $ => B :MLOAD(SP + 688)
-  $ => A :XOR
-  A => B
+  $ => D :XOR
   E => A
+  D => B
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
   $ => A :AND
@@ -22802,20 +22198,20 @@ label_3_3:
   $ => A :MLOAD(SP + 544)
   $ => A :XOR
   $ => B :MLOAD(SP + 664)
-  A => D
+  A => C
   $ => A :MLOAD(SP + 608)
-  $ => C :XOR
+  $ => D :XOR
   $ => A :MLOAD(SP + 552)
-  C => B
-  $ => B :AND
+  D => B
+  $ => D :AND
+  D => E
   $ => A :MLOAD(SP + 608)
-  B => E
   $ => B :MLOAD(SP + 664)
-  $ => C :AND
+  $ => D :AND
   E => A
-  C => B
+  D => B
   $ => B :XOR
-  D => A
+  C => A
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
   $ => A :AND
@@ -22978,13 +22374,13 @@ label_3_3:
   4294967295n => B  ;; LoadConst64
   $ => A :AND
   $ => B :MLOAD(SP + 688)
-  $ => D :ADD
+  $ => B :ADD
   A :MSTORE(SP + 528)
-  D => A
+  B => A
   4294967295n => B  ;; LoadConst64
   $ => A :AND
   $ => B :MLOAD(SP + 776)
-  A => D
+  A => C
   $ => A :MLOAD(SP + 560)
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
@@ -22992,15 +22388,15 @@ label_3_3:
   A :MSTORE(SP + 520)
   $ => B :MLOAD(SP + 632)
   $ => A :MLOAD(SP + 576)
-  $ => C :XOR
+  $ => D :XOR
   $ => A :MLOAD(SP + 520)
-  C => B
-  $ => B :AND
-  B => A
-  $ => B :MLOAD(SP + 632)
-  $ => A :XOR
-  A => B
+  D => B
+  $ => D :AND
   D => A
+  $ => B :MLOAD(SP + 632)
+  $ => D :XOR
+  C => A
+  D => B
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
   $ => A :AND
@@ -23187,20 +22583,20 @@ label_3_3:
   $ => A :MLOAD(SP + 488)
   $ => A :XOR
   $ => B :MLOAD(SP + 608)
-  A => D
+  A => C
   $ => A :MLOAD(SP + 552)
-  $ => C :XOR
+  $ => D :XOR
   $ => A :MLOAD(SP + 496)
-  C => B
-  $ => B :AND
+  D => B
+  $ => D :AND
+  D => E
   $ => A :MLOAD(SP + 552)
-  B => E
   $ => B :MLOAD(SP + 608)
-  $ => C :AND
+  $ => D :AND
   E => A
-  C => B
+  D => B
   $ => B :XOR
-  D => A
+  C => A
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
   $ => A :AND
@@ -23363,13 +22759,13 @@ label_3_3:
   4294967295n => B  ;; LoadConst64
   $ => A :AND
   $ => B :MLOAD(SP + 632)
-  $ => D :ADD
+  $ => B :ADD
   A :MSTORE(SP + 472)
-  D => A
+  B => A
   4294967295n => B  ;; LoadConst64
   $ => A :AND
   $ => B :MLOAD(SP + 720)
-  A => D
+  A => E
   $ => A :MLOAD(SP + 504)
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
@@ -23377,15 +22773,15 @@ label_3_3:
   A :MSTORE(SP + 464)
   $ => B :MLOAD(SP + 576)
   $ => A :MLOAD(SP + 520)
-  $ => C :XOR
+  $ => D :XOR
   $ => A :MLOAD(SP + 464)
-  C => B
-  $ => B :AND
-  B => A
-  $ => B :MLOAD(SP + 576)
-  $ => A :XOR
-  A => B
+  D => B
+  $ => D :AND
   D => A
+  $ => B :MLOAD(SP + 576)
+  $ => D :XOR
+  E => A
+  D => B
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
   $ => A :AND
@@ -23572,20 +22968,20 @@ label_3_3:
   $ => A :MLOAD(SP + 432)
   $ => A :XOR
   $ => B :MLOAD(SP + 552)
-  A => D
+  A => E
   $ => A :MLOAD(SP + 496)
-  $ => C :XOR
+  $ => D :XOR
   $ => A :MLOAD(SP + 440)
-  C => B
-  $ => B :AND
+  D => B
+  $ => D :AND
+  D => C
   $ => A :MLOAD(SP + 496)
-  B => E
   $ => B :MLOAD(SP + 552)
-  $ => C :AND
-  E => A
-  C => B
+  $ => D :AND
+  C => A
+  D => B
   $ => B :XOR
-  D => A
+  E => A
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
   $ => A :AND
@@ -23748,13 +23144,13 @@ label_3_3:
   4294967295n => B  ;; LoadConst64
   $ => A :AND
   $ => B :MLOAD(SP + 576)
-  $ => D :ADD
+  $ => B :ADD
   A :MSTORE(SP + 416)
-  D => A
+  B => A
   4294967295n => B  ;; LoadConst64
   $ => A :AND
   $ => B :MLOAD(SP + 664)
-  A => D
+  A => C
   $ => A :MLOAD(SP + 448)
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
@@ -23762,15 +23158,15 @@ label_3_3:
   A :MSTORE(SP + 408)
   $ => B :MLOAD(SP + 520)
   $ => A :MLOAD(SP + 464)
-  $ => C :XOR
+  $ => D :XOR
   $ => A :MLOAD(SP + 408)
-  C => B
-  $ => B :AND
-  B => A
-  $ => B :MLOAD(SP + 520)
-  $ => A :XOR
-  A => B
+  D => B
+  $ => D :AND
   D => A
+  $ => B :MLOAD(SP + 520)
+  $ => D :XOR
+  C => A
+  D => B
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
   $ => A :AND
@@ -23957,20 +23353,20 @@ label_3_3:
   $ => A :MLOAD(SP + 376)
   $ => A :XOR
   $ => B :MLOAD(SP + 496)
-  A => E
+  A => C
   $ => A :MLOAD(SP + 440)
-  $ => C :XOR
+  $ => D :XOR
   $ => A :MLOAD(SP + 384)
-  C => B
-  $ => B :AND
+  D => B
+  $ => D :AND
+  D => E
   $ => A :MLOAD(SP + 440)
-  B => D
   $ => B :MLOAD(SP + 496)
-  $ => C :AND
-  D => A
-  C => B
-  $ => B :XOR
+  $ => D :AND
   E => A
+  D => B
+  $ => B :XOR
+  C => A
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
   $ => A :AND
@@ -24133,9 +23529,9 @@ label_3_3:
   4294967295n => B  ;; LoadConst64
   $ => A :AND
   $ => B :MLOAD(SP + 520)
-  $ => D :ADD
+  $ => B :ADD
   A :MSTORE(SP + 360)
-  D => A
+  B => A
   4294967295n => B  ;; LoadConst64
   $ => A :AND
   $ => B :MLOAD(SP + 608)
@@ -24147,15 +23543,15 @@ label_3_3:
   A :MSTORE(SP + 352)
   $ => B :MLOAD(SP + 464)
   $ => A :MLOAD(SP + 408)
-  $ => C :XOR
+  $ => D :XOR
   $ => A :MLOAD(SP + 352)
-  C => B
-  $ => B :AND
-  B => A
+  D => B
+  $ => D :AND
+  D => A
   $ => B :MLOAD(SP + 464)
-  $ => A :XOR
-  A => B
+  $ => D :XOR
   E => A
+  D => B
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
   $ => A :AND
@@ -24342,20 +23738,20 @@ label_3_3:
   $ => A :MLOAD(SP + 320)
   $ => A :XOR
   $ => B :MLOAD(SP + 440)
-  A => D
+  A => C
   $ => A :MLOAD(SP + 384)
-  $ => C :XOR
+  $ => D :XOR
   $ => A :MLOAD(SP + 328)
-  C => B
-  $ => B :AND
+  D => B
+  $ => D :AND
+  D => E
   $ => A :MLOAD(SP + 384)
-  B => E
   $ => B :MLOAD(SP + 440)
-  $ => C :AND
+  $ => D :AND
   E => A
-  C => B
+  D => B
   $ => B :XOR
-  D => A
+  C => A
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
   $ => A :AND
@@ -24518,13 +23914,13 @@ label_3_3:
   4294967295n => B  ;; LoadConst64
   $ => A :AND
   $ => B :MLOAD(SP + 464)
-  $ => D :ADD
+  $ => B :ADD
   A :MSTORE(SP + 304)
-  D => A
+  B => A
   4294967295n => B  ;; LoadConst64
   $ => A :AND
   $ => B :MLOAD(SP + 552)
-  A => D
+  A => E
   $ => A :MLOAD(SP + 336)
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
@@ -24532,15 +23928,15 @@ label_3_3:
   A :MSTORE(SP + 296)
   $ => B :MLOAD(SP + 408)
   $ => A :MLOAD(SP + 352)
-  $ => C :XOR
+  $ => D :XOR
   $ => A :MLOAD(SP + 296)
-  C => B
-  $ => B :AND
-  B => A
-  $ => B :MLOAD(SP + 408)
-  $ => A :XOR
-  A => B
+  D => B
+  $ => D :AND
   D => A
+  $ => B :MLOAD(SP + 408)
+  $ => D :XOR
+  E => A
+  D => B
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
   $ => A :AND
@@ -24727,20 +24123,20 @@ label_3_3:
   $ => A :MLOAD(SP + 264)
   $ => A :XOR
   $ => B :MLOAD(SP + 384)
-  A => D
+  A => E
   $ => A :MLOAD(SP + 328)
-  $ => C :XOR
+  $ => D :XOR
   $ => A :MLOAD(SP + 272)
-  C => B
-  $ => B :AND
+  D => B
+  $ => D :AND
+  D => C
   $ => A :MLOAD(SP + 328)
-  B => E
   $ => B :MLOAD(SP + 384)
-  $ => C :AND
-  E => A
-  C => B
+  $ => D :AND
+  C => A
+  D => B
   $ => B :XOR
-  D => A
+  E => A
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
   $ => A :AND
@@ -24903,13 +24299,13 @@ label_3_3:
   4294967295n => B  ;; LoadConst64
   $ => A :AND
   $ => B :MLOAD(SP + 408)
-  $ => D :ADD
+  $ => B :ADD
   A :MSTORE(SP + 248)
-  D => A
+  B => A
   4294967295n => B  ;; LoadConst64
   $ => A :AND
   $ => B :MLOAD(SP + 496)
-  A => D
+  A => C
   $ => A :MLOAD(SP + 280)
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
@@ -24917,15 +24313,15 @@ label_3_3:
   A :MSTORE(SP + 240)
   $ => B :MLOAD(SP + 352)
   $ => A :MLOAD(SP + 296)
-  $ => C :XOR
+  $ => D :XOR
   $ => A :MLOAD(SP + 240)
-  C => B
-  $ => B :AND
-  B => A
-  $ => B :MLOAD(SP + 352)
-  $ => A :XOR
-  A => B
+  D => B
+  $ => D :AND
   D => A
+  $ => B :MLOAD(SP + 352)
+  $ => D :XOR
+  C => A
+  D => B
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
   $ => A :AND
@@ -25112,20 +24508,20 @@ label_3_3:
   $ => A :MLOAD(SP + 208)
   $ => A :XOR
   $ => B :MLOAD(SP + 328)
-  A => D
+  A => E
   $ => A :MLOAD(SP + 272)
-  $ => C :XOR
+  $ => D :XOR
   $ => A :MLOAD(SP + 216)
-  C => B
-  $ => B :AND
+  D => B
+  $ => D :AND
+  D => C
   $ => A :MLOAD(SP + 272)
-  B => E
   $ => B :MLOAD(SP + 328)
-  $ => C :AND
-  E => A
-  C => B
+  $ => D :AND
+  C => A
+  D => B
   $ => B :XOR
-  D => A
+  E => A
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
   $ => A :AND
@@ -25292,7 +24688,7 @@ label_3_3:
   4294967295n => B  ;; LoadConst64
   $ => A :AND
   $ => B :MLOAD(SP + 440)
-  A => D
+  A => C
   $ => A :MLOAD(SP + 224)
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
@@ -25300,15 +24696,15 @@ label_3_3:
   A :MSTORE(SP + 192)
   $ => B :MLOAD(SP + 296)
   $ => A :MLOAD(SP + 240)
-  $ => C :XOR
+  $ => D :XOR
   $ => A :MLOAD(SP + 192)
-  C => B
-  $ => B :AND
-  B => A
-  $ => B :MLOAD(SP + 296)
-  $ => A :XOR
-  A => B
+  D => B
+  $ => D :AND
   D => A
+  $ => B :MLOAD(SP + 296)
+  $ => D :XOR
+  C => A
+  D => B
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
   $ => A :AND
@@ -25413,16 +24809,16 @@ label_3_3:
   A :MSTORE(SP + 168)
   $ => B :MLOAD(SP + 272)
   $ => A :MLOAD(SP + 216)
-  $ => C :XOR
+  $ => D :XOR
   $ => A :MLOAD(SP + 168)
-  C => B
-  $ => B :AND
+  D => B
+  $ => D :AND
+  D => E
   $ => A :MLOAD(SP + 216)
-  B => D
   $ => B :MLOAD(SP + 272)
-  $ => C :AND
-  D => A
-  C => B
+  $ => D :AND
+  E => A
+  D => B
   $ => A :XOR
   $ => B :MLOAD(SP + 32)
   $ => A :ADD
@@ -25680,7 +25076,7 @@ label_3_3:
   4294967295n => B  ;; LoadConst64
   $ => A :AND
   $ => B :MLOAD(SP + 384)
-  A => D
+  A => C
   $ => A :MLOAD(SP + 176)
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
@@ -25688,15 +25084,15 @@ label_3_3:
   A :MSTORE(SP + 152)
   $ => B :MLOAD(SP + 240)
   $ => A :MLOAD(SP + 192)
-  $ => C :XOR
+  $ => D :XOR
   $ => A :MLOAD(SP + 152)
-  C => B
-  $ => B :AND
-  B => A
-  $ => B :MLOAD(SP + 240)
-  $ => A :XOR
-  A => B
+  D => B
+  $ => D :AND
   D => A
+  $ => B :MLOAD(SP + 240)
+  $ => D :XOR
+  C => A
+  D => B
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
   $ => A :AND
@@ -25795,22 +25191,22 @@ label_3_3:
   $ => B :AND
   $ => A :MLOAD(SP + 160)
   $ => A :ADD
-  B => C
+  B => E
   4294967295n => B  ;; LoadConst64
-  $ => A :AND
-  A :MSTORE(SP + 136)
-  $ => B :MLOAD(SP + 24)
+  $ => C :AND
   $ => A :MLOAD(SP + 168)
+  $ => B :MLOAD(SP + 24)
+  C :MSTORE(SP + 136)
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
-  $ => A :AND
-  A :MSTORE(SP + 128)
-  $ => B :MLOAD(SP + 48)
+  $ => D :AND
   $ => A :MLOAD(SP + 328)
+  $ => B :MLOAD(SP + 48)
+  D :MSTORE(SP + 128)
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
   $ => A :AND
-  C => B
+  E => B
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
   $ => B :AND
@@ -25825,10 +25221,10 @@ label_3_3:
   $ => A :MLOAD(SP + 152)
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
-  $ => E :AND
+  $ => D :AND
   $ => A :MLOAD(SP + 272)
   $ => B :MLOAD(SP + 112)
-  E :MSTORE(SP + 96)
+  D :MSTORE(SP + 96)
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
   $ => B :AND
@@ -25837,10 +25233,10 @@ label_3_3:
   $ => A :MLOAD(SP + 192)
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
-  $ => E :AND
-  $ => A :MLOAD(SP + 240)
+  $ => A :AND
+  A :MSTORE(SP + 88)
   $ => B :MLOAD(SP + 40)
-  E :MSTORE(SP + 88)
+  $ => A :MLOAD(SP + 240)
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
   $ => CTX :AND
@@ -25877,103 +25273,49 @@ label_3_4:
   E :MSTORE(SP + 72)
   :JMP(label_3_3)
 label_3_5:
-  $ => E :MLOAD(SP)
+  $ => E :MLOAD(SP + 16)
   :JMP(label_3_7)
 label_3_7:
-  4294967296n => B
-  0 => D
-  0 => C
-  ${E / B} => A
-  E:ARITH
   $ => E :MLOAD(SP + 16)
-  A => B
   $ => A :MLOAD(MEM:E)
+  $ => B :MLOAD(SP)
   $ => E :ADD
   CTX :MSTORE(MEM:E + 28)
-  $ => E :MLOAD(SP)
-  4294967296n => B
-  0 => D
-  0 => C
-  ${E / B} => A
-  E:ARITH
   $ => E :MLOAD(SP + 16)
-  A => B
   $ => A :MLOAD(MEM:E)
   $ => E :ADD
-  $ => C :MLOAD(SP + 88)
-  C :MSTORE(MEM:E + 24)
-  $ => E :MLOAD(SP)
-  4294967296n => B
-  0 => D
-  0 => C
-  ${E / B} => A
-  E:ARITH
+  $ => A :MLOAD(SP + 88)
+  A :MSTORE(MEM:E + 24)
   $ => E :MLOAD(SP + 16)
-  A => B
   $ => A :MLOAD(MEM:E)
   $ => E :ADD
-  $ => A :MLOAD(SP + 96)
-  A :MSTORE(MEM:E + 20)
-  $ => E :MLOAD(SP)
-  4294967296n => B
-  0 => D
-  0 => C
-  ${E / B} => A
-  E:ARITH
+  $ => D :MLOAD(SP + 96)
+  D :MSTORE(MEM:E + 20)
   $ => E :MLOAD(SP + 16)
-  A => B
   $ => A :MLOAD(MEM:E)
   $ => E :ADD
-  $ => B :MLOAD(SP + 104)
-  B :MSTORE(MEM:E + 16)
-  $ => E :MLOAD(SP)
-  4294967296n => B
-  0 => D
-  0 => C
-  ${E / B} => A
-  E:ARITH
+  $ => D :MLOAD(SP + 104)
+  D :MSTORE(MEM:E + 16)
   $ => E :MLOAD(SP + 16)
-  A => B
   $ => A :MLOAD(MEM:E)
   $ => E :ADD
-  $ => B :MLOAD(SP + 112)
-  B :MSTORE(MEM:E + 12)
-  $ => E :MLOAD(SP)
-  4294967296n => B
-  0 => D
-  0 => C
-  ${E / B} => A
-  E:ARITH
+  $ => C :MLOAD(SP + 112)
+  C :MSTORE(MEM:E + 12)
   $ => E :MLOAD(SP + 16)
-  A => B
   $ => A :MLOAD(MEM:E)
   $ => E :ADD
   $ => A :MLOAD(SP + 120)
   A :MSTORE(MEM:E + 8)
-  $ => E :MLOAD(SP)
-  4294967296n => B
-  0 => D
-  0 => C
-  ${E / B} => A
-  E:ARITH
   $ => E :MLOAD(SP + 16)
-  A => B
   $ => A :MLOAD(MEM:E)
   $ => E :ADD
-  $ => A :MLOAD(SP + 128)
-  A :MSTORE(MEM:E + 4)
-  $ => E :MLOAD(SP)
-  4294967296n => B
-  0 => D
-  0 => C
-  ${E / B} => A
-  E:ARITH
+  $ => D :MLOAD(SP + 128)
+  D :MSTORE(MEM:E + 4)
   $ => E :MLOAD(SP + 16)
-  A => B
   $ => A :MLOAD(MEM:E)
   $ => E :ADD
-  $ => A :MLOAD(SP + 136)
-  A :MSTORE(MEM:E)
+  $ => C :MLOAD(SP + 136)
+  C :MSTORE(MEM:E)
   $ => C :MLOAD(SP - 1)
   $ => D :MLOAD(SP - 2)
   $ => E :MLOAD(SP - 3)
@@ -26054,23 +25396,16 @@ label_5_3:
   $ => B :MLOAD(SP + 32)
   :JMP(label_5_9)
 label_5_4:
-  $ => E :MLOAD(SP)
+  $ => E :MLOAD(SP + 24)
+  $ => B :MLOAD(SP)
   :JMP(label_5_5)
 label_5_5:
-  4294967296n => B
-  0 => D
-  0 => C
-  ${E / B} => A
-  E:ARITH
-  A => B
-  E => C
-  $ => E :MLOAD(SP + 24)
   $ => A :MLOAD(MEM:E)
   $ => E :ADD
+  B => A
   $ => B :MLOAD(SP + 8)
   B :MSTORE(MEM:E)
   1n => B  ;; LoadConst32
-  C => A
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
   $ => CTX :AND
@@ -26083,7 +25418,8 @@ label_5_5:
   A :JMPZ(label_5_6)
   :JMP(label_5_7)
 label_5_6:
-  CTX => E
+  $ => E :MLOAD(SP + 24)
+  CTX => B
   :JMP(label_5_5)
 label_5_7:
   $ => A :MLOAD(SP + 16)
@@ -26097,14 +25433,14 @@ label_5_9:
   $ => B :AND
   A :MSTORE(SP + 32)
   $ => A :MLOAD(SP + 40)
-  $ => C :ADD
-  B => D
-  C => A
+  $ => E :ADD
+  B => C
+  E => A
   4294967295n => B  ;; LoadConst64
   $ => A :AND
   A :MSTORE(SP + 16)
   1n => B  ;; LoadConst32
-  D => A
+  C => A
   B => C  ;; Extend A.
   A => B
   B => A
@@ -26130,8 +25466,8 @@ label_5_10:
 label_5_11:
   255n => B  ;; LoadConst32
   $ => A :MLOAD(SP + 8)
-  $ => B :AND
-  B => A
+  $ => D :AND
+  D => A
   16843009n => B  ;; LoadConst32
   0 => C
   $${var _mulArith = A * B}
@@ -26139,22 +25475,16 @@ label_5_11:
   ${_mulArith} => A :ARITH
   4294967295n => B  ;; LoadConst64
   $ => CTX :AND
-  $ => E :MLOAD(SP + 40)
+  $ => E :MLOAD(SP + 24)
+  $ => B :MLOAD(SP + 40)
   :JMP(label_5_12)
 label_5_12:
-  4294967296n => B
-  0 => D
-  0 => C
-  ${E / B} => A
-  E:ARITH
-  A => B
-  E => C
   $ => E :MLOAD(SP + 24)
   $ => A :MLOAD(MEM:E)
   $ => E :ADD
+  B => A
   CTX :MSTORE(MEM:E)
   4n => B  ;; LoadConst32
-  C => A
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
   $ => E :AND
@@ -26167,6 +25497,8 @@ label_5_12:
   A :JMPZ(label_5_13)
   :JMP(label_5_14)
 label_5_13:
+  E => B
+  $ => E :MLOAD(SP + 24)
   :JMP(label_5_12)
 label_5_14:
   :JMP(label_5_16)
@@ -26190,27 +25522,21 @@ label_5_18:
 label_5_19:
   $ => A :MLOAD(SP + 16)
   C => B
-  $ => C :ADD
-  C => A
+  $ => E :ADD
+  E => A
   4294967295n => B  ;; LoadConst64
   $ => CTX :AND
-  $ => E :MLOAD(SP + 16)
+  $ => E :MLOAD(SP + 24)
+  $ => B :MLOAD(SP + 16)
   :JMP(label_5_20)
 label_5_20:
-  4294967296n => B
-  0 => D
-  0 => C
-  ${E / B} => A
-  E:ARITH
-  A => B
-  E => D
   $ => E :MLOAD(SP + 24)
   $ => A :MLOAD(MEM:E)
   $ => E :ADD
-  $ => C :MLOAD(SP + 8)
-  C :MSTORE(MEM:E)
+  B => A
+  $ => B :MLOAD(SP + 8)
+  B :MSTORE(MEM:E)
   1n => B  ;; LoadConst32
-  D => A
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
   $ => E :AND
@@ -26223,6 +25549,8 @@ label_5_20:
   A :JMPZ(label_5_21)
   :JMP(label_5_22)
 label_5_21:
+  E => B
+  $ => E :MLOAD(SP + 24)
   :JMP(label_5_20)
 label_5_22:
   :JMP(label_5_24)
