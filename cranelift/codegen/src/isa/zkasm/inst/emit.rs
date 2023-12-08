@@ -448,32 +448,6 @@ impl MachInstEmit for Inst {
                     sink,
                 );
             }
-            &Inst::UExtend {
-                rd,
-                rs,
-                ty_in,
-                ty_out,
-            } => {
-                // TODO: support other types cast
-                if ty_in == I32 && ty_out == I64 {
-                    let rs = allocs.next(rs);
-                    let rd = allocs.next_writable(rd);
-
-                    debug_assert_eq!(rs, e0());
-                    debug_assert_eq!(rd.to_reg(), a0());
-                    put_string("4294967296n => B\n", sink);
-                    put_string("0 => D\n", sink);
-                    // Intentionnally don't put E % B to C. If E % B != 0 something goes wrong.
-                    put_string("0 => C\n", sink);
-                    put_string("${E / B} => A\n", sink);
-                    put_string("E:ARITH\n", sink);
-                }
-                trace!(
-                    "UExtend with ty_in = {:#?}, ty_out = {:#?} emitted.",
-                    ty_in,
-                    ty_out
-                );
-            }
             &Inst::MulArith { rd, rs1, rs2 } => {
                 let rs1 = allocs.next(rs1);
                 let rs2 = allocs.next(rs2);

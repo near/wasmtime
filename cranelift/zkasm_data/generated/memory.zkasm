@@ -5,59 +5,31 @@ start:
 function_1:
   SP + 1 => SP
   RR :MSTORE(SP - 1)
-  SP + 5 => SP
+  SP + 4 => SP
   C :MSTORE(SP - 1)
   D :MSTORE(SP - 2)
   E :MSTORE(SP - 3)
   B :MSTORE(SP - 4)
-  0n => E  ;; LoadConst32
-  2n => B  ;; LoadConst32
-  B :MSTORE(SP)
-  4294967296n => B
-  0 => D
-  0 => C
-  ${E / B} => A
-  E:ARITH
-  A => B
+  0n => B  ;; LoadConst32
+  2n => C  ;; LoadConst32
   0 => A  ;; LoadExtName(User(userextname0))
   $ => E :ADD
-  $ => B :MLOAD(SP)
-  B :MSTORE(MEM:E)
-  8n => E  ;; LoadConst32
-  3n => B  ;; LoadConst32
-  B :MSTORE(SP)
-  4294967296n => B
-  0 => D
-  0 => C
-  ${E / B} => A
-  E:ARITH
-  A => B
+  C :MSTORE(MEM:E)
+  8n => B  ;; LoadConst32
+  3n => C  ;; LoadConst32
   0 => A  ;; LoadExtName(User(userextname0))
   $ => E :ADD
-  $ => B :MLOAD(SP)
-  B :MSTORE(MEM:E)
-  0n => E  ;; LoadConst32
-  4294967296n => B
-  0 => D
-  0 => C
-  ${E / B} => A
-  E:ARITH
-  A => B
+  C :MSTORE(MEM:E)
+  0n => B  ;; LoadConst32
   0 => A  ;; LoadExtName(User(userextname0))
   $ => E :ADD
   $ => A :MLOAD(MEM:E)
-  A :MSTORE(SP)
-  8n => E  ;; LoadConst32
-  4294967296n => B
-  0 => D
-  0 => C
-  ${E / B} => A
-  E:ARITH
-  A => B
+  A => D
+  8n => B  ;; LoadConst32
   0 => A  ;; LoadExtName(User(userextname0))
   $ => E :ADD
   $ => B :MLOAD(MEM:E)
-  $ => A :MLOAD(SP)
+  D => A
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
   $ => A :AND
@@ -67,7 +39,7 @@ function_1:
   $ => D :MLOAD(SP - 2)
   $ => E :MLOAD(SP - 3)
   $ => B :MLOAD(SP - 4)
-  SP - 5 => SP
+  SP - 4 => SP
   $ => RR :MLOAD(SP - 1)
   SP - 1 => SP
   :JMP(RR)

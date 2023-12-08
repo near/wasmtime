@@ -17,9 +17,9 @@ i64.extend_i32_s_3,runtime error,
 i64.extend_i32_s_4,runtime error,
 i64.extend_i32_s_5,pass,15
 i64.extend_i32_s_6,runtime error,
-i64.extend_i32_u_1,pass,26
-i64.extend_i32_u_2,runtime error,
-i64.extend_i32_u_3,runtime error,
-i64.extend_i32_u_4,runtime error,
-i64.extend_i32_u_5,runtime error,
-i64.extend_i32_u_6,runtime error,
+i64.extend_i32_u_1,pass,15
+i64.extend_i32_u_2,pass,15
+i64.extend_i32_u_3,pass,15
+i64.extend_i32_u_4,pass,15
+i64.extend_i32_u_5,pass,15
+i64.extend_i32_u_6,pass,15

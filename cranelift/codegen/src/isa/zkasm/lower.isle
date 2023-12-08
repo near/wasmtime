@@ -146,12 +146,9 @@
 (rule (lower (has_type (fits_in_64 ty) (clz x)))
   (lower_clz ty x))
 
-
-;; Currently I ignore in and out ty, since we support only 32 -> 64 bit extend.
-;; OTOH, wasm have only 32 and 64 bit types, so...
 ;;;; Rules for `uextend` ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (rule (lower (has_type out_ty (uextend val @ (value_type in_ty))))
-  (zk_uextend val in_ty out_ty))
+  (extend val (ExtendOp.Zero) in_ty out_ty))
 
 ;;;; Rules for `sextend` ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (rule (lower (has_type out_ty (sextend val @ (value_type in_ty))))
