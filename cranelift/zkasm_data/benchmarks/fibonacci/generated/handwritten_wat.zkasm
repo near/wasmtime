@@ -13,8 +13,7 @@ function_1:
   0n => A  ;; LoadConst32
   A :MSTORE(SP + 8)
   0n => A  ;; LoadConst64
-  1n => C  ;; LoadConst64
-  C => B
+  1n => B  ;; LoadConst64
   :JMP(label_1_1)
 label_1_1:
   $ => E :ADD

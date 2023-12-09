@@ -11,10 +11,10 @@ function_1:
   E :MSTORE(SP - 3)
   B :MSTORE(SP - 4)
   0n => B  ;; LoadConst32
-  2n => D  ;; LoadConst32
+  2n => C  ;; LoadConst32
   0 => A  ;; LoadExtName(User(userextname0))
   $ => E :ADD
-  D :MSTORE(MEM:E)
+  C :MSTORE(MEM:E)
   8n => B  ;; LoadConst32
   3n => C  ;; LoadConst32
   0 => A  ;; LoadExtName(User(userextname0))
@@ -24,12 +24,12 @@ function_1:
   0 => A  ;; LoadExtName(User(userextname0))
   $ => E :ADD
   $ => A :MLOAD(MEM:E)
-  A => C
+  A => D
   8n => B  ;; LoadConst32
   0 => A  ;; LoadExtName(User(userextname0))
   $ => E :ADD
   $ => B :MLOAD(MEM:E)
-  C => A
+  D => A
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
   $ => A :AND

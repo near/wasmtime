@@ -142,8 +142,7 @@ pub fn create_reg_environment() -> MachineEnv {
     };
 
     let non_preferred_regs_by_class: [Vec<PReg>; 3] = {
-        let x_registers: Vec<PReg> = (12..=12).map(|i| PReg::new(i, RegClass::Int)).collect();
-
+        let x_registers: Vec<PReg> = Vec::new();
         let f_registers: Vec<PReg> = Vec::new();
         let v_registers: Vec<PReg> = Vec::new();
         [x_registers, f_registers, v_registers]
