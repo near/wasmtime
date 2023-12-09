@@ -16,8 +16,8 @@ use crate::{
 };
 use core::convert::TryFrom;
 use cranelift_codegen::cursor::FuncCursor;
-use cranelift_codegen::ir::immediates::{Offset32, Uimm64};
-use cranelift_codegen::ir::{self, InstBuilder};
+use cranelift_codegen::ir::immediates::{Imm64, Offset32, Uimm64};
+use cranelift_codegen::ir::{self, GlobalValue, InstBuilder};
 use cranelift_codegen::ir::{types::*, UserFuncName};
 use cranelift_codegen::isa::{CallConv, TargetFrontendConfig};
 use cranelift_entity::{EntityRef, PrimaryMap, SecondaryMap};
@@ -245,6 +245,51 @@ impl<'zkasm_environment> ZkasmFuncEnvironment<'zkasm_environment> {
             _ => panic!("unsupported pointer type"),
         }
     }
+
+    // TODO(akashin): Ideally, we won't need a function here as the heap base is truly global.
+    fn heap_base(func: &mut ir::Function) -> GlobalValue {
+        let name =
+            ir::ExternalName::User(func.declare_imported_user_function(ir::UserExternalName {
+                namespace: 0,
+                index: 100,
+            }));
+        func.create_global_value(ir::GlobalValueData::Symbol {
+            name,
+            offset: Imm64::new(0),
+            colocated: false,
+            tls: false,
+        })
+    }
+
+    // TODO(akashin): Ideally, we won't need a function here as the globals base is truly global.
+    fn globals_base(func: &mut ir::Function) -> GlobalValue {
+        let name =
+            ir::ExternalName::User(func.declare_imported_user_function(ir::UserExternalName {
+                namespace: 0,
+                index: 101,
+            }));
+        func.create_global_value(ir::GlobalValueData::Symbol {
+            name,
+            offset: Imm64::new(65536),
+            colocated: false,
+            tls: false,
+        })
+    }
+
+    // TODO(akashin): Ideally, we won't need a function here as the heap base is truly global.
+    fn table_base(func: &mut ir::Function) -> GlobalValue {
+        let name =
+            ir::ExternalName::User(func.declare_imported_user_function(ir::UserExternalName {
+                namespace: 0,
+                index: 102,
+            }));
+        func.create_global_value(ir::GlobalValueData::Symbol {
+            name,
+            offset: Imm64::new(2 * 65536),
+            colocated: false,
+            tls: false,
+        })
+    }
 }
 
 impl<'zkasm_environment> TypeConvert for ZkasmFuncEnvironment<'zkasm_environment> {
@@ -275,9 +320,8 @@ impl<'zkasm_environment> FuncEnvironment for ZkasmFuncEnvironment<'zkasm_environ
     ) -> WasmResult<GlobalVariable> {
         // Just create a zkasm `vmctx` global.
         let offset = i32::try_from((index.index() * 8) + 8).unwrap().into();
-        let vmctx = func.create_global_value(ir::GlobalValueData::VMContext {});
         Ok(GlobalVariable::Memory {
-            gv: vmctx,
+            gv: ZkasmFuncEnvironment::globals_base(func),
             offset,
             ty: match self.mod_info.globals[index].entity.wasm_ty {
                 WasmType::I32 => ir::types::I32,
@@ -295,17 +339,8 @@ impl<'zkasm_environment> FuncEnvironment for ZkasmFuncEnvironment<'zkasm_environ
     }
 
     fn make_heap(&mut self, func: &mut ir::Function, _index: MemoryIndex) -> WasmResult<Heap> {
-        // Create a static heap whose base address is stored at `vmctx+0`.
-        let addr = func.create_global_value(ir::GlobalValueData::VMContext);
-        let gv = func.create_global_value(ir::GlobalValueData::Load {
-            base: addr,
-            offset: Offset32::new(0),
-            global_type: self.pointer_type(),
-            flags: ir::MemFlags::trusted().with_readonly(),
-        });
-
         Ok(self.heaps.push(HeapData {
-            base: gv,
+            base: ZkasmFuncEnvironment::heap_base(func),
             min_size: 0,
             max_size: None,
             offset_guard_size: 0x8000_0000,
@@ -318,17 +353,9 @@ impl<'zkasm_environment> FuncEnvironment for ZkasmFuncEnvironment<'zkasm_environ
     }
 
     fn make_table(&mut self, func: &mut ir::Function, _index: TableIndex) -> WasmResult<ir::Table> {
-        // Create a table whose base address is stored at `vmctx+0`.
-        let vmctx = func.create_global_value(ir::GlobalValueData::VMContext);
-        let base_gv = func.create_global_value(ir::GlobalValueData::Load {
-            base: vmctx,
-            offset: Offset32::new(0),
-            global_type: self.pointer_type(),
-            // When tables in wasm become "growable", revisit whether this can be readonly or not.
-            flags: ir::MemFlags::trusted().with_readonly(),
-        });
+        let base_gv = ZkasmFuncEnvironment::table_base(func);
         let bound_gv = func.create_global_value(ir::GlobalValueData::Load {
-            base: vmctx,
+            base: base_gv,
             offset: Offset32::new(0),
             global_type: I32,
             flags: ir::MemFlags::trusted().with_readonly(),

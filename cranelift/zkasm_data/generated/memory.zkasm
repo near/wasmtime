@@ -12,25 +12,21 @@ function_1:
   B :MSTORE(SP - 4)
   0n => B  ;; LoadConst32
   2n => D  ;; LoadConst32
-  CTX => E
-  $ => A :MLOAD(MEM:E)
+  0 => A  ;; LoadExtName(User(userextname0))
   $ => E :ADD
   D :MSTORE(MEM:E)
   8n => B  ;; LoadConst32
   3n => C  ;; LoadConst32
-  CTX => E
-  $ => A :MLOAD(MEM:E)
+  0 => A  ;; LoadExtName(User(userextname0))
   $ => E :ADD
   C :MSTORE(MEM:E)
   0n => B  ;; LoadConst32
-  CTX => E
-  $ => A :MLOAD(MEM:E)
+  0 => A  ;; LoadExtName(User(userextname0))
   $ => E :ADD
   $ => A :MLOAD(MEM:E)
   A => C
   8n => B  ;; LoadConst32
-  CTX => E
-  $ => A :MLOAD(MEM:E)
+  0 => A  ;; LoadExtName(User(userextname0))
   $ => E :ADD
   $ => B :MLOAD(MEM:E)
   C => A
