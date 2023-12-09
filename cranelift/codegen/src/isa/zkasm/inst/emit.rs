@@ -1365,13 +1365,6 @@ impl MachInstEmit for Inst {
                     put_string(&format!("$ => {} :{opcode}\n", reg_name(rd.to_reg())), sink);
                 }
 
-                // Result of comparing operations in wasm for both i32 and i64
-                // is i32. So, we need to multiply it by 2**32
-                // put_string("4294967296n => B\n", sink);
-                // put_string("0 => D\n", sink);
-                // put_string("0 => C\n", sink);
-                // put_string("${A * B} => A :ARITH\n", sink);
-
                 /*
                 let label_true = sink.get_label();
                 let label_false = sink.get_label();
