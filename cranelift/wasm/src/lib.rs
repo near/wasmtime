@@ -45,7 +45,7 @@ mod translation_utils;
 
 pub use crate::environ::{
     DummyEnvironment, DummyFuncEnvironment, DummyModuleInfo, ExpectedReachability, FuncEnvironment,
-    GlobalVariable, ModuleEnvironment, TargetEnvironment,
+    GlobalVariable, ModuleEnvironment, TargetEnvironment, ZkasmEnvironment
 };
 pub use crate::func_translator::FuncTranslator;
 pub use crate::heap::{Heap, HeapData, HeapStyle};
