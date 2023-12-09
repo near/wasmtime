@@ -94,21 +94,6 @@ impl ABIMachineSpec for ZkAsmMachineDeps {
                 continue;
             }
 
-            // For now we pin VMContext register to `CTX` register of ZK ASM.
-            if let ir::ArgumentPurpose::VMContext = param.purpose {
-                let mut slots = ABIArgSlotVec::new();
-                slots.push(ABIArgSlot::Reg {
-                    reg: context_reg().to_real_reg().unwrap(),
-                    ty: I32,
-                    extension: param.extension,
-                });
-                args.push(ABIArg::Slots {
-                    slots,
-                    purpose: param.purpose,
-                });
-                continue;
-            }
-
             // Find regclass(es) of the register(s) used to store a value of this type.
             let (rcs, reg_tys) = Inst::rc_for_type(param.value_type)?;
             let mut slots = ABIArgSlotVec::new();

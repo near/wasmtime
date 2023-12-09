@@ -10,60 +10,60 @@ function_1:
   D :MSTORE(SP - 2)
   E :MSTORE(SP - 3)
   B :MSTORE(SP - 4)
-  1n => C  ;; LoadConst64(1)
+  1n => D  ;; LoadConst64(1)
   0n => B  ;; LoadConst64(0)
   42949672960000n => A  ;; LoadConst32(10000)
-  A => E
-  C => A
+  A :MSTORE(SP)
+  D => A
   :JMP(label_1_1)
 label_1_1:
-  $ => C :ADD
+  $ => E :ADD
   A => B
-  C => A
-  $ => C :ADD
-  A => B
-  C => A
-  $ => C :ADD
-  A => B
-  C => A
-  $ => C :ADD
-  A => B
-  C => A
-  $ => C :ADD
-  A => B
-  C => A
-  $ => C :ADD
-  A => B
-  C => A
-  $ => C :ADD
-  A => B
-  C => A
-  $ => C :ADD
-  A => B
-  C => A
-  $ => C :ADD
-  A => B
-  C => A
-  $ => D :ADD
-  A :MSTORE(SP)
-  18446744030759878656n => B  ;; LoadConst32(4294967286)
   E => A
+  $ => E :ADD
+  A => B
+  E => A
+  $ => E :ADD
+  A => B
+  E => A
+  $ => E :ADD
+  A => B
+  E => A
+  $ => E :ADD
+  A => B
+  E => A
+  $ => E :ADD
+  A => B
+  E => A
+  $ => E :ADD
+  A => B
+  E => A
+  $ => E :ADD
+  A => B
+  E => A
+  $ => E :ADD
+  A => B
+  E => A
+  $ => E :ADD
+  A => D
+  18446744030759878656n => B  ;; LoadConst32(4294967286)
+  $ => A :MLOAD(SP)
   $ => A :ADD
   A => C
-  A => E
+  A :MSTORE(SP)
   C => B
   0 => A
   $ => A :EQ
   A :JMPZ(label_1_2)
   :JMP(label_1_3)
 label_1_2:
-  C => E
-  $ => B :MLOAD(SP)
-  D => A
+  D => B
+  C :MSTORE(SP)
+  E => A
   :JMP(label_1_1)
 label_1_3:
   15574651946073070043n => B  ;; LoadConst64(15574651946073070043)
-  $ => A :MLOAD(SP)
+  D => A
   B :ASSERT
   $ => C :MLOAD(SP - 1)
   $ => D :MLOAD(SP - 2)

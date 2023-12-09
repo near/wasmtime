@@ -227,15 +227,9 @@ impl<'zkasm_environment> ZkasmFuncEnvironment<'zkasm_environment> {
         }
     }
 
-    /// Create a signature for `sigidx` amended with a `vmctx` argument after
-    /// the standard wasm arguments.
-    pub fn vmctx_sig(&self, sigidx: TypeIndex) -> ir::Signature {
-        let mut sig = self.mod_info.signatures[sigidx].clone();
-        sig.params.push(ir::AbiParam::special(
-            self.pointer_type(),
-            ir::ArgumentPurpose::VMContext,
-        ));
-        sig
+    /// Create a signature for `sigidx`.
+    pub fn func_sig(&self, sigidx: TypeIndex) -> ir::Signature {
+        self.mod_info.signatures[sigidx].clone()
     }
 
     fn reference_type(&self) -> ir::Type {
@@ -318,7 +312,6 @@ impl<'zkasm_environment> FuncEnvironment for ZkasmFuncEnvironment<'zkasm_environ
         func: &mut ir::Function,
         index: GlobalIndex,
     ) -> WasmResult<GlobalVariable> {
-        // Just create a zkasm `vmctx` global.
         let offset = i32::try_from((index.index() * 8) + 8).unwrap().into();
         Ok(GlobalVariable::Memory {
             gv: ZkasmFuncEnvironment::globals_base(func),
@@ -375,9 +368,7 @@ impl<'zkasm_environment> FuncEnvironment for ZkasmFuncEnvironment<'zkasm_environ
         func: &mut ir::Function,
         index: TypeIndex,
     ) -> WasmResult<ir::SigRef> {
-        // A real implementation would probably change the calling convention and add `vmctx` and
-        // signature index arguments.
-        Ok(func.import_signature(self.vmctx_sig(index)))
+        Ok(func.import_signature(self.func_sig(index)))
     }
 
     fn make_direct_func(
@@ -386,9 +377,7 @@ impl<'zkasm_environment> FuncEnvironment for ZkasmFuncEnvironment<'zkasm_environ
         index: FuncIndex,
     ) -> WasmResult<ir::FuncRef> {
         let sigidx = self.mod_info.functions[index].entity;
-        // A real implementation would probably add a `vmctx` argument.
-        // And maybe attempt some signature de-duplication.
-        let signature = func.import_signature(self.vmctx_sig(sigidx));
+        let signature = func.import_signature(self.func_sig(sigidx));
         let name =
             ir::ExternalName::User(func.declare_imported_user_function(ir::UserExternalName {
                 namespace: 0,
@@ -446,12 +435,6 @@ impl<'zkasm_environment> FuncEnvironment for ZkasmFuncEnvironment<'zkasm_environ
         callee: ir::Value,
         call_args: &[ir::Value],
     ) -> WasmResult<ir::Inst> {
-        // Pass the current function's vmctx parameter on to the callee.
-        let vmctx = builder
-            .func
-            .special_param(ir::ArgumentPurpose::VMContext)
-            .expect("Missing vmctx parameter");
-
         // The `callee` value is an index into a table of function pointers.
         // Apparently, that table is stored at absolute address 0 in this zkasm environment.
         // TODO: Generate bounds checking code.
@@ -465,12 +448,10 @@ impl<'zkasm_environment> FuncEnvironment for ZkasmFuncEnvironment<'zkasm_environ
         let mflags = ir::MemFlags::trusted();
         let func_ptr = builder.ins().load(ptr, mflags, callee_offset, 0);
 
-        // Build a value list for the indirect call instruction containing the callee, call_args,
-        // and the vmctx parameter.
+        // Build a value list for the indirect call instruction containing the callee and call_args.
         let mut args = ir::ValueList::default();
         args.push(func_ptr, &mut builder.func.dfg.value_lists);
         args.extend(call_args.iter().cloned(), &mut builder.func.dfg.value_lists);
-        args.push(vmctx, &mut builder.func.dfg.value_lists);
 
         Ok(builder
             .ins()
@@ -508,17 +489,9 @@ impl<'zkasm_environment> FuncEnvironment for ZkasmFuncEnvironment<'zkasm_environ
         callee: ir::FuncRef,
         call_args: &[ir::Value],
     ) -> WasmResult<ir::Inst> {
-        // Pass the current function's vmctx parameter on to the callee.
-        let vmctx = builder
-            .func
-            .special_param(ir::ArgumentPurpose::VMContext)
-            .expect("Missing vmctx parameter");
-
-        // Build a value list for the call instruction containing the call_args and the vmctx
-        // parameter.
+        // Build a value list for the call instruction containing the call_args.
         let mut args = ir::ValueList::default();
         args.extend(call_args.iter().cloned(), &mut builder.func.dfg.value_lists);
-        args.push(vmctx, &mut builder.func.dfg.value_lists);
 
         Ok(builder
             .ins()
@@ -948,7 +921,7 @@ impl<'data> ModuleEnvironment<'data> for ZkasmEnvironment {
             let func_index =
                 FuncIndex::new(self.get_num_func_imports() + self.info.function_bodies.len());
 
-            let sig = func_environ.vmctx_sig(self.get_func_type(func_index));
+            let sig = func_environ.func_sig(self.get_func_type(func_index));
             let mut func =
                 ir::Function::with_name_signature(UserFuncName::user(0, func_index.as_u32()), sig);
 
