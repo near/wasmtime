@@ -285,19 +285,19 @@ rem_u_6,pass,27
 rem_u_7,pass,27
 rem_u_8,pass,27
 rem_u_9,pass,27
-rotl_1,pass,47
-rotl_10,runtime error,
-rotl_11,pass,47
-rotl_12,pass,47
-rotl_13,pass,47
+rotl_1,pass,51
+rotl_10,pass,51
+rotl_11,pass,51
+rotl_12,pass,51
+rotl_13,pass,51
 rotl_2,runtime error,
-rotl_3,pass,47
+rotl_3,pass,51
 rotl_4,runtime error,
-rotl_5,pass,47
-rotl_6,pass,47
-rotl_7,pass,47
-rotl_8,pass,47
-rotl_9,runtime error,
+rotl_5,pass,51
+rotl_6,pass,51
+rotl_7,pass,51
+rotl_8,pass,51
+rotl_9,pass,51
 rotr_1,compilation failed,
 rotr_10,compilation failed,
 rotr_11,compilation failed,
