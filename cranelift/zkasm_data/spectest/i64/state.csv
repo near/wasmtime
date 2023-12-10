@@ -285,18 +285,18 @@ rem_u_6,pass,27
 rem_u_7,pass,27
 rem_u_8,pass,27
 rem_u_9,pass,27
-rotl_1,pass,50
+rotl_1,pass,54
 rotl_10,runtime error,
-rotl_11,pass,99
+rotl_11,pass,107
 rotl_12,runtime error,
-rotl_13,pass,99
+rotl_13,pass,107
 rotl_2,runtime error,
 rotl_3,runtime error,
 rotl_4,runtime error,
 rotl_5,runtime error,
 rotl_6,runtime error,
 rotl_7,runtime error,
-rotl_8,pass,99
+rotl_8,pass,107
 rotl_9,runtime error,
 rotr_1,compilation failed,
 rotr_10,compilation failed,

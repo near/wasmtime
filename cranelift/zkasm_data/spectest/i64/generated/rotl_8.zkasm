@@ -13,7 +13,11 @@ function_1:
   CTX :MSTORE(SP - 5)
   CTX :MSTORE(SP)
   12380715672649826460n => A  ;; LoadConst64
-  63n => CTX  ;; LoadConst64
+  A => D
+  63n => A  ;; LoadConst64
+  63n => B  ;; LoadConst64
+  $ => CTX :AND
+  D => A
   CTX => E
 ;;NEED_INCLUDE: 2-exp
   zkPC + 2 => RR
@@ -24,10 +28,10 @@ function_1:
   ${_mul} => E :ARITH
   CTX => B
   E => CTX
-  A => C
+  A => D
   64n => A  ;; LoadConst32
   $ => E :SUB
-  C => A
+  D => A
 ;;NEED_INCLUDE: 2-exp
   zkPC + 2 => RR
     :JMP(@two_power + E)

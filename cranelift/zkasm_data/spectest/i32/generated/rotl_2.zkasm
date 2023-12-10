@@ -13,7 +13,11 @@ function_1:
   CTX :MSTORE(SP - 5)
   CTX :MSTORE(SP)
   1n => A  ;; LoadConst32
-  0n => CTX  ;; LoadConst32
+  A => C
+  0n => A  ;; LoadConst32
+  31n => B  ;; LoadConst64
+  $ => CTX :AND
+  C => A
   CTX => E
 ;;NEED_INCLUDE: 2-exp
   zkPC + 2 => RR
@@ -39,6 +43,8 @@ function_1:
   A => B
   CTX => A
   $ => A :OR
+  4294967295n => B  ;; LoadConst64
+  $ => A :AND
   1n => B  ;; LoadConst32
   $ => CTX :MLOAD(SP)
   B :ASSERT

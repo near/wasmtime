@@ -3,5 +3,5 @@ cranelift/zkasm_data,26,27,1004
 cranelift/zkasm_data/benchmarks/fibonacci,3,3,264056
 cranelift/zkasm_data/benchmarks/sha256,0,1,0
 cranelift/zkasm_data/spectest/conversions,12,24,180
-cranelift/zkasm_data/spectest/i32,280,364,7844
-cranelift/zkasm_data/spectest/i64,284,374,6848
+cranelift/zkasm_data/spectest/i32,284,364,8354
+cranelift/zkasm_data/spectest/i64,284,374,6876
