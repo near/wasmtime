@@ -19,8 +19,8 @@ function_1:
   ${E / B} => A
   E:ARITH
   $ => B :MLOAD(SP)
-  ${A * B} => E :ARITH
-  E => A
+  ${A * B} => B :ARITH
+  B => A
   3859149955088252928n => B  ;; LoadConst32(898528368)
   B :ASSERT
   $ => C :MLOAD(SP - 1)
