@@ -953,21 +953,18 @@ impl MachInstEmit for Inst {
                 let rd = allocs.next_writable(rd);
                 match from {
                     AMode::RegOffset(r, off, _) => {
-                        if r == context_reg() {
-                            put_string(&format!("0 => {}\n", reg_name(rd.to_reg())), sink);
-                        } else {
-                            // TODO(akashin): Get rid of this unsound logic when 32-bit registers
-                            // are stored without shifts.
-                            put_string(&format!("${{ {} >> 32 }} => E\n", reg_name(r)), sink);
-                            put_string(
-                                &format!(
-                                    "$ => {} :MLOAD(MEM:{})\n",
-                                    reg_name(rd.to_reg()),
-                                    access_reg_with_offset(e0(), off)
-                                ),
-                                sink,
-                            );
-                        }
+                        debug_assert_eq!(r, e0());
+                        // TODO(akashin): Get rid of this unsound logic when 32-bit registers
+                        // are stored without shifts.
+                        put_string("${ E >> 32 } => E\n", sink);
+                        put_string(
+                            &format!(
+                                "$ => {} :MLOAD(MEM:{})\n",
+                                reg_name(rd.to_reg()),
+                                access_reg_with_offset(r, off)
+                            ),
+                            sink,
+                        );
                     }
                     AMode::SPOffset(off, _) | AMode::NominalSPOffset(off, _) => {
                         put_string(
@@ -1002,12 +999,12 @@ impl MachInstEmit for Inst {
                         debug_assert_eq!(r, e0());
                         // TODO(akashin): Get rid of this unsound logic when 32-bit registers
                         // are stored without shifts.
-                        put_string(&format!("${{ E >> 32 }} => E\n"), sink);
+                        put_string("${ E >> 32 } => E\n", sink);
                         put_string(
                             &format!(
                                 "{} :MSTORE(MEM:{})\n",
                                 reg_name(src),
-                                access_reg_with_offset(e0(), off)
+                                access_reg_with_offset(r, off)
                             ),
                             sink,
                         );
@@ -1850,38 +1847,16 @@ impl MachInstEmit for Inst {
                 ref name,
                 offset,
             } => {
-                // dbg!(rd, name, offset);
-                // let rd = allocs.next_writable(rd);
-                // put_string(&format!("CALL {name:?} => {}\n", reg_name(rd.to_reg())), sink);
-
-                /*
-                // get the current pc.
-                Inst::Auipc {
-                    rd: rd,
-                    imm: Imm20::from_bits(0),
-                }
-                .emit(&[], sink, emit_info, state);
-                // load the value.
-                Inst::Load {
-                    rd: rd,
-                    op: LoadOP::Ld,
-                    flags: MemFlags::trusted(),
-                    from: AMode::RegOffset(
-                        rd.to_reg(),
-                        12, // auipc load and jal.
-                        I64,
+                // TODO(akashin): Replace this with a more general logic when we have more than
+                // one external constant.
+                let rd = allocs.next_writable(rd);
+                put_string(
+                    &format!(
+                        "{offset} => {}  ;; LoadExtName({name:?})\n",
+                        reg_name(rd.to_reg())
                     ),
-                }
-                .emit(&[], sink, emit_info, state);
-                // jump over.
-                Inst::Jal {
-                    // jal and abs8 size for 12.
-                    dest: BranchTarget::offset(12),
-                }
-                .emit(&[], sink, emit_info, state);
-
-                sink.add_reloc(Reloc::Abs8, name.as_ref(), offset);
-                sink.put8(0); */
+                    sink,
+                );
             }
             &Inst::TrapIfC {
                 rs1,

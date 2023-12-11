@@ -445,7 +445,7 @@ fn zkasm_get_operands<F: Fn(VReg) -> VReg>(inst: &Inst, collector: &mut OperandC
         }
         &Inst::Load { rd, from, .. } => {
             if let Some(r) = from.get_allocatable_register() {
-                collector.reg_use(r);
+                collector.reg_fixed_use(r, e0());
             }
             let mut clobbered = PRegSet::empty();
             clobbered.add(e0().to_real_reg().unwrap().into());
