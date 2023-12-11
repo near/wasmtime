@@ -1,4 +1,10 @@
+VAR GLOBAL global_0
+VAR GLOBAL global_1
+VAR GLOBAL global_2
 start:
+  1048576 :MSTORE(global_0)  ;; Global32(1048576)
+  1048576 :MSTORE(global_1)  ;; Global32(1048576)
+  1048576 :MSTORE(global_2)  ;; Global32(1048576)
   zkPC + 2 => RR
   :JMP(function_1)
   :JMP(finalizeExecution)

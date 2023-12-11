@@ -355,8 +355,8 @@
 ;;;;;  Rules for `symbol_value`;;;;;;;;;
 (rule
    (lower (symbol_value (symbol_value_data name _ offset)))
-   (load_ext_name name offset)
-)
+   (load_ext_name name offset))
+
 ;;;;;  Rules for `bitcast`;;;;;;;;;
 (rule
    (lower (has_type out_ty (bitcast _ v @ (value_type in_ty))))

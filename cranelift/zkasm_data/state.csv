@@ -7,6 +7,7 @@ counter,pass,153
 div,pass,26
 eqz,pass,26
 fibonacci,pass,224
+global,pass,25
 i32_add_overflows,pass,19
 i32_const,pass,15
 i32_mul_overflows,pass,25

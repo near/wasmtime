@@ -327,6 +327,12 @@
   (Fsd)
 ))
 
+(type ZkasmBase (enum
+  (Heap)
+  (Global)
+  (Table)
+))
+
 (type AluOPRRR (enum
   ;; base set
   (Add)
@@ -1176,6 +1182,10 @@
 (decl gen_fp_offset_amode (i64 Type) AMode)
 (extern constructor gen_fp_offset_amode gen_fp_offset_amode)
 
+;; Generates a AMode that an access to a global variable at given index.
+(decl gen_global_amode (i64 Type) AMode)
+(extern constructor gen_global_amode gen_global_amode)
+
 ;; Generates an AMode that points to a stack slot + offset.
 (decl gen_stack_slot_amode (StackSlot i64 Type) AMode)
 (extern constructor gen_stack_slot_amode gen_stack_slot_amode)
@@ -1215,6 +1225,9 @@
 ;; If the value is a `get_stack_pointer`, we can just use the offset from that.
 (rule 1 (amode_inner (get_stack_pointer) offset ty)
   (gen_sp_offset_amode offset ty))
+
+(rule 1 (amode_inner (symbol_value (zkasm_base ZkasmBase.Global)) index ty)
+  (gen_global_amode index ty))
 
 ;; Similarly if the value is a `stack_addr` we can also turn that into an sp offset.
 (rule 1 (amode_inner (stack_addr ss ss_offset) amode_offset ty)
@@ -1301,6 +1314,9 @@
 
 (decl store_op (Type) StoreOP)
 (extern constructor store_op store_op)
+
+(decl zkasm_base (ZkasmBase) GlobalValue)
+(extern extractor zkasm_base zkasm_base)
 
 ;;;; load extern name
 (decl load_ext_name (ExternalName i64) Reg)
