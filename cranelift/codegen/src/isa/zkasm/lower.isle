@@ -93,31 +93,18 @@
 
 ;;;; Rules for `div` ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(rule (lower (has_type $I64 (udiv x y)))
+(rule (lower (udiv x y))
   (zk_divu x y))
 
-(rule (lower (has_type $I32 (udiv x y)))
-  (zk_divu x y))
-
-
-(rule (lower (has_type $I64 (sdiv x y)))
-  (zk_div x y))
-
-(rule (lower (has_type $I32 (sdiv x y)))
+(rule (lower (sdiv x y))
   (zk_div x y))
 
 ;;;; Rules for `rem` ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(rule (lower (has_type $I64 (srem x y)))
+(rule (lower (srem x y))
   (zk_rem x y))
 
-(rule (lower (has_type $I32 (srem x y)))
-  (zk_rem x y))
-
-(rule (lower (has_type $I64 (urem x y)))
-  (zk_remu x y))
-
-(rule (lower (has_type $I32 (urem x y)))
+(rule (lower (urem x y))
   (zk_remu x y))
 
 ;;;; Rules for `and` ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
