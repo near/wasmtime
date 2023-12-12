@@ -8,25 +8,32 @@ function_1:
   SP + 4 => SP
   C :MSTORE(SP - 1)
   D :MSTORE(SP - 2)
-  E :MSTORE(SP - 3)
-  B :MSTORE(SP - 4)
-  4294967296n => A  ;; LoadConst32(1)
-  4294967296n => B  ;; LoadConst32(1)
+  B :MSTORE(SP - 3)
+  1n => A  ;; LoadConst32
+  1n => B  ;; LoadConst32
+  B => C  ;; Extend A.
+  A => B
+  B => A
+  0x80000000n => B
+  $ => A: XOR
+  $ => A: SUB
+  C => B  ;; Extend B.
+  A => C
+  B => A
+  0x80000000n => B
+  $ => A: XOR
+  $ => A: SUB
+  A => B
+  C => A
   A => C
   B => A
   C => B
   $ => A :SLT
-  4294967296n => B
-  0 => D
-  0 => C
-  ${A * B} => A :ARITH
-  A => E
-  0n => B  ;; LoadConst32(0)
+  0n => B  ;; LoadConst32
   B :ASSERT
   $ => C :MLOAD(SP - 1)
   $ => D :MLOAD(SP - 2)
-  $ => E :MLOAD(SP - 3)
-  $ => B :MLOAD(SP - 4)
+  $ => B :MLOAD(SP - 3)
   SP - 4 => SP
   $ => RR :MLOAD(SP - 1)
   SP - 1 => SP

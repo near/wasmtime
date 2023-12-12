@@ -1,4 +1,4 @@
 Test,Status,Cycles
-from_rust,pass,42024
+from_rust,pass,53023
 handwritten,pass,50008
-handwritten_wat,pass,190024
+handwritten_wat,pass,170023

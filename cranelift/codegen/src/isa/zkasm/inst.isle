@@ -28,27 +28,7 @@
       (rs1 Reg)
       (rs2 Reg))
 
-    (Rotl64
-      (rd WritableReg)
-      (rs1 Reg)
-      (rs2 Reg))
-
-    (Rotl32
-      (rd WritableReg)
-      (rs1 Reg)
-      (rs2 Reg))
-
     (Shl64
-      (rd WritableReg)
-      (rs1 Reg)
-      (rs2 Reg))
-
-    (Shl32
-      (rd WritableReg)
-      (rs1 Reg)
-      (rs2 Reg))
-
-    (Shru32
       (rd WritableReg)
       (rs1 Reg)
       (rs2 Reg))
@@ -58,28 +38,8 @@
       (rs1 Reg)
       (rs2 Reg))
 
-    (MulArith32
-      (rd WritableReg)
-      (rs1 Reg)
-      (rs2 Reg))
-
-    (DivArith32
-      (rd WritableReg)
-      (rs1 Reg)
-      (rs2 Reg))
-
-    (RemArith32
-      (rd WritableReg)
-      (rs1 Reg)
-      (rs2 Reg))
-
     ;;Division via Arith
     (DivArith
-      (rd WritableReg)
-      (rs1 Reg)
-      (rs2 Reg))
-
-    (UDivArith32
       (rd WritableReg)
       (rs1 Reg)
       (rs2 Reg))
@@ -99,20 +59,9 @@
       (rs1 Reg)
       (rs2 Reg))
 
-    (URemArith32
-      (rd WritableReg)
-      (rs1 Reg)
-      (rs2 Reg))
-
     (Ineg
       (rd WritableReg)
       (rs1 Reg))
-
-    (UExtend
-      (rd WritableReg)
-      (rs Reg)
-      (ty_in Type)
-      (ty_out Type))
 
     (Bnot
       (rd WritableReg)
@@ -718,22 +667,10 @@
 ;; RV32M Extension
 ;; TODO: Enable these instructions only when we have the M extension
 
-(decl zk_uextend (XReg Type Type) XReg)
-(rule (zk_uextend rs ty_in ty_out)
-      (let ((dst WritableXReg (temp_writable_xreg))
-            (_ Unit (emit (MInst.UExtend dst rs ty_in ty_out))))
-        dst))
-
 (decl zk_shr_u (XReg XReg) XReg)
 (rule (zk_shr_u rs1 rs2)
       (let ((dst WritableXReg (temp_writable_xreg))
             (_ Unit (emit (MInst.Shru64 dst rs1 rs2))))
-        dst))
-
-(decl zk_shr_u_32 (XReg XReg) XReg)
-(rule (zk_shr_u_32 rs1 rs2)
-      (let ((dst WritableXReg (temp_writable_xreg))
-            (_ Unit (emit (MInst.Shru32 dst rs1 rs2))))
         dst))
 
 (decl zk_shl (XReg XReg) XReg)
@@ -741,26 +678,6 @@
       (let ((dst WritableXReg (temp_writable_xreg))
             (_ Unit (emit (MInst.Shl64 dst rs1 rs2))))
         dst))
-
-(decl zk_shl_32 (XReg XReg) XReg)
-(rule (zk_shl_32 rs1 rs2)
-      (let ((dst WritableXReg (temp_writable_xreg))
-            (_ Unit (emit (MInst.Shl32 dst rs1 rs2))))
-        dst))
-
-
-(decl zk_rotl (XReg XReg) XReg)
-(rule (zk_rotl rs1 rs2)
-      (let ((dst WritableXReg (temp_writable_xreg))
-            (_ Unit (emit (MInst.Rotl64 dst rs1 rs2))))
-        dst))
-
-(decl zk_rotl_32 (XReg XReg) XReg)
-(rule (zk_rotl_32 rs1 rs2)
-      (let ((dst WritableXReg (temp_writable_xreg))
-            (_ Unit (emit (MInst.Rotl32 dst rs1 rs2))))
-        dst))
-
 
 ;; Helper for emitting the `mul` instruction.
 ;; rd ← rs1 × rs2
@@ -770,41 +687,10 @@
             (_ Unit (emit (MInst.MulArith dst rs1 rs2))))
         dst))
 
-
-(decl zk_mul_32 (XReg XReg) XReg)
-(rule (zk_mul_32 rs1 rs2)
-      (let ((dst WritableXReg (temp_writable_xreg))
-            (_ Unit (emit (MInst.MulArith32 dst rs1 rs2))))
-        dst))
-
 (decl zk_divu (XReg XReg) XReg)
 (rule (zk_divu rs1 rs2)
       (let ((dst WritableXReg (temp_writable_xreg))
             (_ Unit (emit (MInst.UDivArith dst rs1 rs2))))
-        dst))
-
-(decl zk_divu_32 (XReg XReg) XReg)
-(rule (zk_divu_32 rs1 rs2)
-      (let ((dst WritableXReg (temp_writable_xreg))
-            (_ Unit (emit (MInst.UDivArith32 dst rs1 rs2))))
-        dst))
-
-(decl zk_div_32 (XReg XReg) XReg)
-(rule (zk_div_32 rs1 rs2)
-      (let ((dst WritableXReg (temp_writable_xreg))
-            (_ Unit (emit (MInst.DivArith32 dst rs1 rs2))))
-        dst))
-
-(decl zk_rem_32 (XReg XReg) XReg)
-(rule (zk_rem_32 rs1 rs2)
-      (let ((dst WritableXReg (temp_writable_xreg))
-            (_ Unit (emit (MInst.RemArith32 dst rs1 rs2))))
-        dst))
-
-(decl zk_remu_32 (XReg XReg) XReg)
-(rule (zk_remu_32 rs1 rs2)
-      (let ((dst WritableXReg (temp_writable_xreg))
-            (_ Unit (emit (MInst.URemArith32 dst rs1 rs2))))
         dst))
 
 ;; Helper for emitting the `mulh` ("Multiply High Signed Signed") instruction.

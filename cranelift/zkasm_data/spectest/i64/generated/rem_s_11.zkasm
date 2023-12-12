@@ -10,14 +10,14 @@ function_1:
   D :MSTORE(SP - 2)
   E :MSTORE(SP - 3)
   B :MSTORE(SP - 4)
-  5n => E  ;; LoadConst64(5)
-  18446744073709551614n => B  ;; LoadConst64(18446744073709551614)
+  5n => E  ;; LoadConst64
+  18446744073709551614n => B  ;; LoadConst64
   0 => D
   ${E / B} => A
   ${E % B} => C
   E:ARITH
   C => A
-  1n => B  ;; LoadConst64(1)
+  1n => B  ;; LoadConst64
   B :ASSERT
   $ => C :MLOAD(SP - 1)
   $ => D :MLOAD(SP - 2)

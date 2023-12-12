@@ -7,8 +7,8 @@ function_1:
   RR :MSTORE(SP - 1)
   SP + 2 => SP
   B :MSTORE(SP - 1)
-  18364758439428620288n => A  ;; LoadConst32(4275878528)
-  18446743523953737728n => B  ;; LoadConst32(4294967168)
+  4275878528n => A  ;; LoadConst32
+  4294967168n => B  ;; LoadConst32
   B :ASSERT
   $ => B :MLOAD(SP - 1)
   SP - 2 => SP
