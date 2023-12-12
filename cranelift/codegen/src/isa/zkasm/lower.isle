@@ -31,7 +31,7 @@
 (rule 0 (lower (has_type (ty_int_ref_scalar_64 ty) (iadd x y)))
   (rv_add x y))
 
-(rule 1 (lower (has_type (fits_in_32 (ty_int ty)) (iadd x y)))
+(rule 1 (lower (has_type $I32 (iadd x y)))
   (gen_andi (rv_add x y) 0xFFFFFFFF))
 
 ;; Hint 1: imm31 should work
@@ -58,7 +58,7 @@
 (rule (lower (has_type (ty_int_ref_scalar_64 ty) (isub x y)))
   (rv_sub x y))
 
-(rule 1 (lower (has_type (fits_in_32 (ty_int ty)) (isub x y)))
+(rule 1 (lower (has_type $I32 (isub x y)))
   (gen_andi (rv_sub x y) 0xFFFFFFFF))
 
 ;;;; Rules for `ineg`/`bnot` ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -80,7 +80,7 @@
 (rule 0 (lower (has_type (ty_int_ref_scalar_64 ty) (imul x y)))
   (zk_mul x y))
 
-(rule 1 (lower (has_type (fits_in_32 (ty_int ty)) (imul x y)))
+(rule 1 (lower (has_type $I32 (imul x y)))
   (gen_andi (zk_mul x y) 0xFFFFFFFF))
 
 ;;;; Rules for `smulhi` ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
