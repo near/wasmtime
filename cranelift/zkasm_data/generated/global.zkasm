@@ -1,0 +1,33 @@
+VAR GLOBAL global_0
+VAR GLOBAL global_1
+start:
+  4294967294 :MSTORE(global_0)  ;; Global32(-2)
+  5 :MSTORE(global_1)  ;; Global32(5)
+  zkPC + 2 => RR
+  :JMP(function_1)
+  :JMP(finalizeExecution)
+function_1:
+  SP + 1 => SP
+  RR :MSTORE(SP - 1)
+  SP + 2 => SP
+  D :MSTORE(SP - 1)
+  B :MSTORE(SP - 2)
+  3n => D  ;; LoadConst32
+  D :MSTORE(global_1)
+  $ => A :MLOAD(global_0)
+  $ => B :MLOAD(global_1)
+  $ => A :ADD
+  4294967295n => B  ;; LoadConst64
+  $ => A :AND
+  1n => B  ;; LoadConst32
+  B :ASSERT
+  $ => D :MLOAD(SP - 1)
+  $ => B :MLOAD(SP - 2)
+  SP - 2 => SP
+  $ => RR :MLOAD(SP - 1)
+  SP - 1 => SP
+  :JMP(RR)
+finalizeExecution:
+  ${beforeLast()}  :JMPN(finalizeExecution)
+                   :JMP(start)
+INCLUDE "helpers/2-exp.zkasm"
