@@ -21,6 +21,7 @@ locals_simple,pass,15
 lt_s,pass,54
 lt_u,pass,26
 memory,pass,43
+memory_i32,runtime error,
 mul,pass,25
 ne,pass,28
 nop,pass,15
