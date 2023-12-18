@@ -37,6 +37,20 @@ concurrency:
   cancel-in-progress: true
 
 jobs:  
+  check_wat:
+    name: Check that tests in zkasm data are valid
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - uses: actions/setup-node@v3
+      with:
+        node-version: '20.8.0'
+        cache: 'npm'
+        cache-dependency-path: tests/zkasm/package-lock.json
+    - run: npm install wabt
+    - run: node ci/check_wat.js
+
+
   test_zkasm:
     name: Test generated zkAsm on the ZK processor
     runs-on: ubuntu-latest
@@ -746,6 +760,7 @@ jobs:
     name: Record the result of testing and building steps
     runs-on: ubuntu-latest
     needs:
+      - check_wat
       - test_zkasm
       - test
       - build
