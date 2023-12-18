@@ -344,5 +344,6 @@ mod tests {
         i32_mul_overflows,
         i64_mul_overflows,
         i64_rem,
+        memory_i32,
     }
 }
