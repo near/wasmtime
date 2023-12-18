@@ -17,7 +17,7 @@ use crate::{
 use core::convert::TryFrom;
 use cranelift_codegen::cursor::FuncCursor;
 use cranelift_codegen::ir::immediates::{Imm64, Offset32, Uimm64};
-use cranelift_codegen::ir::{self, GlobalValue, InstBuilder};
+use cranelift_codegen::ir::{self, ExternalName, GlobalValue, InstBuilder};
 use cranelift_codegen::ir::{types::*, UserFuncName};
 use cranelift_codegen::isa::{CallConv, TargetFrontendConfig};
 use cranelift_entity::{EntityRef, PrimaryMap, SecondaryMap};
@@ -82,6 +82,9 @@ pub struct ZkasmModuleInfo {
     /// Globals as provided by `declare_global`.
     pub globals: PrimaryMap<GlobalIndex, Exportable<Global>>,
 
+    /// Inits for globals when available.
+    pub global_inits: Vec<(GlobalIndex, GlobalInit)>,
+
     /// The start function.
     pub start_func: Option<FuncIndex>,
 }
@@ -101,6 +104,7 @@ impl ZkasmModuleInfo {
             tables: PrimaryMap::new(),
             memories: PrimaryMap::new(),
             globals: PrimaryMap::new(),
+            global_inits: Vec::new(),
             start_func: None,
         }
     }
@@ -240,13 +244,20 @@ impl<'zkasm_environment> ZkasmFuncEnvironment<'zkasm_environment> {
         }
     }
 
+    // All ZKASM "memory"-like accesses use this name, but different offsets:
+    // - 0 for heap accesses
+    // - 1 for global variable accesses
+    // - 2 for table accesses
+    fn zkasm_base(func: &mut ir::Function) -> ExternalName {
+        ir::ExternalName::User(func.declare_imported_user_function(ir::UserExternalName {
+            namespace: 0,
+            index: 100,
+        }))
+    }
+
     // TODO(akashin): Ideally, we won't need a function here as the heap base is truly global.
     fn heap_base(func: &mut ir::Function) -> GlobalValue {
-        let name =
-            ir::ExternalName::User(func.declare_imported_user_function(ir::UserExternalName {
-                namespace: 0,
-                index: 100,
-            }));
+        let name = Self::zkasm_base(func);
         func.create_global_value(ir::GlobalValueData::Symbol {
             name,
             offset: Imm64::new(0),
@@ -257,14 +268,10 @@ impl<'zkasm_environment> ZkasmFuncEnvironment<'zkasm_environment> {
 
     // TODO(akashin): Ideally, we won't need a function here as the globals base is truly global.
     fn globals_base(func: &mut ir::Function) -> GlobalValue {
-        let name =
-            ir::ExternalName::User(func.declare_imported_user_function(ir::UserExternalName {
-                namespace: 0,
-                index: 101,
-            }));
+        let name = Self::zkasm_base(func);
         func.create_global_value(ir::GlobalValueData::Symbol {
             name,
-            offset: Imm64::new(65536),
+            offset: Imm64::new(1),
             colocated: false,
             tls: false,
         })
@@ -272,14 +279,10 @@ impl<'zkasm_environment> ZkasmFuncEnvironment<'zkasm_environment> {
 
     // TODO(akashin): Ideally, we won't need a function here as the heap base is truly global.
     fn table_base(func: &mut ir::Function) -> GlobalValue {
-        let name =
-            ir::ExternalName::User(func.declare_imported_user_function(ir::UserExternalName {
-                namespace: 0,
-                index: 102,
-            }));
+        let name = Self::zkasm_base(func);
         func.create_global_value(ir::GlobalValueData::Symbol {
             name,
-            offset: Imm64::new(2 * 65536),
+            offset: Imm64::new(2),
             colocated: false,
             tls: false,
         })
@@ -312,7 +315,7 @@ impl<'zkasm_environment> FuncEnvironment for ZkasmFuncEnvironment<'zkasm_environ
         func: &mut ir::Function,
         index: GlobalIndex,
     ) -> WasmResult<GlobalVariable> {
-        let offset = i32::try_from((index.index() * 8) + 8).unwrap().into();
+        let offset = i32::try_from(index.index()).unwrap().into();
         Ok(GlobalVariable::Memory {
             gv: ZkasmFuncEnvironment::globals_base(func),
             offset,
@@ -770,8 +773,9 @@ impl<'data> ModuleEnvironment<'data> for ZkasmEnvironment {
         Ok(())
     }
 
-    fn declare_global(&mut self, global: Global, _init: GlobalInit) -> WasmResult<()> {
-        self.info.globals.push(Exportable::new(global));
+    fn declare_global(&mut self, global: Global, init: GlobalInit) -> WasmResult<()> {
+        let index = self.info.globals.push(Exportable::new(global));
+        self.info.global_inits.push((index, init));
         Ok(())
     }
 

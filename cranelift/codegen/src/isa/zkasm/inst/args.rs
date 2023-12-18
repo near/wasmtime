@@ -107,6 +107,9 @@ pub enum AMode {
 
     /// A reference to a label.
     Label(MachLabel),
+
+    /// Access to a global variable.
+    Global(i64, Type),
 }
 
 impl AMode {
@@ -117,7 +120,8 @@ impl AMode {
             | AMode::FPOffset(..)
             | AMode::NominalSPOffset(..)
             | AMode::Const(..)
-            | AMode::Label(..) => self,
+            | AMode::Label(..)
+            | AMode::Global(..) => self,
         }
     }
 
@@ -130,7 +134,8 @@ impl AMode {
             | AMode::FPOffset(..)
             | AMode::NominalSPOffset(..)
             | AMode::Const(..)
-            | AMode::Label(..) => None,
+            | AMode::Label(..)
+            | AMode::Global(..) => None,
         }
     }
 
@@ -140,7 +145,7 @@ impl AMode {
             &AMode::SPOffset(..) => Some(stack_reg()),
             &AMode::FPOffset(..) => Some(fp_reg()),
             &AMode::NominalSPOffset(..) => Some(stack_reg()),
-            &AMode::Const(..) | AMode::Label(..) => None,
+            &AMode::Const(..) | AMode::Label(..) | AMode::Global(..) => None,
         }
     }
 
@@ -158,6 +163,7 @@ impl AMode {
             &AMode::FPOffset(offset, _) => offset,
             &AMode::NominalSPOffset(offset, _) => offset,
             &AMode::Const(_) | &AMode::Label(_) => 0,
+            &AMode::Global(offset, _) => offset,
         }
     }
 
@@ -186,6 +192,9 @@ impl Display for AMode {
             }
             &AMode::Label(label) => {
                 write!(f, "[label{}]", label.as_u32())
+            }
+            &AMode::Global(offset, ..) => {
+                write!(f, "{}(global)", offset)
             }
         }
     }

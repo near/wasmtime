@@ -1,4 +1,10 @@
+VAR GLOBAL global_0
+VAR GLOBAL global_1
+VAR GLOBAL global_2
 start:
+  1048576 :MSTORE(global_0)  ;; Global32(1048576)
+  1048619 :MSTORE(global_1)  ;; Global32(1048619)
+  1048624 :MSTORE(global_2)  ;; Global32(1048624)
   zkPC + 2 => RR
   :JMP(function_1)
   :JMP(finalizeExecution)
@@ -10,122 +16,29 @@ function_1:
   D :MSTORE(SP - 2)
   E :MSTORE(SP - 3)
   B :MSTORE(SP - 4)
-  65536 => E  ;; LoadExtName(User(userextname0))
-  $ => A :MLOAD(MEM:E + 8)
+  $ => A :MLOAD(global_0)
   240n => B  ;; LoadConst32
   $ => A :SUB
   4294967295n => B  ;; LoadConst64
   $ => A :AND
   A :MSTORE(SP + 88)
-  65536 => E  ;; LoadExtName(User(userextname0))
-  A :MSTORE(MEM:E + 8)
+  A :MSTORE(global_0)
   8n => B  ;; LoadConst32
-  $ => B :ADD
-  B => A
+  $ => D :ADD
+  D => A
   4294967295n => B  ;; LoadConst64
   $ => A :AND
   8n => B  ;; LoadConst32
-  $ => A :ADD
-  4294967295n => B  ;; LoadConst64
-  $ => B :AND
-  0n => D  ;; LoadConst64
-  0 => A  ;; LoadExtName(User(userextname1))
-  $ => E :ADD
-  B :MSTORE(SP + 16)
-  D :MSTORE(MEM:E)
-  8n => B  ;; LoadConst32
-  $ => A :MLOAD(SP + 88)
-  $ => C :ADD
-  C => A
-  4294967295n => B  ;; LoadConst64
-  $ => A :AND
-  16n => B  ;; LoadConst32
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
   $ => B :AND
   0n => C  ;; LoadConst64
-  0 => A  ;; LoadExtName(User(userextname1))
+  0 => A  ;; LoadExtName(User(userextname0))
   $ => E :ADD
   B :MSTORE(SP + 8)
   C :MSTORE(MEM:E)
   8n => B  ;; LoadConst32
   $ => A :MLOAD(SP + 88)
-  $ => D :ADD
-  D => A
-  4294967295n => B  ;; LoadConst64
-  $ => A :AND
-  24n => B  ;; LoadConst32
-  $ => A :ADD
-  4294967295n => B  ;; LoadConst64
-  $ => B :AND
-  0n => C  ;; LoadConst64
-  0 => A  ;; LoadExtName(User(userextname1))
-  $ => E :ADD
-  B :MSTORE(SP)
-  C :MSTORE(MEM:E)
-  40n => B  ;; LoadConst32
-  $ => A :MLOAD(SP + 88)
-  $ => E :ADD
-  E => A
-  4294967295n => B  ;; LoadConst64
-  $ => B :AND
-  B :MSTORE(SP + 80)
-  0n => C  ;; LoadConst64
-  0 => A  ;; LoadExtName(User(userextname1))
-  $ => E :ADD
-  C :MSTORE(MEM:E)
-  8n => B  ;; LoadConst32
-  $ => A :MLOAD(SP + 88)
-  $ => B :ADD
-  B => A
-  4294967295n => B  ;; LoadConst64
-  $ => A :AND
-  40n => B  ;; LoadConst32
-  $ => A :ADD
-  4294967295n => B  ;; LoadConst64
-  $ => B :AND
-  B :MSTORE(SP + 72)
-  0n => C  ;; LoadConst64
-  0 => A  ;; LoadExtName(User(userextname1))
-  $ => E :ADD
-  C :MSTORE(MEM:E)
-  53n => B  ;; LoadConst32
-  $ => A :MLOAD(SP + 88)
-  $ => B :ADD
-  B => A
-  4294967295n => B  ;; LoadConst64
-  $ => B :AND
-  B :MSTORE(SP + 64)
-  0n => D  ;; LoadConst64
-  0 => A  ;; LoadExtName(User(userextname1))
-  $ => E :ADD
-  D :MSTORE(MEM:E)
-  0n => C  ;; LoadConst64
-  0 => A  ;; LoadExtName(User(userextname1))
-  $ => B :MLOAD(SP + 88)
-  $ => E :ADD
-  C :MSTORE(MEM:E + 8)
-  64n => B  ;; LoadConst32
-  $ => A :MLOAD(SP + 88)
-  $ => D :ADD
-  D => A
-  4294967295n => B  ;; LoadConst64
-  $ => A :AND
-  24n => B  ;; LoadConst32
-  $ => A :ADD
-  4294967295n => B  ;; LoadConst64
-  $ => B :AND
-  B => D
-  0n => B  ;; LoadConst32
-  0 => A  ;; LoadExtName(User(userextname1))
-  $ => E :ADD
-  $ => C :MLOAD(MEM:E + 1048600)
-  0 => A  ;; LoadExtName(User(userextname1))
-  D => B
-  $ => E :ADD
-  C :MSTORE(MEM:E)
-  64n => B  ;; LoadConst32
-  $ => A :MLOAD(SP + 88)
   $ => E :ADD
   E => A
   4294967295n => B  ;; LoadConst64
@@ -134,12 +47,84 @@ function_1:
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
   $ => B :AND
+  0n => C  ;; LoadConst64
+  0 => A  ;; LoadExtName(User(userextname0))
+  $ => E :ADD
+  B :MSTORE(SP)
+  C :MSTORE(MEM:E)
+  8n => B  ;; LoadConst32
+  $ => A :MLOAD(SP + 88)
+  $ => B :ADD
+  B => A
+  4294967295n => B  ;; LoadConst64
+  $ => A :AND
+  24n => B  ;; LoadConst32
+  $ => A :ADD
+  4294967295n => B  ;; LoadConst64
+  $ => B :AND
+  0n => C  ;; LoadConst64
+  0 => A  ;; LoadExtName(User(userextname0))
+  $ => E :ADD
+  B :MSTORE(SP + 80)
+  C :MSTORE(MEM:E)
+  40n => B  ;; LoadConst32
+  $ => A :MLOAD(SP + 88)
+  $ => B :ADD
+  B => A
+  4294967295n => B  ;; LoadConst64
+  $ => B :AND
+  B :MSTORE(SP + 72)
+  0n => D  ;; LoadConst64
+  0 => A  ;; LoadExtName(User(userextname0))
+  $ => E :ADD
+  D :MSTORE(MEM:E)
+  8n => B  ;; LoadConst32
+  $ => A :MLOAD(SP + 88)
+  $ => C :ADD
+  C => A
+  4294967295n => B  ;; LoadConst64
+  $ => A :AND
+  40n => B  ;; LoadConst32
+  $ => A :ADD
+  4294967295n => B  ;; LoadConst64
+  $ => B :AND
+  B :MSTORE(SP + 64)
+  0n => C  ;; LoadConst64
+  0 => A  ;; LoadExtName(User(userextname0))
+  $ => E :ADD
+  C :MSTORE(MEM:E)
+  53n => B  ;; LoadConst32
+  $ => A :MLOAD(SP + 88)
+  $ => D :ADD
+  D => A
+  4294967295n => B  ;; LoadConst64
+  $ => B :AND
+  B :MSTORE(SP + 56)
+  0n => C  ;; LoadConst64
+  0 => A  ;; LoadExtName(User(userextname0))
+  $ => E :ADD
+  C :MSTORE(MEM:E)
+  0n => C  ;; LoadConst64
+  0 => A  ;; LoadExtName(User(userextname0))
+  $ => B :MLOAD(SP + 88)
+  $ => E :ADD
+  C :MSTORE(MEM:E + 8)
+  64n => B  ;; LoadConst32
+  $ => A :MLOAD(SP + 88)
+  $ => B :ADD
+  B => A
+  4294967295n => B  ;; LoadConst64
+  $ => A :AND
+  24n => B  ;; LoadConst32
+  $ => A :ADD
+  4294967295n => B  ;; LoadConst64
+  $ => B :AND
   B => D
   0n => B  ;; LoadConst32
-  0 => A  ;; LoadExtName(User(userextname1))
+  0 => A  ;; LoadExtName(User(userextname0))
   $ => E :ADD
-  $ => C :MLOAD(MEM:E + 1048592)
-  0 => A  ;; LoadExtName(User(userextname1))
+  $ => C :MLOAD(MEM:E + 1048600)
+  0 => A  ;; LoadExtName(User(userextname0))
   D => B
   $ => E :ADD
   C :MSTORE(MEM:E)
@@ -149,197 +134,217 @@ function_1:
   B => A
   4294967295n => B  ;; LoadConst64
   $ => A :AND
+  16n => B  ;; LoadConst32
+  $ => A :ADD
+  4294967295n => B  ;; LoadConst64
+  $ => B :AND
+  B => C
+  0n => B  ;; LoadConst32
+  0 => A  ;; LoadExtName(User(userextname0))
+  $ => E :ADD
+  $ => D :MLOAD(MEM:E + 1048592)
+  0 => A  ;; LoadExtName(User(userextname0))
+  C => B
+  $ => E :ADD
+  D :MSTORE(MEM:E)
+  64n => B  ;; LoadConst32
+  $ => A :MLOAD(SP + 88)
+  $ => C :ADD
+  C => A
+  4294967295n => B  ;; LoadConst64
+  $ => A :AND
   8n => B  ;; LoadConst32
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
   $ => B :AND
   B => D
   0n => B  ;; LoadConst32
-  0 => A  ;; LoadExtName(User(userextname1))
+  0 => A  ;; LoadExtName(User(userextname0))
   $ => E :ADD
   $ => C :MLOAD(MEM:E + 1048584)
-  0 => A  ;; LoadExtName(User(userextname1))
+  0 => A  ;; LoadExtName(User(userextname0))
   D => B
   $ => E :ADD
   C :MSTORE(MEM:E)
   111n => B  ;; LoadConst32
-  $ => A :MLOAD(SP + 88)
-  $ => B :ADD
-  B => A
-  4294967295n => B  ;; LoadConst64
-  $ => B :AND
-  B => C
-  0n => B  ;; LoadConst32
-  0 => A  ;; LoadExtName(User(userextname1))
-  $ => E :ADD
-  $ => D :MLOAD(MEM:E + 1048615)
-  0 => A  ;; LoadExtName(User(userextname1))
-  C => B
-  $ => E :ADD
-  D :MSTORE(MEM:E)
-  0n => B  ;; LoadConst32
-  0 => A  ;; LoadExtName(User(userextname1))
-  $ => E :ADD
-  $ => C :MLOAD(MEM:E + 1048576)
-  0 => A  ;; LoadExtName(User(userextname1))
-  $ => B :MLOAD(SP + 88)
-  $ => E :ADD
-  C :MSTORE(MEM:E + 64)
-  0n => C  ;; LoadConst64
-  0 => A  ;; LoadExtName(User(userextname1))
-  $ => E :ADD
-  C :MSTORE(MEM:E + 96)
-  0n => B  ;; LoadConst32
-  0 => A  ;; LoadExtName(User(userextname1))
-  $ => E :ADD
-  $ => C :MLOAD(MEM:E + 1048608)
-  0 => A  ;; LoadExtName(User(userextname1))
-  $ => B :MLOAD(SP + 88)
-  $ => E :ADD
-  C :MSTORE(MEM:E + 104)
-  115n => B  ;; LoadConst32
-  $ => A :MLOAD(SP + 88)
-  $ => B :ADD
-  B => A
-  4294967295n => B  ;; LoadConst64
-  $ => B :AND
-  B :MSTORE(SP + 56)
-  0 => A  ;; LoadExtName(User(userextname1))
-  $ => B :MLOAD(SP + 88)
-  $ => E :ADD
-  $ => C :MLOAD(MEM:E + 8)
-  0 => A  ;; LoadExtName(User(userextname1))
-  $ => B :MLOAD(SP + 56)
-  $ => E :ADD
-  C :MSTORE(MEM:E)
-  123n => B  ;; LoadConst32
-  $ => A :MLOAD(SP + 88)
-  $ => B :ADD
-  B => A
-  4294967295n => B  ;; LoadConst64
-  $ => B :AND
-  B => C
-  0 => A  ;; LoadExtName(User(userextname1))
-  $ => B :MLOAD(SP + 16)
-  $ => E :ADD
-  $ => D :MLOAD(MEM:E)
-  0 => A  ;; LoadExtName(User(userextname1))
-  C => B
-  $ => E :ADD
-  D :MSTORE(MEM:E)
-  131n => B  ;; LoadConst32
-  $ => A :MLOAD(SP + 88)
-  $ => C :ADD
-  C => A
-  4294967295n => B  ;; LoadConst64
-  $ => B :AND
-  B => D
-  0 => A  ;; LoadExtName(User(userextname1))
-  $ => B :MLOAD(SP + 8)
-  $ => E :ADD
-  $ => C :MLOAD(MEM:E)
-  0 => A  ;; LoadExtName(User(userextname1))
-  D => B
-  $ => E :ADD
-  C :MSTORE(MEM:E)
-  139n => B  ;; LoadConst32
   $ => A :MLOAD(SP + 88)
   $ => D :ADD
   D => A
   4294967295n => B  ;; LoadConst64
   $ => B :AND
   B => D
-  0 => A  ;; LoadExtName(User(userextname1))
-  $ => B :MLOAD(SP)
+  0n => B  ;; LoadConst32
+  0 => A  ;; LoadExtName(User(userextname0))
   $ => E :ADD
-  $ => C :MLOAD(MEM:E)
-  0 => A  ;; LoadExtName(User(userextname1))
+  $ => C :MLOAD(MEM:E + 1048615)
+  0 => A  ;; LoadExtName(User(userextname0))
   D => B
   $ => E :ADD
   C :MSTORE(MEM:E)
-  147n => B  ;; LoadConst32
+  0n => B  ;; LoadConst32
+  0 => A  ;; LoadExtName(User(userextname0))
+  $ => E :ADD
+  $ => C :MLOAD(MEM:E + 1048576)
+  0 => A  ;; LoadExtName(User(userextname0))
+  $ => B :MLOAD(SP + 88)
+  $ => E :ADD
+  C :MSTORE(MEM:E + 64)
+  0n => C  ;; LoadConst64
+  0 => A  ;; LoadExtName(User(userextname0))
+  $ => E :ADD
+  C :MSTORE(MEM:E + 96)
+  0n => B  ;; LoadConst32
+  0 => A  ;; LoadExtName(User(userextname0))
+  $ => E :ADD
+  $ => D :MLOAD(MEM:E + 1048608)
+  0 => A  ;; LoadExtName(User(userextname0))
+  $ => B :MLOAD(SP + 88)
+  $ => E :ADD
+  D :MSTORE(MEM:E + 104)
+  115n => B  ;; LoadConst32
+  $ => A :MLOAD(SP + 88)
+  $ => C :ADD
+  C => A
+  4294967295n => B  ;; LoadConst64
+  $ => B :AND
+  B :MSTORE(SP + 48)
+  0 => A  ;; LoadExtName(User(userextname0))
+  $ => B :MLOAD(SP + 88)
+  $ => E :ADD
+  $ => C :MLOAD(MEM:E + 8)
+  0 => A  ;; LoadExtName(User(userextname0))
+  $ => B :MLOAD(SP + 48)
+  $ => E :ADD
+  C :MSTORE(MEM:E)
+  123n => B  ;; LoadConst32
+  $ => A :MLOAD(SP + 88)
+  $ => D :ADD
+  D => A
+  4294967295n => B  ;; LoadConst64
+  $ => B :AND
+  B => D
+  0 => A  ;; LoadExtName(User(userextname0))
+  $ => B :MLOAD(SP + 8)
+  $ => E :ADD
+  $ => C :MLOAD(MEM:E)
+  0 => A  ;; LoadExtName(User(userextname0))
+  D => B
+  $ => E :ADD
+  C :MSTORE(MEM:E)
+  131n => B  ;; LoadConst32
   $ => A :MLOAD(SP + 88)
   $ => E :ADD
   E => A
   4294967295n => B  ;; LoadConst64
   $ => B :AND
   B => D
-  0 => A  ;; LoadExtName(User(userextname1))
-  $ => B :MLOAD(SP + 80)
+  0 => A  ;; LoadExtName(User(userextname0))
+  $ => B :MLOAD(SP)
   $ => E :ADD
   $ => C :MLOAD(MEM:E)
-  0 => A  ;; LoadExtName(User(userextname1))
+  0 => A  ;; LoadExtName(User(userextname0))
   D => B
   $ => E :ADD
   C :MSTORE(MEM:E)
-  155n => B  ;; LoadConst32
+  139n => B  ;; LoadConst32
   $ => A :MLOAD(SP + 88)
   $ => B :ADD
   B => A
   4294967295n => B  ;; LoadConst64
   $ => B :AND
   B => D
-  0 => A  ;; LoadExtName(User(userextname1))
-  $ => B :MLOAD(SP + 72)
+  0 => A  ;; LoadExtName(User(userextname0))
+  $ => B :MLOAD(SP + 80)
   $ => E :ADD
   $ => C :MLOAD(MEM:E)
-  0 => A  ;; LoadExtName(User(userextname1))
+  0 => A  ;; LoadExtName(User(userextname0))
   D => B
   $ => E :ADD
   C :MSTORE(MEM:E)
-  160n => B  ;; LoadConst32
+  147n => B  ;; LoadConst32
   $ => A :MLOAD(SP + 88)
   $ => B :ADD
   B => A
   4294967295n => B  ;; LoadConst64
   $ => B :AND
   B => C
-  0 => A  ;; LoadExtName(User(userextname1))
-  $ => B :MLOAD(SP + 64)
+  0 => A  ;; LoadExtName(User(userextname0))
+  $ => B :MLOAD(SP + 72)
   $ => E :ADD
   $ => D :MLOAD(MEM:E)
-  0 => A  ;; LoadExtName(User(userextname1))
+  0 => A  ;; LoadExtName(User(userextname0))
   C => B
   $ => E :ADD
   D :MSTORE(MEM:E)
+  155n => B  ;; LoadConst32
+  $ => A :MLOAD(SP + 88)
+  $ => C :ADD
+  C => A
+  4294967295n => B  ;; LoadConst64
+  $ => B :AND
+  B => D
+  0 => A  ;; LoadExtName(User(userextname0))
+  $ => B :MLOAD(SP + 64)
+  $ => E :ADD
+  $ => C :MLOAD(MEM:E)
+  0 => A  ;; LoadExtName(User(userextname0))
+  D => B
+  $ => E :ADD
+  C :MSTORE(MEM:E)
+  160n => B  ;; LoadConst32
+  $ => A :MLOAD(SP + 88)
+  $ => D :ADD
+  D => A
+  4294967295n => B  ;; LoadConst64
+  $ => B :AND
+  B => D
+  0 => A  ;; LoadExtName(User(userextname0))
+  $ => B :MLOAD(SP + 56)
+  $ => E :ADD
+  $ => C :MLOAD(MEM:E)
+  0 => A  ;; LoadExtName(User(userextname0))
+  D => B
+  $ => E :ADD
+  C :MSTORE(MEM:E)
   11n => C  ;; LoadConst32
-  0 => A  ;; LoadExtName(User(userextname1))
+  0 => A  ;; LoadExtName(User(userextname0))
   $ => B :MLOAD(SP + 88)
   $ => E :ADD
   C :MSTORE(MEM:E + 168)
   172n => B  ;; LoadConst32
   $ => A :MLOAD(SP + 88)
-  $ => D :ADD
-  D => A
+  $ => B :ADD
+  B => A
   4294967295n => B  ;; LoadConst64
   $ => B :AND
-  B :MSTORE(SP + 48)
+  B => D
   4n => B  ;; LoadConst32
   $ => A :MLOAD(SP + 88)
-  $ => D :ADD
-  D => A
+  $ => B :ADD
+  B => A
   4294967295n => B  ;; LoadConst64
   $ => B :AND
-  0 => A  ;; LoadExtName(User(userextname1))
+  0 => A  ;; LoadExtName(User(userextname0))
   $ => E :ADD
   $ => C :MLOAD(MEM:E)
-  0 => A  ;; LoadExtName(User(userextname1))
+  0 => A  ;; LoadExtName(User(userextname0))
+  D => B
+  $ => E :ADD
+  C :MSTORE(MEM:E)
+  0 => A  ;; LoadExtName(User(userextname0))
+  $ => B :MLOAD(SP + 88)
+  $ => E :ADD
+  $ => D :MLOAD(MEM:E + 1)
+  0 => A  ;; LoadExtName(User(userextname0))
+  $ => B :MLOAD(SP + 88)
+  $ => E :ADD
+  D :MSTORE(MEM:E + 169)
+  128n => C  ;; LoadConst32
+  0 => A  ;; LoadExtName(User(userextname0))
   $ => B :MLOAD(SP + 48)
   $ => E :ADD
   C :MSTORE(MEM:E)
-  0 => A  ;; LoadExtName(User(userextname1))
-  $ => B :MLOAD(SP + 88)
-  $ => E :ADD
-  $ => C :MLOAD(MEM:E + 1)
-  0 => A  ;; LoadExtName(User(userextname1))
-  $ => E :ADD
-  C :MSTORE(MEM:E + 169)
-  128n => C  ;; LoadConst32
-  0 => A  ;; LoadExtName(User(userextname1))
-  $ => B :MLOAD(SP + 56)
-  $ => E :ADD
-  C :MSTORE(MEM:E)
-  0 => A  ;; LoadExtName(User(userextname1))
+  0 => A  ;; LoadExtName(User(userextname0))
   $ => B :MLOAD(SP + 88)
   $ => E :ADD
   $ => A :MLOAD(MEM:E + 96)
@@ -362,8 +367,8 @@ function_1:
   D :MSTORE(SP + 32)
   65024n => B  ;; LoadConst64
   $ => A :MLOAD(SP + 32)
-  $ => D :AND
-  D => C
+  $ => B :AND
+  B => C
   40n => A  ;; LoadConst64
   63n => B  ;; LoadConst64
   $ => E :AND
@@ -378,8 +383,8 @@ function_1:
   E :MSTORE(SP + 24)
   16711680n => B  ;; LoadConst64
   $ => A :MLOAD(SP + 32)
-  $ => D :AND
-  D => C
+  $ => B :AND
+  B => C
   24n => A  ;; LoadConst64
   63n => B  ;; LoadConst64
   $ => E :AND
@@ -482,8 +487,8 @@ function_1:
   A => E
   64n => B  ;; LoadConst32
   $ => A :MLOAD(SP + 88)
-  $ => B :ADD
-  B => A
+  $ => D :ADD
+  D => A
   4294967295n => B  ;; LoadConst64
   $ => A :AND
   40n => B  ;; LoadConst32
@@ -491,8 +496,8 @@ function_1:
   4294967295n => B  ;; LoadConst64
   $ => B :AND
   B :MSTORE(SP)
-  0n => D  ;; LoadConst32
-  D => B
+  0n => A  ;; LoadConst32
+  A => B
   0 => A
   $ => A :EQ
   A :JMPZ(label_1_1)
@@ -520,8 +525,8 @@ label_1_2:
 label_1_3:
   6341068275337658368n => B  ;; LoadConst64
   E => A
-  $ => C :OR
-  C :MSTORE(SP + 80)
+  $ => D :OR
+  D :MSTORE(SP + 80)
   11n => A  ;; LoadConst32
   56n => B  ;; LoadConst32
   $ => A :XOR
@@ -533,23 +538,23 @@ label_1_3:
   A :JMPZ(label_1_5)
   160n => B  ;; LoadConst32
   $ => A :MLOAD(SP + 88)
-  $ => B :ADD
-  B => A
+  $ => C :ADD
+  C => A
   4294967295n => B  ;; LoadConst64
   $ => B :AND
-  0 => A  ;; LoadExtName(User(userextname1))
+  0 => A  ;; LoadExtName(User(userextname0))
   $ => E :ADD
-  $ => C :MLOAD(SP + 80)
-  C :MSTORE(MEM:E)
+  $ => D :MLOAD(SP + 80)
+  D :MSTORE(MEM:E)
   64n => B  ;; LoadConst32
   $ => A :MLOAD(SP + 88)
-  $ => B :ADD
-  B => A
+  $ => D :ADD
+  D => A
   4294967295n => B  ;; LoadConst64
   $ => A :AND
-  1n => D  ;; LoadConst32
+  1n => B  ;; LoadConst32
   SP + 1 => SP
-  D :MSTORE(SP)
+  B :MSTORE(SP)
   $ => B :MLOAD(SP)
   zkPC + 2 => RR
   :JMP(function_2)
@@ -558,8 +563,8 @@ label_1_3:
 label_1_5:
   64n => B  ;; LoadConst32
   $ => A :MLOAD(SP + 88)
-  $ => D :ADD
-  D => A
+  $ => B :ADD
+  B => A
   4294967295n => B  ;; LoadConst64
   $ => A :AND
   1n => C  ;; LoadConst32
@@ -571,121 +576,121 @@ label_1_5:
   SP - 1 => SP
   224n => B  ;; LoadConst32
   $ => A :MLOAD(SP + 88)
-  $ => E :ADD
-  E => A
-  4294967295n => B  ;; LoadConst64
-  $ => B :AND
-  0n => C  ;; LoadConst64
-  0 => A  ;; LoadExtName(User(userextname1))
-  $ => E :ADD
-  C :MSTORE(MEM:E)
-  216n => B  ;; LoadConst32
-  $ => A :MLOAD(SP + 88)
-  $ => B :ADD
-  B => A
-  4294967295n => B  ;; LoadConst64
-  $ => B :AND
-  0n => C  ;; LoadConst64
-  0 => A  ;; LoadExtName(User(userextname1))
-  $ => E :ADD
-  C :MSTORE(MEM:E)
-  208n => B  ;; LoadConst32
-  $ => A :MLOAD(SP + 88)
   $ => B :ADD
   B => A
   4294967295n => B  ;; LoadConst64
   $ => B :AND
   0n => D  ;; LoadConst64
-  0 => A  ;; LoadExtName(User(userextname1))
+  0 => A  ;; LoadExtName(User(userextname0))
   $ => E :ADD
   D :MSTORE(MEM:E)
-  200n => B  ;; LoadConst32
+  216n => B  ;; LoadConst32
   $ => A :MLOAD(SP + 88)
   $ => C :ADD
   C => A
   4294967295n => B  ;; LoadConst64
   $ => B :AND
   0n => C  ;; LoadConst64
-  0 => A  ;; LoadExtName(User(userextname1))
+  0 => A  ;; LoadExtName(User(userextname0))
   $ => E :ADD
   C :MSTORE(MEM:E)
-  192n => B  ;; LoadConst32
+  208n => B  ;; LoadConst32
   $ => A :MLOAD(SP + 88)
   $ => D :ADD
   D => A
   4294967295n => B  ;; LoadConst64
   $ => B :AND
   0n => C  ;; LoadConst64
-  0 => A  ;; LoadExtName(User(userextname1))
+  0 => A  ;; LoadExtName(User(userextname0))
   $ => E :ADD
   C :MSTORE(MEM:E)
-  184n => B  ;; LoadConst32
+  200n => B  ;; LoadConst32
   $ => A :MLOAD(SP + 88)
   $ => E :ADD
   E => A
   4294967295n => B  ;; LoadConst64
   $ => B :AND
   0n => C  ;; LoadConst64
-  0 => A  ;; LoadExtName(User(userextname1))
+  0 => A  ;; LoadExtName(User(userextname0))
   $ => E :ADD
   C :MSTORE(MEM:E)
+  192n => B  ;; LoadConst32
+  $ => A :MLOAD(SP + 88)
+  $ => B :ADD
+  B => A
+  4294967295n => B  ;; LoadConst64
+  $ => B :AND
   0n => C  ;; LoadConst64
-  0 => A  ;; LoadExtName(User(userextname1))
+  0 => A  ;; LoadExtName(User(userextname0))
+  $ => E :ADD
+  C :MSTORE(MEM:E)
+  184n => B  ;; LoadConst32
+  $ => A :MLOAD(SP + 88)
+  $ => B :ADD
+  B => A
+  4294967295n => B  ;; LoadConst64
+  $ => B :AND
+  0n => D  ;; LoadConst64
+  0 => A  ;; LoadExtName(User(userextname0))
+  $ => E :ADD
+  D :MSTORE(MEM:E)
+  0n => C  ;; LoadConst64
+  0 => A  ;; LoadExtName(User(userextname0))
   $ => B :MLOAD(SP + 88)
   $ => E :ADD
   C :MSTORE(MEM:E + 176)
-  0 => A  ;; LoadExtName(User(userextname1))
+  0 => A  ;; LoadExtName(User(userextname0))
   $ => E :ADD
-  $ => C :MLOAD(SP + 80)
-  C :MSTORE(MEM:E + 232)
+  $ => D :MLOAD(SP + 80)
+  D :MSTORE(MEM:E + 232)
   64n => B  ;; LoadConst32
   $ => A :MLOAD(SP + 88)
-  $ => C :ADD
-  C => A
+  $ => E :ADD
+  E => A
   4294967295n => B  ;; LoadConst64
   $ => A :AND
   A => D
   176n => B  ;; LoadConst32
   $ => A :MLOAD(SP + 88)
-  $ => C :ADD
-  C => A
+  $ => E :ADD
+  E => A
   4294967295n => B  ;; LoadConst64
   $ => B :AND
-  1n => E  ;; LoadConst32
+  1n => C  ;; LoadConst32
   SP + 1 => SP
-  E :MSTORE(SP)
+  C :MSTORE(SP)
   D => A
   zkPC + 2 => RR
   :JMP(function_2)
   SP - 1 => SP
   :JMP(label_1_6)
 label_1_6:
-  0 => A  ;; LoadExtName(User(userextname1))
+  0 => A  ;; LoadExtName(User(userextname0))
   $ => B :MLOAD(SP + 88)
   $ => E :ADD
   $ => A :MLOAD(MEM:E + 92)
   A :MSTORE(SP + 80)
-  0 => A  ;; LoadExtName(User(userextname1))
+  0 => A  ;; LoadExtName(User(userextname0))
   $ => E :ADD
   $ => A :MLOAD(MEM:E + 88)
   A :MSTORE(SP + 72)
-  0 => A  ;; LoadExtName(User(userextname1))
+  0 => A  ;; LoadExtName(User(userextname0))
   $ => E :ADD
   $ => A :MLOAD(MEM:E + 84)
   A :MSTORE(SP + 64)
-  0 => A  ;; LoadExtName(User(userextname1))
+  0 => A  ;; LoadExtName(User(userextname0))
   $ => E :ADD
   $ => A :MLOAD(MEM:E + 80)
   A :MSTORE(SP + 56)
-  0 => A  ;; LoadExtName(User(userextname1))
+  0 => A  ;; LoadExtName(User(userextname0))
   $ => E :ADD
   $ => A :MLOAD(MEM:E + 76)
   A :MSTORE(SP + 48)
-  0 => A  ;; LoadExtName(User(userextname1))
+  0 => A  ;; LoadExtName(User(userextname0))
   $ => E :ADD
   $ => A :MLOAD(MEM:E + 72)
   A :MSTORE(SP + 40)
-  0 => A  ;; LoadExtName(User(userextname1))
+  0 => A  ;; LoadExtName(User(userextname0))
   $ => E :ADD
   $ => A :MLOAD(MEM:E + 64)
   A :MSTORE(SP + 32)
@@ -706,8 +711,8 @@ label_1_6:
   A :MSTORE(SP + 16)
   65280n => B  ;; LoadConst32
   $ => A :MLOAD(SP + 32)
-  $ => B :AND
-  B => C
+  $ => D :AND
+  D => C
   8n => A  ;; LoadConst32
   31n => B  ;; LoadConst64
   $ => E :AND
@@ -758,15 +763,14 @@ label_1_6:
   4294967295n => B  ;; LoadConst64
   $ => B :AND
   $ => A :MLOAD(SP + 24)
-  $ => C :OR
+  $ => D :OR
   $ => A :MLOAD(SP)
-  C => D
   B => C
   D => B
   $ => A :OR
   65280n => B  ;; LoadConst32
-  $ => B :AND
-  B :MSTORE(SP + 16)
+  $ => D :AND
+  D :MSTORE(SP + 16)
   A :MSTORE(SP + 24)
   16n => A  ;; LoadConst32
   31n => B  ;; LoadConst64
@@ -818,7 +822,7 @@ label_1_6:
   $ => A :MLOAD(SP + 24)
   $ => A :AND
   A :MSTORE(SP + 8)
-  0 => A  ;; LoadExtName(User(userextname1))
+  0 => A  ;; LoadExtName(User(userextname0))
   $ => B :MLOAD(SP + 88)
   $ => E :ADD
   $ => A :MLOAD(MEM:E + 68)
@@ -837,11 +841,11 @@ label_1_6:
   E :ARITH
   4294967295n => B  ;; LoadConst64
   $ => A :AND
-  A => C
+  A => D
   16n => A  ;; LoadConst32
   31n => B  ;; LoadConst64
   $ => E :AND
-  C => A
+  D => A
 ;;NEED_INCLUDE: 2-exp
   zkPC + 2 => RR
     :JMP(@two_power + E)
@@ -876,8 +880,8 @@ label_1_6:
   A :MSTORE(SP + 16)
   65280n => B  ;; LoadConst32
   $ => A :MLOAD(SP)
-  $ => B :AND
-  B => C
+  $ => D :AND
+  D => C
   8n => A  ;; LoadConst32
   31n => B  ;; LoadConst64
   $ => E :AND
@@ -911,11 +915,11 @@ label_1_6:
   $ => B :OR
   $ => A :MLOAD(SP + 24)
   $ => A :OR
-  A => C
+  A => D
   8n => A  ;; LoadConst64
   63n => B  ;; LoadConst64
   $ => E :AND
-  C => A
+  D => A
 ;;NEED_INCLUDE: 2-exp
   zkPC + 2 => RR
     :JMP(@two_power + E)
@@ -923,11 +927,11 @@ label_1_6:
   $${var _mul = A * B}
   ${_mul >> 64} => D
   ${_mul} => E :ARITH
-  E => D
+  E => C
   255n => B  ;; LoadConst32
   $ => A :MLOAD(SP)
   $ => B :AND
-  D => A
+  C => A
   $ => A :OR
   13352372148217134600n => B  ;; LoadConst64
   B :ASSERT
@@ -948,7 +952,8 @@ label_1_6:
   A :MSTORE(SP + 16)
   65280n => B  ;; LoadConst32
   $ => A :MLOAD(SP + 40)
-  $ => C :AND
+  $ => E :AND
+  E => C
   8n => A  ;; LoadConst32
   31n => B  ;; LoadConst64
   $ => E :AND
@@ -999,19 +1004,19 @@ label_1_6:
   4294967295n => B  ;; LoadConst64
   $ => B :AND
   $ => A :MLOAD(SP + 24)
-  $ => C :OR
+  $ => E :OR
   $ => A :MLOAD(SP)
-  B => D
-  C => B
+  B => C
+  E => B
   $ => A :OR
   65280n => B  ;; LoadConst32
-  $ => C :AND
-  C :MSTORE(SP + 16)
+  $ => E :AND
+  E :MSTORE(SP + 16)
   A :MSTORE(SP + 24)
   16n => A  ;; LoadConst32
   31n => B  ;; LoadConst64
   $ => E :AND
-  D => A
+  C => A
 ;;NEED_INCLUDE: 2-exp
   zkPC + 2 => RR
     :JMP(@two_power + E)
@@ -1111,11 +1116,12 @@ label_1_6:
   A :MSTORE(SP)
   65280n => B  ;; LoadConst32
   $ => A :MLOAD(SP + 48)
-  $ => C :AND
+  $ => E :AND
+  E => D
   8n => A  ;; LoadConst32
   31n => B  ;; LoadConst64
   $ => E :AND
-  C => A
+  D => A
 ;;NEED_INCLUDE: 2-exp
   zkPC + 2 => RR
     :JMP(@two_power + E)
@@ -1157,11 +1163,10 @@ label_1_6:
   $${var _mul = A * B}
   ${_mul >> 64} => D
   ${_mul} => E :ARITH
-  E => C
   255n => B  ;; LoadConst32
   $ => A :MLOAD(SP + 48)
   $ => B :AND
-  C => A
+  E => A
   $ => A :OR
   11902541952223915002n => B  ;; LoadConst64
   B :ASSERT
@@ -1182,12 +1187,12 @@ label_1_6:
   A :MSTORE(SP)
   65280n => B  ;; LoadConst32
   $ => A :MLOAD(SP + 56)
-  $ => D :AND
-  D => C
+  $ => B :AND
+  B => D
   8n => A  ;; LoadConst32
   31n => B  ;; LoadConst64
   $ => E :AND
-  C => A
+  D => A
 ;;NEED_INCLUDE: 2-exp
   zkPC + 2 => RR
     :JMP(@two_power + E)
@@ -1234,15 +1239,15 @@ label_1_6:
   4294967295n => B  ;; LoadConst64
   $ => B :AND
   $ => A :MLOAD(SP)
-  $ => D :OR
-  $ => A :MLOAD(SP + 8)
+  $ => A :OR
   B => C
-  D => B
+  A => B
+  $ => A :MLOAD(SP + 8)
   $ => A :OR
   65280n => B  ;; LoadConst32
-  $ => D :AND
+  $ => B :AND
   A :MSTORE(SP)
-  D :MSTORE(SP + 16)
+  B :MSTORE(SP + 16)
   16n => A  ;; LoadConst32
   31n => B  ;; LoadConst64
   $ => E :AND
@@ -1276,11 +1281,11 @@ label_1_6:
   $ => B :AND
   $ => A :MLOAD(SP + 16)
   $ => A :OR
-  A => C
+  A => D
   32n => A  ;; LoadConst64
   63n => B  ;; LoadConst64
   $ => E :AND
-  C => A
+  D => A
 ;;NEED_INCLUDE: 2-exp
   zkPC + 2 => RR
     :JMP(@two_power + E)
@@ -1307,11 +1312,11 @@ label_1_6:
   E :ARITH
   4294967295n => B  ;; LoadConst64
   $ => A :AND
-  A => D
+  A => C
   16n => A  ;; LoadConst32
   31n => B  ;; LoadConst64
   $ => E :AND
-  D => A
+  C => A
 ;;NEED_INCLUDE: 2-exp
   zkPC + 2 => RR
     :JMP(@two_power + E)
@@ -1346,8 +1351,8 @@ label_1_6:
   A :MSTORE(SP)
   65280n => B  ;; LoadConst32
   $ => A :MLOAD(SP + 64)
-  $ => D :AND
-  D => C
+  $ => B :AND
+  B => C
   8n => A  ;; LoadConst32
   31n => B  ;; LoadConst64
   $ => E :AND
@@ -1362,11 +1367,11 @@ label_1_6:
   E => A
   4294967295n => B  ;; LoadConst64
   $ => A :AND
-  A => C
+  A => D
   16n => A  ;; LoadConst32
   31n => B  ;; LoadConst64
   $ => E :AND
-  C => A
+  D => A
 ;;NEED_INCLUDE: 2-exp
   zkPC + 2 => RR
     :JMP(@two_power + E)
@@ -1381,11 +1386,11 @@ label_1_6:
   $ => B :OR
   $ => A :MLOAD(SP + 8)
   $ => A :OR
-  A => D
+  A => C
   8n => A  ;; LoadConst64
   63n => B  ;; LoadConst64
   $ => E :AND
-  D => A
+  C => A
 ;;NEED_INCLUDE: 2-exp
   zkPC + 2 => RR
     :JMP(@two_power + E)
@@ -1393,11 +1398,11 @@ label_1_6:
   $${var _mul = A * B}
   ${_mul >> 64} => D
   ${_mul} => E :ARITH
-  E => C
+  E => D
   255n => B  ;; LoadConst32
   $ => A :MLOAD(SP + 64)
   $ => B :AND
-  C => A
+  D => A
   $ => A :OR
   14160706888648589550n => B  ;; LoadConst64
   B :ASSERT
@@ -1418,8 +1423,8 @@ label_1_6:
   A :MSTORE(SP)
   65280n => B  ;; LoadConst32
   $ => A :MLOAD(SP + 72)
-  $ => E :AND
-  E => C
+  $ => B :AND
+  B => C
   8n => A  ;; LoadConst32
   31n => B  ;; LoadConst64
   $ => E :AND
@@ -1470,19 +1475,19 @@ label_1_6:
   4294967295n => B  ;; LoadConst64
   $ => B :AND
   $ => A :MLOAD(SP + 8)
-  $ => E :OR
+  $ => C :OR
   $ => A :MLOAD(SP)
-  B => C
-  E => B
+  B => D
+  C => B
   $ => A :OR
   65280n => B  ;; LoadConst32
-  $ => E :AND
-  E :MSTORE(SP)
+  $ => B :AND
+  B :MSTORE(SP)
   A :MSTORE(SP + 8)
   16n => A  ;; LoadConst32
   31n => B  ;; LoadConst64
   $ => E :AND
-  C => A
+  D => A
 ;;NEED_INCLUDE: 2-exp
   zkPC + 2 => RR
     :JMP(@two_power + E)
@@ -1582,12 +1587,12 @@ label_1_6:
   A :MSTORE(SP)
   65280n => B  ;; LoadConst32
   $ => A :MLOAD(SP + 80)
-  $ => E :AND
-  E => D
+  $ => B :AND
+  B => C
   8n => A  ;; LoadConst32
   31n => B  ;; LoadConst64
   $ => E :AND
-  D => A
+  C => A
 ;;NEED_INCLUDE: 2-exp
   zkPC + 2 => RR
     :JMP(@two_power + E)
@@ -1641,9 +1646,8 @@ label_1_6:
   $ => A :MLOAD(SP + 88)
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
-  $ => C :AND
-  65536 => E  ;; LoadExtName(User(userextname0))
-  C :MSTORE(MEM:E + 8)
+  $ => E :AND
+  E :MSTORE(global_0)
   $ => C :MLOAD(SP - 1)
   $ => D :MLOAD(SP - 2)
   $ => E :MLOAD(SP - 3)

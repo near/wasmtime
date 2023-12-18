@@ -3,6 +3,7 @@
 // Pull in the ISLE generated code.
 #[allow(unused)]
 pub mod generated_code;
+use cranelift_entity::EntityRef;
 use generated_code::{Context, ExtendOp, MInst};
 
 // Types that the generated ISLE code uses via `use super::*`.
@@ -351,6 +352,10 @@ impl generated_code::Context for ZkAsmIsleContext<'_, '_, MInst, ZkAsmBackend> {
         AMode::Const(c)
     }
 
+    fn gen_global_amode(&mut self, offset: i64, ty: Type) -> AMode {
+        AMode::Global(offset, ty)
+    }
+
     fn valid_atomic_transaction(&mut self, ty: Type) -> Option<Type> {
         if ty.is_int() && ty.bits() <= 64 {
             Some(ty)
@@ -364,6 +369,28 @@ impl generated_code::Context for ZkAsmIsleContext<'_, '_, MInst, ZkAsmBackend> {
     fn store_op(&mut self, ty: Type) -> StoreOP {
         StoreOP::from_type(ty)
     }
+
+    fn zkasm_base(&mut self, global_value: GlobalValue) -> Option<generated_code::ZkasmBase> {
+        if let Some((name, _, offset)) = self.symbol_value_data(global_value) {
+            match name {
+                ExternalName::User(user_name_ref) => {
+                    // All ZKASM "memory"-like accesses use this name, but different offsets.
+                    if user_name_ref.index() != 0 {
+                        return None;
+                    }
+                    return match offset {
+                        0 => Some(generated_code::ZkasmBase::Heap),
+                        1 => Some(generated_code::ZkasmBase::Global),
+                        2 => Some(generated_code::ZkasmBase::Table),
+                        _ => None,
+                    };
+                }
+                _ => {}
+            }
+        }
+        None
+    }
+
     fn load_ext_name(&mut self, name: ExternalName, offset: i64) -> Reg {
         let tmp = self.temp_writable_reg(I64);
         self.emit(&MInst::LoadExtName {

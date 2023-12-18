@@ -622,6 +622,12 @@ impl MachInstEmit for Inst {
                     }
                     AMode::Const(_) => unimplemented!("Load, AMode::Const"),
                     AMode::Label(_) => unimplemented!("Load, AMode::Label"),
+                    AMode::Global(index, _) => {
+                        put_string(
+                            &format!("$ => {} :MLOAD(global_{})\n", reg_name(rd.to_reg()), index),
+                            sink,
+                        );
+                    }
                 };
             }
             &Inst::Store { op, src, flags, to } => {
@@ -662,6 +668,12 @@ impl MachInstEmit for Inst {
                     }
                     AMode::Const(_) => unimplemented!("Store, AMode::Const"),
                     AMode::Label(_) => unimplemented!("Store, AMode::Label"),
+                    AMode::Global(index, _) => {
+                        put_string(
+                            &format!("{} :MSTORE(global_{})\n", reg_name(src), index),
+                            sink,
+                        );
+                    }
                 };
             }
             &Inst::Args { .. } => {
