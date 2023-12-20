@@ -939,15 +939,11 @@ impl MachInstEmit for Inst {
                 assert_eq!(kind.rs2, zero_reg());
                 match taken {
                     BranchTarget::Label(label) => {
-                        // WARNING: next two put_string MUST be in that order,
-                        // otherwise, if kind.rs1 == A it will lead to infinite loops.
-                        // Idk how to make kind.rs1 always not equal A.
-                        // At least, both A and B marked as clobbered in
-                        // mod.rs, so it will work.
-                        put_string(&format!("{} => B\n", reg_name(kind.rs1)), sink);
-                        put_string("0 => A\n", sink);
-                        put_string("$ => A :EQ\n", sink);
-                        put_string(&format!("A :JMPZ(label_{})\n", label.index()), sink);
+                        // Due to ISLE rules for `cond_br` the comparison result is in `kind.rs1`.
+                        put_string(
+                            &format!("{} :JMPNZ(label_{})\n", reg_name(kind.rs1), label.index()),
+                            sink,
+                        );
                     }
                     BranchTarget::ResolvedOffset(offset) => {
                         assert!(offset != 0);
