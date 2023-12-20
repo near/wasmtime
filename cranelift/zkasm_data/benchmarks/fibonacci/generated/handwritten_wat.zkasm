@@ -26,10 +26,7 @@ label_1_1:
   A :MSTORE(SP + 8)
   10000n => B  ;; LoadConst32
   $ => A :EQ
-  A => B
-  0 => A
-  $ => A :EQ
-  A :JMPZ(label_1_3)
+  A :JMPNZ(label_1_3)
   $ => A :MLOAD(SP)
   E => B
   :JMP(label_1_1)

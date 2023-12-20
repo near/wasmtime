@@ -3,7 +3,7 @@ _should_fail_unreachable,runtime error,
 add,pass,19
 add_func,pass,30
 and,pass,17
-counter,pass,153
+counter,pass,123
 div,pass,26
 eqz,pass,26
 fibonacci,pass,224

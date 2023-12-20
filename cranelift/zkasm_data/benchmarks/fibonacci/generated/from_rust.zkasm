@@ -67,10 +67,7 @@ label_1_1:
   $ => A :AND
   A => C
   A => D
-  C => B
-  0 => A
-  $ => A :EQ
-  A :JMPZ(label_1_2)
+  C :JMPNZ(label_1_2)
   :JMP(label_1_3)
 label_1_2:
   C => D
