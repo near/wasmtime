@@ -21,6 +21,7 @@ mod tests {
     fn generate_preamble(
         start_func_index: usize,
         globals: &[(cranelift_wasm::GlobalIndex, cranelift_wasm::GlobalInit)],
+        data_segments: &[(u64, Vec<u8>)],
     ) -> Vec<String> {
         let mut program: Vec<String> = Vec::new();
 
@@ -53,6 +54,22 @@ mod tests {
                 _ => unimplemented!("Global type is not supported"),
             }
         }
+
+        // Generate const data segments definitions.
+        for (offset, data) in data_segments {
+            program.push(format!("  {offset} => E"));
+            // Each slot stores 8 consecutive u8 numbers, with earlier addresses stored in lower
+            // bits.
+            for (i, chunk) in data.chunks(8).enumerate() {
+                let mut chunk_data = 0u64;
+                for c in chunk.iter().rev() {
+                    chunk_data <<= 8;
+                    chunk_data |= *c as u64;
+                }
+                program.push(format!("  {chunk_data} :MSTORE(MEM:E + {i})"));
+            }
+        }
+
         program.push("  zkPC + 2 => RR".to_string());
         program.push(format!("  :JMP(function_{})", start_func_index));
         program.push("  :JMP(finalizeExecution)".to_string());
@@ -187,6 +204,7 @@ mod tests {
         program.append(&mut generate_preamble(
             start_func.index(),
             &zkasm_environ.info.global_inits,
+            &zkasm_environ.info.data_inits,
         ));
 
         let num_func_imports = zkasm_environ.get_num_func_imports();
