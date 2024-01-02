@@ -200,7 +200,7 @@ impl generated_code::Context for ZkAsmIsleContext<'_, '_, MInst, ZkAsmBackend> {
             let tmp = self.temp_writable_reg(I64);
             self.emit(&MInst::Load {
                 rd: tmp,
-                op: LoadOP::Ld,
+                op: LoadOP::U64,
                 flags: MemFlags::trusted(),
                 from: AMode::FPOffset(8, I64),
             });
