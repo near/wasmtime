@@ -48,8 +48,8 @@ impl LoadConstant {
     }
     fn load_op(self) -> LoadOP {
         match self {
-            LoadConstant::U32(_) => LoadOP::Lwu,
-            LoadConstant::U64(_) => LoadOP::Ld,
+            LoadConstant::U32(_) => LoadOP::U32,
+            LoadConstant::U64(_) => LoadOP::U64,
         }
     }
     fn load_ty(self) -> Type {
