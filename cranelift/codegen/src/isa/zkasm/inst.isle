@@ -319,10 +319,10 @@
 ))
 
 (type StoreOP (enum
-  (Sb)
-  (Sh)
-  (Sw)
-  (Sd)
+  (I8)
+  (I16)
+  (I32)
+  (I64)
   (Fsw)
   (Fsd)
 ))

@@ -804,10 +804,10 @@ impl LoadOP {
 impl StoreOP {
     pub(crate) fn op_name(self) -> &'static str {
         match self {
-            Self::Sb => "sb",
-            Self::Sh => "sh",
-            Self::Sw => "sw",
-            Self::Sd => "sd",
+            Self::I8 => "i8",
+            Self::I16 => "i16",
+            Self::I32 => "i32",
+            Self::I64 => "i64",
             Self::Fsw => "fsw",
             Self::Fsd => "fsd",
         }
@@ -817,25 +817,25 @@ impl StoreOP {
             return if t == F32 { Self::Fsw } else { Self::Fsd };
         }
         match t.bits() {
-            1 | 8 => Self::Sb,
-            16 => Self::Sh,
-            32 => Self::Sw,
-            64 => Self::Sd,
+            1 | 8 => Self::I8,
+            16 => Self::I16,
+            32 => Self::I32,
+            64 => Self::I64,
             _ => unreachable!(),
         }
     }
     pub(crate) fn op_code(self) -> u32 {
         match self {
-            Self::Sb | Self::Sh | Self::Sw | Self::Sd => 0b0100011,
+            Self::I8 | Self::I16 | Self::I32 | Self::I64 => 0b0100011,
             Self::Fsw | Self::Fsd => 0b0100111,
         }
     }
     pub(crate) fn funct3(self) -> u32 {
         match self {
-            Self::Sb => 0b000,
-            Self::Sh => 0b001,
-            Self::Sw => 0b010,
-            Self::Sd => 0b011,
+            Self::I8 => 0b000,
+            Self::I16 => 0b001,
+            Self::I32 => 0b010,
+            Self::I64 => 0b011,
             Self::Fsw => 0b010,
             Self::Fsd => 0b011,
         }

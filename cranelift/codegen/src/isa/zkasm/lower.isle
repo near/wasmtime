@@ -321,15 +321,15 @@
 
 ;;;;;  Rules for `istore8`;;;;;;;;;
 (rule (lower (istore8 flags src addr offset))
-  (gen_store (amode addr offset $I8) (StoreOP.Sb) flags src))
+  (gen_store (amode addr offset $I8) (StoreOP.I8) flags src))
 
 ;;;;;  Rules for `istore16`;;;;;;;;;
 (rule (lower (istore16 flags src addr offset))
-  (gen_store (amode addr offset $I16) (StoreOP.Sh) flags src))
+  (gen_store (amode addr offset $I16) (StoreOP.I16) flags src))
 
 ;;;;;  Rules for `istore32`;;;;;;;;;
 (rule (lower (istore32 flags src addr offset))
-  (gen_store (amode addr offset $I32) (StoreOP.Sw) flags src))
+  (gen_store (amode addr offset $I32) (StoreOP.I32) flags src))
 
 ;;;;;  Rules for `store`;;;;;;;;;
 (rule (lower (store flags src @ (value_type ty) addr offset))
