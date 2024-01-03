@@ -932,6 +932,7 @@ impl MachInstEmit for Inst {
                 not_taken,
                 mut kind,
             } => {
+                // TODO(#179): The handling of `CondBr` might need to be refactored.
                 kind.rs1 = allocs.next(kind.rs1);
                 kind.rs2 = allocs.next(kind.rs2);
                 // TODO(akashin): Support other types of comparisons.
@@ -940,6 +941,11 @@ impl MachInstEmit for Inst {
                 match taken {
                     BranchTarget::Label(label) => {
                         // Due to ISLE rules for `cond_br` the comparison result is in `kind.rs1`.
+                        // See #179 for details and how they might change in the future.
+                        //
+                        // Apart from that, this zkASM remains valid as long as the branch
+                        // condition effectively checks that `kind.rs1` contains a non-zero value.
+                        // This is guaranteed by the asserts above.
                         put_string(
                             &format!("{} :JMPNZ(label_{})\n", reg_name(kind.rs1), label.index()),
                             sink,
