@@ -14,6 +14,9 @@ mod tests {
     use cranelift_codegen::{settings, FinalizedMachReloc, FinalizedRelocTarget};
     use cranelift_wasm::{translate_module, ZkasmEnvironment};
 
+    use walkdir::WalkDir;
+    use wasmtime::*;
+
     fn setup() {
         let _ = env_logger::builder().is_test(true).try_init();
     }
@@ -235,6 +238,62 @@ mod tests {
 
         program.append(&mut generate_postamble());
         program.join("\n")
+    }
+
+    fn run_wat_file(path: &Path) -> Result<(), Box<dyn std::error::Error>> {
+        let engine = Engine::default();
+        let wat = std::fs::read_to_string(path).unwrap();
+        let pat = r#"(import "env" "assert_eq" (func $assert_eq (param i32) (param i32)))"#;
+        let assert_type = if wat.contains(pat) { 32 } else { 64 };
+        let binary = wat::parse_file(path)?;
+        let module = Module::new(&engine, &binary)?;
+        if assert_type == 64 {
+            // 4 a magic number which we must provide for Store initialization, but not important in our case
+            // a searched ways to use some default numbers, but unsuccesfully, so took a number same as in
+            // example in docs
+            // TODO: find a way to do it without magic numbers
+            let mut store = Store::new(&engine, 4);
+            let host_func = Func::wrap(&mut store, |_: Caller<'_, i64>, a: i64, b: i64| {
+                assert_eq!(a, b);
+            });
+            let _instance = Instance::new(&mut store, &module, &[host_func.into()])?;
+        } else {
+            // assert type is i32
+            // same about 4 as in other branch
+            // TODO: find a way to do it without magic numbers
+            let mut store = Store::new(&engine, 4);
+            let host_func = Func::wrap(&mut store, |_: Caller<'_, i32>, a: i32, b: i32| {
+                assert_eq!(a, b);
+            });
+            let _instance = Instance::new(&mut store, &module, &[host_func.into()])?;
+        }
+        Ok(())
+    }
+
+    #[test]
+    fn run_wat() -> Result<(), Box<dyn std::error::Error>> {
+        for entry in WalkDir::new("../zkasm_data")
+            .into_iter()
+            .filter_map(|e| e.ok())
+        {
+            if entry.path().extension().map_or(false, |ext| ext == "wat") {
+                let result = run_wat_file(entry.path());
+                if entry.path().to_str().unwrap().contains("_should_fail_") {
+                    if result.is_ok() {
+                        panic!(
+                            "Should fail file {} don't actually fail",
+                            entry.path().to_str().unwrap()
+                        );
+                    }
+                } else {
+                    if result.is_err() {
+                        println!("Err = {:#?}", result);
+                        panic!("Invalid wasm in {}", entry.path().to_str().unwrap());
+                    }
+                }
+            }
+        }
+        Ok(())
     }
 
     fn test_module(name: &str) {

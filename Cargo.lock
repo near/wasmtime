@@ -655,7 +655,9 @@ dependencies = [
  "target-lexicon",
  "thiserror",
  "toml",
+ "walkdir",
  "wasmparser",
+ "wasmtime",
  "wat",
 ]
 
