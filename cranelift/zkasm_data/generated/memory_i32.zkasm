@@ -1,4 +1,9 @@
 start:
+  0 => E
+  7523094288207667809 :MSTORE(MEM:E + 0)
+  8101815670912281193 :MSTORE(MEM:E + 1)
+  8680537053616894577 :MSTORE(MEM:E + 2)
+  31353 :MSTORE(MEM:E + 3)
   zkPC + 2 => RR
   :JMP(function_1)
   :JMP(finalizeExecution)

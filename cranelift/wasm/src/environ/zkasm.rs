@@ -85,6 +85,9 @@ pub struct ZkasmModuleInfo {
     /// Inits for globals when available.
     pub global_inits: Vec<(GlobalIndex, GlobalInit)>,
 
+    /// Inits for data segments.
+    pub data_inits: Vec<(u64, Vec<u8>)>,
+
     /// The start function.
     pub start_func: Option<FuncIndex>,
 }
@@ -105,6 +108,7 @@ impl ZkasmModuleInfo {
             memories: PrimaryMap::new(),
             globals: PrimaryMap::new(),
             global_inits: Vec::new(),
+            data_inits: Vec::new(),
             start_func: None,
         }
     }
@@ -857,12 +861,16 @@ impl<'data> ModuleEnvironment<'data> for ZkasmEnvironment {
 
     fn declare_data_initialization(
         &mut self,
-        _memory_index: MemoryIndex,
-        _base: Option<GlobalIndex>,
-        _offset: u64,
-        _data: &'data [u8],
+        memory_index: MemoryIndex,
+        base: Option<GlobalIndex>,
+        offset: u64,
+        data: &'data [u8],
     ) -> WasmResult<()> {
-        // We do nothing
+        // NB: We only support a few types of data segments for now. We might extend this in the
+        // future.
+        assert_eq!(memory_index.as_u32(), 0);
+        assert!(base.is_none());
+        self.info.data_inits.push((offset, data.to_vec()));
         Ok(())
     }
 
