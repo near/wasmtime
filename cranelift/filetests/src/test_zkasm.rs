@@ -244,44 +244,15 @@ mod tests {
         let engine = Engine::default();
         let binary = wat::parse_file(path)?;
         let module = Module::new(&engine, &binary)?;
-
-        let import = module
-            .imports()
-            .find(|imp| imp.name() == "assert_eq")
-            .unwrap();
-
-        let params: Vec<ValType> = import.ty().unwrap_func().params().collect();
-
-        let assert_type = if params == [ValType::I32, ValType::I32] {
-            32
-        } else if params == [ValType::I64, ValType::I64] {
-            64
-        } else {
-            panic!(
-                "Incorrect assert_eq type in file {}",
-                path.to_str().unwrap()
-            )
-        };
-        if assert_type == 64 {
-            // 4 a magic number which we must provide for Store initialization, but not important in our case
-            // a searched ways to use some default numbers, but unsuccesfully, so took a number same as in
-            // example in docs
-            // TODO: find a way to do it without magic numbers
-            let mut store = Store::new(&engine, 4);
-            let host_func = Func::wrap(&mut store, |_: Caller<'_, i64>, a: i64, b: i64| {
-                assert_eq!(a, b);
-            });
-            let _instance = Instance::new(&mut store, &module, &[host_func.into()])?;
-        } else {
-            // assert type is i32
-            // same about 4 as in other branch
-            // TODO: find a way to do it without magic numbers
-            let mut store = Store::new(&engine, 4);
-            let host_func = Func::wrap(&mut store, |_: Caller<'_, i32>, a: i32, b: i32| {
-                assert_eq!(a, b);
-            });
-            let _instance = Instance::new(&mut store, &module, &[host_func.into()])?;
-        }
+        let mut store = Store::new(&engine, ());
+        let mut linker = Linker::<()>::new(&engine);
+        linker.func_wrap("env", "assert_eq_i32", |a: i32, b: i32| {
+            assert_eq!(a, b);
+        })?;
+        linker.func_wrap("env", "assert_eq_i64", |a: i64, b: i64| {
+            assert_eq!(a, b);
+        })?;
+        linker.instantiate(&mut store, &module)?;
         Ok(())
     }
 
@@ -350,7 +321,7 @@ mod tests {
             let count = test_counters.entry(function_name.to_string()).or_insert(0);
             *count += 1;
             let mut testcase = String::new();
-            testcase.push_str(&format!("(module\n (import \"env\" \"assert_eq\" (func $assert_eq (param {}) (param {})))\n (func $main\n", assert_type, assert_type));
+            testcase.push_str(&format!("(module\n (import \"env\" \"assert_eq_{}\" (func $assert_eq_{} (param {}) (param {})))\n (func $main\n", assert_type, assert_type, assert_type, assert_type));
             testcase.push_str(&format!(
                 "\t{}\n",
                 arguments
@@ -370,8 +341,9 @@ mod tests {
                 testcase.push_str(&format!("\t{function_type}.{}\n", function_name));
             }
             testcase.push_str(&format!(
-                "\t{}\n\tcall $assert_eq)\n (start $main))\n",
-                expected_result.trim()
+                "\t{}\n\tcall $assert_eq_{})\n (start $main))\n",
+                expected_result.trim(),
+                assert_type
             ));
             let file_name = format!(
                 "../../zkasm_data/spectest/{name}/{}_{}.wat",

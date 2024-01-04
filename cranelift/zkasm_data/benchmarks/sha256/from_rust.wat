@@ -5,7 +5,7 @@
   (type (;1;) (func))
   (type (;2;) (func (param i32 i32 i32)))
   (type (;3;) (func (param i32 i32 i32) (result i32)))
-  (import "env" "assert_eq" (func (;0;) (type 0)))
+  (import "env" "assert_eq_i64" (func (;0;) (type 0)))
   (func (;1;) (type 1)
     (local i32 i32 i32 i32 i32 i32 i32 i32 i64 i64 i64 i32 i32)
     global.get 0

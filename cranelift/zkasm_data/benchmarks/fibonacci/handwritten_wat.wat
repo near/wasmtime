@@ -1,5 +1,5 @@
 (module
- (import "env" "assert_eq" (func $assert_eq (param i64) (param i64)))
+ (import "env" "assert_eq_i64" (func $assert_eq_i64 (param i64) (param i64)))
  (func $main
 	(local $counter i32)
 	(local $fp i64)
@@ -28,5 +28,5 @@
 	)
 	(local.get $fp)
 	(i64.const -2872092127636481573)
-	call $assert_eq)
+	call $assert_eq_i64)
 (start $main))
