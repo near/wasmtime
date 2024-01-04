@@ -242,11 +242,26 @@ mod tests {
 
     fn run_wat_file(path: &Path) -> Result<(), Box<dyn std::error::Error>> {
         let engine = Engine::default();
-        let wat = std::fs::read_to_string(path).unwrap();
-        let pat = r#"(import "env" "assert_eq" (func $assert_eq (param i32) (param i32)))"#;
-        let assert_type = if wat.contains(pat) { 32 } else { 64 };
         let binary = wat::parse_file(path)?;
         let module = Module::new(&engine, &binary)?;
+
+        let import = module
+            .imports()
+            .find(|imp| imp.name() == "assert_eq")
+            .unwrap();
+
+        let params: Vec<ValType> = import.ty().unwrap_func().params().collect();
+
+        let assert_type = if params == [ValType::I32, ValType::I32] {
+            32
+        } else if params == [ValType::I64, ValType::I64] {
+            64
+        } else {
+            panic!(
+                "Incorrect assert_eq type in file {}",
+                path.to_str().unwrap()
+            )
+        };
         if assert_type == 64 {
             // 4 a magic number which we must provide for Store initialization, but not important in our case
             // a searched ways to use some default numbers, but unsuccesfully, so took a number same as in
@@ -274,7 +289,7 @@ mod tests {
     fn run_wat() -> Result<(), Box<dyn std::error::Error>> {
         for entry in WalkDir::new("../zkasm_data")
             .into_iter()
-            .filter_map(|e| e.ok())
+            .map(|e| e.unwrap())
         {
             if entry.path().extension().map_or(false, |ext| ext == "wat") {
                 let result = run_wat_file(entry.path());
