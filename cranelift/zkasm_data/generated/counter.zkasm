@@ -22,10 +22,7 @@ label_1_1:
   A => E
   10n => B  ;; LoadConst32
   $ => A :EQ
-  A => B
-  0 => A
-  $ => A :EQ
-  A :JMPZ(label_1_3)
+  A :JMPNZ(label_1_3)
   :JMP(label_1_1)
 label_1_3:
   10n => B  ;; LoadConst32

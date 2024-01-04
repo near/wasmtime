@@ -408,11 +408,6 @@ fn zkasm_get_operands<F: Fn(VReg) -> VReg>(inst: &Inst, collector: &mut OperandC
         &Inst::Jal { .. } => {}
         &Inst::CondBr { kind, .. } => {
             collector.reg_use(kind.rs1);
-            collector.reg_use(kind.rs2);
-            let mut clobbered = PRegSet::empty();
-            clobbered.add(a0().to_real_reg().unwrap().into());
-            clobbered.add(b0().to_real_reg().unwrap().into());
-            collector.reg_clobbers(clobbered);
         }
         &Inst::LoadExtName { rd, .. } => {
             collector.reg_def(rd);

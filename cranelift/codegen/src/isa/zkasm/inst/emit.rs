@@ -932,6 +932,7 @@ impl MachInstEmit for Inst {
                 not_taken,
                 mut kind,
             } => {
+                // TODO(#179): The handling of `CondBr` might need to be refactored.
                 kind.rs1 = allocs.next(kind.rs1);
                 kind.rs2 = allocs.next(kind.rs2);
                 // TODO(akashin): Support other types of comparisons.
@@ -939,15 +940,16 @@ impl MachInstEmit for Inst {
                 assert_eq!(kind.rs2, zero_reg());
                 match taken {
                     BranchTarget::Label(label) => {
-                        // WARNING: next two put_string MUST be in that order,
-                        // otherwise, if kind.rs1 == A it will lead to infinite loops.
-                        // Idk how to make kind.rs1 always not equal A.
-                        // At least, both A and B marked as clobbered in
-                        // mod.rs, so it will work.
-                        put_string(&format!("{} => B\n", reg_name(kind.rs1)), sink);
-                        put_string("0 => A\n", sink);
-                        put_string("$ => A :EQ\n", sink);
-                        put_string(&format!("A :JMPZ(label_{})\n", label.index()), sink);
+                        // Due to ISLE rules for `cond_br` the comparison result is in `kind.rs1`.
+                        // See #179 for details and how they might change in the future.
+                        //
+                        // Apart from that, this zkASM remains valid as long as the branch
+                        // condition effectively checks that `kind.rs1` contains a non-zero value.
+                        // This is guaranteed by the asserts above.
+                        put_string(
+                            &format!("{} :JMPNZ(label_{})\n", reg_name(kind.rs1), label.index()),
+                            sink,
+                        );
                     }
                     BranchTarget::ResolvedOffset(offset) => {
                         assert!(offset != 0);

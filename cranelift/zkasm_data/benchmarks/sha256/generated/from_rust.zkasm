@@ -504,10 +504,7 @@ function_1:
   $ => B :AND
   B :MSTORE(SP)
   0n => A  ;; LoadConst32
-  A => B
-  0 => A
-  $ => A :EQ
-  A :JMPZ(label_1_1)
+  A :JMPNZ(label_1_1)
   :JMP(label_1_2)
 label_1_1:
   :JMP(label_1_3)
@@ -539,10 +536,7 @@ label_1_3:
   $ => A :XOR
   8n => B  ;; LoadConst32
   $ => A :LT
-  A => B
-  0 => A
-  $ => A :EQ
-  A :JMPZ(label_1_5)
+  A :JMPNZ(label_1_5)
   160n => B  ;; LoadConst32
   $ => A :MLOAD(SP + 88)
   $ => C :ADD
@@ -1727,10 +1721,7 @@ function_3:
   0n => B  ;; LoadConst32
   $ => A :MLOAD(SP + 16)
   $ => A :EQ
-  A => B
-  0 => A
-  $ => A :EQ
-  A :JMPZ(label_3_1)
+  A :JMPNZ(label_3_1)
   :JMP(label_3_2)
 label_3_1:
   :JMP(label_3_7)
@@ -28109,10 +28100,7 @@ label_3_3:
   $ => B :MLOAD(SP + 9416)
   $ => A :EQ
   1 - A => A
-  A => B
-  0 => A
-  $ => A :EQ
-  A :JMPZ(label_3_4)
+  A :JMPNZ(label_3_4)
   :JMP(label_3_5)
 label_3_4:
   $ => A :MLOAD(SP + 112)
@@ -28210,10 +28198,7 @@ function_5:
   B => A
   C => B
   $ => A :LT
-  A => B
-  0 => A
-  $ => A :EQ
-  A :JMPZ(label_5_2)
+  A :JMPNZ(label_5_2)
   $ => E :MLOAD(SP + 16)
   $ => C :MLOAD(SP)
   C :MSTORE(SP + 16)
@@ -28236,10 +28221,7 @@ label_5_2:
   0n => B  ;; LoadConst32
   $ => A :MLOAD(SP + 24)
   $ => A :EQ
-  A => B
-  0 => A
-  $ => A :EQ
-  A :JMPZ(label_5_3)
+  A :JMPNZ(label_5_3)
   :JMP(label_5_4)
 label_5_3:
   $ => A :MLOAD(SP + 16)
@@ -28261,10 +28243,7 @@ label_5_5:
   E => A
   $ => B :MLOAD(SP + 40)
   $ => A :LT
-  A => B
-  0 => A
-  $ => A :EQ
-  A :JMPZ(label_5_6)
+  A :JMPNZ(label_5_6)
   :JMP(label_5_7)
 label_5_6:
   E => B
@@ -28304,10 +28283,7 @@ label_5_9:
   A => B
   C => A
   $ => A :SLT
-  A => B
-  0 => A
-  $ => A :EQ
-  A :JMPZ(label_5_10)
+  A :JMPNZ(label_5_10)
   :JMP(label_5_11)
 label_5_10:
   :JMP(label_5_16)
@@ -28340,10 +28316,7 @@ label_5_12:
   E => A
   $ => B :MLOAD(SP + 16)
   $ => A :LT
-  A => B
-  0 => A
-  $ => A :EQ
-  A :JMPZ(label_5_13)
+  A :JMPNZ(label_5_13)
   :JMP(label_5_14)
 label_5_13:
   E => B
@@ -28359,10 +28332,7 @@ label_5_17:
   0n => B  ;; LoadConst32
   E => A
   $ => A :EQ
-  A => B
-  0 => A
-  $ => A :EQ
-  A :JMPZ(label_5_18)
+  A :JMPNZ(label_5_18)
   :JMP(label_5_19)
 label_5_18:
   :JMP(label_5_24)
@@ -28390,10 +28360,7 @@ label_5_20:
   E => A
   $ => B :MLOAD(SP + 24)
   $ => A :LT
-  A => B
-  0 => A
-  $ => A :EQ
-  A :JMPZ(label_5_21)
+  A :JMPNZ(label_5_21)
   :JMP(label_5_22)
 label_5_21:
   E => B
