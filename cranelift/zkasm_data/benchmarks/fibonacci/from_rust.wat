@@ -3,7 +3,7 @@
 (module
   (type (;0;) (func (param i64 i64)))
   (type (;1;) (func))
-  (import "env" "assert_eq" (func (;0;) (type 0)))
+  (import "env" "assert_eq_i64" (func (;0;) (type 0)))
   (func (;1;) (type 1)
     (local i64 i64 i32)
     i64.const 1

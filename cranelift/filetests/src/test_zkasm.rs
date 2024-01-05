@@ -14,6 +14,9 @@ mod tests {
     use cranelift_codegen::{settings, FinalizedMachReloc, FinalizedRelocTarget};
     use cranelift_wasm::{translate_module, ZkasmEnvironment};
 
+    use walkdir::WalkDir;
+    use wasmtime::*;
+
     fn setup() {
         let _ = env_logger::builder().is_test(true).try_init();
     }
@@ -237,6 +240,48 @@ mod tests {
         program.join("\n")
     }
 
+    fn run_wat_file(path: &Path) -> Result<(), Box<dyn std::error::Error>> {
+        let engine = Engine::default();
+        let binary = wat::parse_file(path)?;
+        let module = Module::new(&engine, &binary)?;
+        let mut store = Store::new(&engine, ());
+        let mut linker = Linker::<()>::new(&engine);
+        linker.func_wrap("env", "assert_eq_i32", |a: i32, b: i32| {
+            assert_eq!(a, b);
+        })?;
+        linker.func_wrap("env", "assert_eq_i64", |a: i64, b: i64| {
+            assert_eq!(a, b);
+        })?;
+        linker.instantiate(&mut store, &module)?;
+        Ok(())
+    }
+
+    #[test]
+    fn run_wat() -> Result<(), Box<dyn std::error::Error>> {
+        for entry in WalkDir::new("../zkasm_data")
+            .into_iter()
+            .map(|e| e.unwrap())
+        {
+            if entry.path().extension().map_or(false, |ext| ext == "wat") {
+                let result = run_wat_file(entry.path());
+                if entry.path().to_str().unwrap().contains("_should_fail_") {
+                    if result.is_ok() {
+                        panic!(
+                            "Should fail file {} don't actually fail",
+                            entry.path().to_str().unwrap()
+                        );
+                    }
+                } else {
+                    if result.is_err() {
+                        println!("Err = {:#?}", result);
+                        panic!("Invalid wasm in {}", entry.path().to_str().unwrap());
+                    }
+                }
+            }
+        }
+        Ok(())
+    }
+
     fn test_module(name: &str) {
         let module_binary = wat::parse_file(format!("../zkasm_data/{name}.wat")).unwrap();
         let program = generate_zkasm(&module_binary);
@@ -276,7 +321,7 @@ mod tests {
             let count = test_counters.entry(function_name.to_string()).or_insert(0);
             *count += 1;
             let mut testcase = String::new();
-            testcase.push_str(&format!("(module\n (import \"env\" \"assert_eq\" (func $assert_eq (param {}) (param {})))\n (func $main\n", assert_type, assert_type));
+            testcase.push_str(&format!("(module\n (import \"env\" \"assert_eq_{}\" (func $assert_eq_{} (param {}) (param {})))\n (func $main\n", assert_type, assert_type, assert_type, assert_type));
             testcase.push_str(&format!(
                 "\t{}\n",
                 arguments
@@ -296,8 +341,9 @@ mod tests {
                 testcase.push_str(&format!("\t{function_type}.{}\n", function_name));
             }
             testcase.push_str(&format!(
-                "\t{}\n\tcall $assert_eq)\n (start $main))\n",
-                expected_result.trim()
+                "\t{}\n\tcall $assert_eq_{})\n (start $main))\n",
+                expected_result.trim(),
+                assert_type
             ));
             let file_name = format!(
                 "../../zkasm_data/spectest/{name}/{}_{}.wat",
