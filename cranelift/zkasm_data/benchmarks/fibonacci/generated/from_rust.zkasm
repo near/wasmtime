@@ -11,7 +11,7 @@ start:
 function_1:
   SP + 1 => SP
   RR :MSTORE(SP - 1)
-  SP + 5 => SP
+  SP + 4 => SP
   C :MSTORE(SP - 1)
   D :MSTORE(SP - 2)
   E :MSTORE(SP - 3)
@@ -19,70 +19,67 @@ function_1:
   1n => A  ;; LoadConst64
   0n => B  ;; LoadConst64
   10000n => C  ;; LoadConst32
-  C => D
   :JMP(label_1_1)
 label_1_1:
   $ => B :ADD
-  A => C
+  A => D
   B => A
-  C => B
+  D => B
   $ => B :ADD
-  A => C
+  A => D
   B => A
-  C => B
+  D => B
   $ => B :ADD
-  A => C
+  A => D
   B => A
-  C => B
+  D => B
   $ => B :ADD
-  A => C
+  A => D
   B => A
-  C => B
+  D => B
   $ => B :ADD
-  A => C
+  A => D
   B => A
-  C => B
+  D => B
   $ => B :ADD
-  A => C
+  A => D
   B => A
-  C => B
+  D => B
   $ => B :ADD
-  A => C
+  A => D
   B => A
-  C => B
+  D => B
   $ => B :ADD
-  A => C
+  A => D
   B => A
-  C => B
+  D => B
   $ => B :ADD
-  A => C
+  A => D
   B => A
-  C => B
+  D => B
   $ => E :ADD
-  A :MSTORE(SP)
+  A => D
   4294967286n => B  ;; LoadConst32
-  D => A
+  C => A
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
   $ => A :AND
-  A => C
-  A => D
-  C :JMPNZ(label_1_2)
+  A :JMPNZ(label_1_2)
   :JMP(label_1_3)
 label_1_2:
-  C => D
-  $ => B :MLOAD(SP)
+  D => B
+  A => C
   E => A
   :JMP(label_1_1)
 label_1_3:
   15574651946073070043n => B  ;; LoadConst64
-  $ => A :MLOAD(SP)
+  D => A
   B :ASSERT
   $ => C :MLOAD(SP - 1)
   $ => D :MLOAD(SP - 2)
   $ => E :MLOAD(SP - 3)
   $ => B :MLOAD(SP - 4)
-  SP - 5 => SP
+  SP - 4 => SP
   $ => RR :MLOAD(SP - 1)
   SP - 1 => SP
   :JMP(RR)
