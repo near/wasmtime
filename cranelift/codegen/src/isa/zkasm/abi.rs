@@ -347,14 +347,14 @@ impl ABIMachineSpec for ZkAsmMachineDeps {
         let mut insts = SmallVec::new();
 
         if frame_layout.setup_area_size > 0 {
-            insts.push(Inst::ReserveSp {
-                amount: frame_layout.setup_area_size.into(),
-            });
             insts.push(Self::gen_store_stack(
-                StackAMode::SPOffset(-1, I64),
+                StackAMode::SPOffset(0, I64),
                 link_reg(),
                 I64,
             ));
+            insts.push(Inst::ReserveSp {
+                amount: frame_layout.setup_area_size.into(),
+            });
         }
 
         insts
@@ -369,14 +369,14 @@ impl ABIMachineSpec for ZkAsmMachineDeps {
         let mut insts = SmallVec::new();
 
         if frame_layout.setup_area_size > 0 {
-            insts.push(Self::gen_load_stack(
-                StackAMode::SPOffset(-1, I64),
-                writable_link_reg(),
-                I64,
-            ));
             insts.push(Inst::ReleaseSp {
                 amount: frame_layout.setup_area_size.into(),
             });
+            insts.push(Self::gen_load_stack(
+                StackAMode::SPOffset(0, I64),
+                writable_link_reg(),
+                I64,
+            ));
         }
 
         if call_conv == isa::CallConv::Tail {
@@ -415,10 +415,7 @@ impl ABIMachineSpec for ZkAsmMachineDeps {
         // Store each clobbered register in order at offsets from SP,
         // placing them above the fixed frame slots.
         if stack_size > 0 {
-            insts.push(Inst::ReserveSp {
-                amount: stack_size.into(),
-            });
-            let mut cur_offset = -1;
+            let mut cur_offset = -8;
             for reg in &frame_layout.clobbered_callee_saves {
                 let r_reg = reg.to_reg();
                 let ty = match r_reg.class() {
@@ -431,8 +428,11 @@ impl ABIMachineSpec for ZkAsmMachineDeps {
                     real_reg_to_reg(reg.to_reg()),
                     ty,
                 ));
-                cur_offset -= 1
+                cur_offset -= 8
             }
+            insts.push(Inst::ReserveSp {
+                amount: stack_size.into(),
+            });
         }
         insts
     }
@@ -445,7 +445,10 @@ impl ABIMachineSpec for ZkAsmMachineDeps {
         let mut insts = SmallVec::new();
         let stack_size = frame_layout.fixed_frame_storage_size + frame_layout.clobber_size;
         if stack_size > 0 {
-            let mut cur_offset = -1;
+            insts.push(Inst::ReleaseSp {
+                amount: stack_size.into(),
+            });
+            let mut cur_offset = -8;
             for reg in &frame_layout.clobbered_callee_saves {
                 let rreg = reg.to_reg();
                 let ty = match rreg.class() {
@@ -458,11 +461,8 @@ impl ABIMachineSpec for ZkAsmMachineDeps {
                     Writable::from_reg(real_reg_to_reg(reg.to_reg())),
                     ty,
                 ));
-                cur_offset -= 1
+                cur_offset -= 8
             }
-            insts.push(Inst::ReleaseSp {
-                amount: stack_size.into(),
-            });
         }
         insts
     }

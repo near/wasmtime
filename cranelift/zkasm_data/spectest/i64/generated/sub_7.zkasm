@@ -1,21 +1,22 @@
 start:
+  0xffff => SP
   zkPC + 2 => RR
   :JMP(function_1)
   :JMP(finalizeExecution)
 function_1:
-  SP + 1 => SP
-  RR :MSTORE(SP - 1)
-  SP + 2 => SP
+  RR :MSTORE(SP)
+  SP - 1 => SP
   B :MSTORE(SP - 1)
+  SP - 2 => SP
   1073741823n => A  ;; LoadConst64
   18446744073709551615n => B  ;; LoadConst64
   $ => A :SUB
   1073741824n => B  ;; LoadConst64
   B :ASSERT
+  SP + 2 => SP
   $ => B :MLOAD(SP - 1)
-  SP - 2 => SP
-  $ => RR :MLOAD(SP - 1)
-  SP - 1 => SP
+  SP + 1 => SP
+  $ => RR :MLOAD(SP)
   :JMP(RR)
 finalizeExecution:
   ${beforeLast()}  :JMPN(finalizeExecution)

@@ -601,11 +601,12 @@ impl MachInstEmit for Inst {
                         );
                     }
                     AMode::SPOffset(off, _) | AMode::NominalSPOffset(off, _) => {
+                        assert_eq!(off % 8, 0);
                         put_string(
                             &format!(
                                 "$ => {} :MLOAD({})\n",
                                 reg_name(rd.to_reg()),
-                                access_reg_with_offset(stack_reg(), off),
+                                access_reg_with_offset(stack_reg(), off / 8),
                             ),
                             sink,
                         );
@@ -647,11 +648,12 @@ impl MachInstEmit for Inst {
                         );
                     }
                     AMode::SPOffset(off, _) | AMode::NominalSPOffset(off, _) => {
+                        assert_eq!(off % 8, 0);
                         put_string(
                             &format!(
                                 "{} :MSTORE({})\n",
                                 reg_name(src),
-                                access_reg_with_offset(stack_reg(), off),
+                                access_reg_with_offset(stack_reg(), off / 8),
                             ),
                             sink,
                         );
@@ -720,20 +722,20 @@ impl MachInstEmit for Inst {
                 }
             }
             &Inst::ReleaseSp { amount } => {
-                // Stack is growing "up" in zkASM contrary to traditional architectures.
-                // Furthermore, addressing is done in slots rather than bytes.
+                // Stack addressing is done in slots rather than bytes.
                 //
                 // FIXME: add helper functions to implement these conversions.
-                let amount = amount.checked_div(8).unwrap();
-                put_string(&format!("SP - {amount} => SP\n"), sink);
+                let (q, r) = (amount / 8, amount % 8);
+                assert_eq!(r, 0);
+                put_string(&format!("SP + {q} => SP\n"), sink);
             }
             &Inst::ReserveSp { amount } => {
-                // Stack is growing "up" in zkASM contrary to traditional architectures.
-                // Furthermore, addressing is done in slots rather than bytes.
+                // Stack addressing is done in slots rather than bytes.
                 //
                 // FIXME: add helper functions to implement these conversions.
-                let amount = amount.checked_div(8).unwrap();
-                put_string(&format!("SP + {amount} => SP\n"), sink);
+                let (q, r) = (amount / 8, amount % 8);
+                assert_eq!(r, 0);
+                put_string(&format!("SP - {q} => SP\n"), sink);
             }
             &Inst::Call { ref info } => {
                 // call
