@@ -73,6 +73,9 @@ mod tests {
             }
         }
 
+        // The total amount of stack available on ZKASM processor is 2^16 of 8-byte words.
+        // Stack memory is a separate region that is independent from the heap.
+        program.push("  0xffff => SP".to_string());
         program.push("  zkPC + 2 => RR".to_string());
         program.push(format!("  :JMP(function_{})", start_func_index));
         program.push("  :JMP(finalizeExecution)".to_string());

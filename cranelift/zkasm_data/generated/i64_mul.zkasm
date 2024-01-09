@@ -1,15 +1,16 @@
 start:
+  0xffff => SP
   zkPC + 2 => RR
   :JMP(function_1)
   :JMP(finalizeExecution)
 function_1:
-  SP + 1 => SP
-  RR :MSTORE(SP - 1)
-  SP + 5 => SP
+  RR :MSTORE(SP)
+  SP - 1 => SP
   C :MSTORE(SP - 1)
   D :MSTORE(SP - 2)
   E :MSTORE(SP - 3)
   B :MSTORE(SP - 4)
+  SP - 5 => SP
   214748364n => A  ;; LoadConst64
   A => E
   107374183n => A  ;; LoadConst64
@@ -39,13 +40,13 @@ function_1:
   ${_mulArith} => B :ARITH
   E => A
   B :ASSERT
+  SP + 5 => SP
   $ => C :MLOAD(SP - 1)
   $ => D :MLOAD(SP - 2)
   $ => E :MLOAD(SP - 3)
   $ => B :MLOAD(SP - 4)
-  SP - 5 => SP
-  $ => RR :MLOAD(SP - 1)
-  SP - 1 => SP
+  SP + 1 => SP
+  $ => RR :MLOAD(SP)
   :JMP(RR)
 finalizeExecution:
   ${beforeLast()}  :JMPN(finalizeExecution)

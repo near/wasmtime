@@ -1122,13 +1122,15 @@ impl Inst {
             }
             &Inst::ReserveSp { amount } => {
                 // FIXME: conversion methods
-                let amount = amount.checked_div(8).unwrap();
-                format!("  SP + {} => SP", amount)
+                let (q, r) = (amount / 8, amount % 8);
+                assert_eq!(r, 0);
+                format!("  SP - {q} => SP")
             }
             &Inst::ReleaseSp { amount } => {
                 // FIXME: conversion methods
-                let amount = amount.checked_div(8).unwrap();
-                format!("  SP - {} => SP", amount)
+                let (q, r) = (amount / 8, amount % 8);
+                assert_eq!(r, 0);
+                format!("  SP + {q} => SP")
             }
             &Inst::Call { ref info } => format!("call {}", info.dest.display(None)),
             &Inst::CallInd { ref info } => {

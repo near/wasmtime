@@ -1,12 +1,13 @@
 start:
+  0xffff => SP
   zkPC + 2 => RR
   :JMP(function_1)
   :JMP(finalizeExecution)
 function_1:
-  SP + 1 => SP
-  RR :MSTORE(SP - 1)
-  SP + 2 => SP
+  RR :MSTORE(SP)
+  SP - 1 => SP
   B :MSTORE(SP - 1)
+  SP - 2 => SP
   2147483648n => A  ;; LoadConst32
   2147483648n => B  ;; LoadConst32
   $ => A :ADD
@@ -14,10 +15,10 @@ function_1:
   $ => A :AND
   0n => B  ;; LoadConst32
   B :ASSERT
+  SP + 2 => SP
   $ => B :MLOAD(SP - 1)
-  SP - 2 => SP
-  $ => RR :MLOAD(SP - 1)
-  SP - 1 => SP
+  SP + 1 => SP
+  $ => RR :MLOAD(SP)
   :JMP(RR)
 finalizeExecution:
   ${beforeLast()}  :JMPN(finalizeExecution)
