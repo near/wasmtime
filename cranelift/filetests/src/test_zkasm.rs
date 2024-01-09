@@ -69,7 +69,7 @@ mod tests {
                     chunk_data <<= 8;
                     chunk_data |= *c as u64;
                 }
-                program.push(format!("  {chunk_data} :MSTORE(MEM:E + {i})"));
+                program.push(format!("  {chunk_data}n :MSTORE(MEM:E + {i})"));
             }
         }
 

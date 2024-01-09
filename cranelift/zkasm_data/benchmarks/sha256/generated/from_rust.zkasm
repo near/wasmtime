@@ -6,12 +6,12 @@ start:
   1048619 :MSTORE(global_1)  ;; Global32(1048619)
   1048624 :MSTORE(global_2)  ;; Global32(1048624)
   1048576 => E
-  13503953895726638695 :MSTORE(MEM:E + 0)
-  11912009169889063794 :MSTORE(MEM:E + 1)
-  11170449402626986623 :MSTORE(MEM:E + 2)
-  6620516960021240235 :MSTORE(MEM:E + 3)
-  8031924123371070824 :MSTORE(MEM:E + 4)
-  6581362 :MSTORE(MEM:E + 5)
+  13503953895726638695n :MSTORE(MEM:E + 0)
+  11912009169889063794n :MSTORE(MEM:E + 1)
+  11170449402626986623n :MSTORE(MEM:E + 2)
+  6620516960021240235n :MSTORE(MEM:E + 3)
+  8031924123371070824n :MSTORE(MEM:E + 4)
+  6581362n :MSTORE(MEM:E + 5)
   zkPC + 2 => RR
   :JMP(function_1)
   :JMP(finalizeExecution)
@@ -370,8 +370,8 @@ function_1:
   E :MSTORE(SP + 40)
   88n => B  ;; LoadConst64
   $ => A :MLOAD(SP + 40)
-  $ => D :OR
-  D :MSTORE(SP + 32)
+  $ => C :OR
+  C :MSTORE(SP + 32)
   65024n => B  ;; LoadConst64
   $ => A :MLOAD(SP + 32)
   $ => B :AND
@@ -391,11 +391,11 @@ function_1:
   16711680n => B  ;; LoadConst64
   $ => A :MLOAD(SP + 32)
   $ => B :AND
-  B => C
+  B => D
   24n => A  ;; LoadConst64
   63n => B  ;; LoadConst64
   $ => E :AND
-  C => A
+  D => A
 ;;NEED_INCLUDE: 2-exp
   zkPC + 2 => RR
     :JMP(@two_power + E)
@@ -502,16 +502,16 @@ function_1:
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
   $ => B :AND
-  B :MSTORE(SP)
   0n => A  ;; LoadConst32
   A :JMPNZ(label_1_1)
   :JMP(label_1_2)
 label_1_1:
+  B :MSTORE(SP)
   :JMP(label_1_3)
 label_1_2:
   11n => A  ;; LoadConst32
-  $ => B :MLOAD(SP)
   $ => A :ADD
+  B :MSTORE(SP)
   4294967295n => B  ;; LoadConst64
   $ => A :AND
   1n => B  ;; LoadConst32
@@ -842,11 +842,11 @@ label_1_6:
   E :ARITH
   4294967295n => B  ;; LoadConst64
   $ => A :AND
-  A => D
+  A => C
   16n => A  ;; LoadConst32
   31n => B  ;; LoadConst64
   $ => E :AND
-  D => A
+  C => A
 ;;NEED_INCLUDE: 2-exp
   zkPC + 2 => RR
     :JMP(@two_power + E)
@@ -916,11 +916,11 @@ label_1_6:
   $ => B :OR
   $ => A :MLOAD(SP + 24)
   $ => A :OR
-  A => D
+  A => C
   8n => A  ;; LoadConst64
   63n => B  ;; LoadConst64
   $ => E :AND
-  D => A
+  C => A
 ;;NEED_INCLUDE: 2-exp
   zkPC + 2 => RR
     :JMP(@two_power + E)
@@ -928,11 +928,10 @@ label_1_6:
   $${var _mul = A * B}
   ${_mul >> 64} => D
   ${_mul} => E :ARITH
-  E => C
   255n => B  ;; LoadConst32
   $ => A :MLOAD(SP)
   $ => B :AND
-  C => A
+  E => A
   $ => A :OR
   13352372148217134600n => B  ;; LoadConst64
   B :ASSERT
@@ -1078,11 +1077,11 @@ label_1_6:
   E :ARITH
   4294967295n => B  ;; LoadConst64
   $ => A :AND
-  A => C
+  A => D
   16n => A  ;; LoadConst32
   31n => B  ;; LoadConst64
   $ => E :AND
-  C => A
+  D => A
 ;;NEED_INCLUDE: 2-exp
   zkPC + 2 => RR
     :JMP(@two_power + E)
@@ -1118,11 +1117,11 @@ label_1_6:
   65280n => B  ;; LoadConst32
   $ => A :MLOAD(SP + 48)
   $ => E :AND
-  E => D
+  E => C
   8n => A  ;; LoadConst32
   31n => B  ;; LoadConst64
   $ => E :AND
-  D => A
+  C => A
 ;;NEED_INCLUDE: 2-exp
   zkPC + 2 => RR
     :JMP(@two_power + E)
@@ -1152,11 +1151,11 @@ label_1_6:
   $ => B :OR
   $ => A :MLOAD(SP + 8)
   $ => A :OR
-  A => C
+  A => D
   8n => A  ;; LoadConst64
   63n => B  ;; LoadConst64
   $ => E :AND
-  C => A
+  D => A
 ;;NEED_INCLUDE: 2-exp
   zkPC + 2 => RR
     :JMP(@two_power + E)
@@ -1164,10 +1163,11 @@ label_1_6:
   $${var _mul = A * B}
   ${_mul >> 64} => D
   ${_mul} => E :ARITH
+  E => D
   255n => B  ;; LoadConst32
   $ => A :MLOAD(SP + 48)
   $ => B :AND
-  E => A
+  D => A
   $ => A :OR
   11902541952223915002n => B  ;; LoadConst64
   B :ASSERT
@@ -1189,11 +1189,11 @@ label_1_6:
   65280n => B  ;; LoadConst32
   $ => A :MLOAD(SP + 56)
   $ => B :AND
-  B => D
+  B => C
   8n => A  ;; LoadConst32
   31n => B  ;; LoadConst64
   $ => E :AND
-  D => A
+  C => A
 ;;NEED_INCLUDE: 2-exp
   zkPC + 2 => RR
     :JMP(@two_power + E)
@@ -1241,7 +1241,7 @@ label_1_6:
   $ => B :AND
   $ => A :MLOAD(SP)
   $ => A :OR
-  B => C
+  B => D
   A => B
   $ => A :MLOAD(SP + 8)
   $ => A :OR
@@ -1252,7 +1252,7 @@ label_1_6:
   16n => A  ;; LoadConst32
   31n => B  ;; LoadConst64
   $ => E :AND
-  C => A
+  D => A
 ;;NEED_INCLUDE: 2-exp
   zkPC + 2 => RR
     :JMP(@two_power + E)
@@ -1282,11 +1282,11 @@ label_1_6:
   $ => B :AND
   $ => A :MLOAD(SP + 16)
   $ => A :OR
-  A => D
+  A => C
   32n => A  ;; LoadConst64
   63n => B  ;; LoadConst64
   $ => E :AND
-  D => A
+  C => A
 ;;NEED_INCLUDE: 2-exp
   zkPC + 2 => RR
     :JMP(@two_power + E)
@@ -1353,11 +1353,11 @@ label_1_6:
   65280n => B  ;; LoadConst32
   $ => A :MLOAD(SP + 64)
   $ => B :AND
-  B => C
+  B => D
   8n => A  ;; LoadConst32
   31n => B  ;; LoadConst64
   $ => E :AND
-  C => A
+  D => A
 ;;NEED_INCLUDE: 2-exp
   zkPC + 2 => RR
     :JMP(@two_power + E)
@@ -1368,11 +1368,11 @@ label_1_6:
   E => A
   4294967295n => B  ;; LoadConst64
   $ => A :AND
-  A => D
+  A => C
   16n => A  ;; LoadConst32
   31n => B  ;; LoadConst64
   $ => E :AND
-  D => A
+  C => A
 ;;NEED_INCLUDE: 2-exp
   zkPC + 2 => RR
     :JMP(@two_power + E)
@@ -1399,11 +1399,11 @@ label_1_6:
   $${var _mul = A * B}
   ${_mul >> 64} => D
   ${_mul} => E :ARITH
-  E => D
+  E => C
   255n => B  ;; LoadConst32
   $ => A :MLOAD(SP + 64)
   $ => B :AND
-  D => A
+  C => A
   $ => A :OR
   14160706888648589550n => B  ;; LoadConst64
   B :ASSERT
@@ -1425,11 +1425,11 @@ label_1_6:
   65280n => B  ;; LoadConst32
   $ => A :MLOAD(SP + 72)
   $ => B :AND
-  B => C
+  B => D
   8n => A  ;; LoadConst32
   31n => B  ;; LoadConst64
   $ => E :AND
-  C => A
+  D => A
 ;;NEED_INCLUDE: 2-exp
   zkPC + 2 => RR
     :JMP(@two_power + E)
@@ -1478,8 +1478,9 @@ label_1_6:
   $ => A :MLOAD(SP + 8)
   $ => C :OR
   $ => A :MLOAD(SP)
-  B => D
-  C => B
+  C => D
+  B => C
+  D => B
   $ => A :OR
   65280n => B  ;; LoadConst32
   $ => B :AND
@@ -1488,7 +1489,7 @@ label_1_6:
   16n => A  ;; LoadConst32
   31n => B  ;; LoadConst64
   $ => E :AND
-  D => A
+  C => A
 ;;NEED_INCLUDE: 2-exp
   zkPC + 2 => RR
     :JMP(@two_power + E)
@@ -1518,11 +1519,11 @@ label_1_6:
   $ => B :AND
   $ => A :MLOAD(SP)
   $ => A :OR
-  A => C
+  A => D
   32n => A  ;; LoadConst64
   63n => B  ;; LoadConst64
   $ => E :AND
-  C => A
+  D => A
 ;;NEED_INCLUDE: 2-exp
   zkPC + 2 => RR
     :JMP(@two_power + E)
@@ -1604,11 +1605,11 @@ label_1_6:
   E => A
   4294967295n => B  ;; LoadConst64
   $ => A :AND
-  A => C
+  A => D
   16n => A  ;; LoadConst32
   31n => B  ;; LoadConst64
   $ => E :AND
-  C => A
+  D => A
 ;;NEED_INCLUDE: 2-exp
   zkPC + 2 => RR
     :JMP(@two_power + E)
@@ -28298,18 +28299,17 @@ label_5_11:
   ${_mulArith >> 64} => D
   ${_mulArith} => A :ARITH
   4294967295n => B  ;; LoadConst64
-  $ => A :AND
-  A :MSTORE(SP + 24)
+  $ => B :AND
+  B :MSTORE(SP + 24)
   $ => B :MLOAD(SP + 40)
   :JMP(label_5_12)
 label_5_12:
   0 => A  ;; LoadExtName(User(userextname0))
   $ => E :ADD
-  B => D
-  $ => A :MLOAD(SP + 24)
-  A :MSTORE(MEM:E)
+  B => A
+  $ => B :MLOAD(SP + 24)
+  B :MSTORE(MEM:E)
   4n => B  ;; LoadConst32
-  D => A
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
   $ => E :AND
@@ -28332,13 +28332,13 @@ label_5_17:
   0n => B  ;; LoadConst32
   E => A
   $ => A :EQ
+  E => B
   A :JMPNZ(label_5_18)
   :JMP(label_5_19)
 label_5_18:
   :JMP(label_5_24)
 label_5_19:
   $ => A :MLOAD(SP + 16)
-  E => B
   $ => D :ADD
   D => A
   4294967295n => B  ;; LoadConst64
