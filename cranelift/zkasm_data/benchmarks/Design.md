@@ -15,13 +15,43 @@ Instrumentation is based on logging zkASM instructions by calling Javascript fro
 
 Subsequently raw instruction logs are processed to aggregate data and surface important information. Information to be aggregated includes the number of times an instruction was executed and the number of register allocations. Analyzing the number of register allocations is relevant as [this example](https://github.com/near/wasmtime/issues/181) shows how reducing register allocations can decrease the number of cycles.
 
+TODO specify data to be logged after we committed to the visualization scheme.
+
 ## Visualization
+
+Visualizations should help to make the data described above more easily comprehensible and highlight the most expensive opcodes. The following graph shows the schema of the visualizations to be produced for *Analysis*:
+
+![Analysis graph](/cranelift/zkasm_data/benchmarks/assets/analysis_graph.svg)
+
+The graph represents an ordered list of the program's [`MInst`], which can be found on the bottom. Above each `MInst` are the zkASM instructions that have been executed due to its lowering. The following characteristics should hold for the visualization:
+
+- Ordered by decreasing `<count>` from left to right.
+- `<count>` is defined as a tuple `(a, b, c)` of the elements `{num_occurrences, num_cycles, num_reg_writes}`.
+    - `num_occurrences` is the number of times the instruction was executed.
+    - `num_cycles` is the total number of virtual machine cycles required to execute the instruction.
+    - `num_reg_writes` is the total number of register writes caused by the execution of the instruction.
+    - For `zkasm_op_x` sums are taken separately for each `MInst` that emitted `zkasm_op_x`.
+- The order of the tuple elements can be chosen via an UI or CLI flags. For example, `num_cycles` can be shown first, in which case `a = num_cycles`.
+- Sorting is done by comparing the first element of `<count>` tuples.
+- All `zkasm_op_*` rectangles have the same width.
+- The width of each `MInst::*` rectangle is determined by the number of `zkasm_op_*` rectangles on top of it.
+
+Due to the sort order defined above, there are different graphs for different assignments of `a`. This allows developers to highlight different costs, for instance register writes if `a = num_reg_writes` or virtual machine cycles if `a = num_cycles`.
 
 Once the data described in the previous section is available and has been used while working on the repository, opportunities for visualizations might be identified. They should help to make the information more easily digestible. Some examples of possible visualizations are:
 
-- The number of times instructions were executed.
-- zkASM instructions and the number of cycles required for their execution.
-- The number of cycles required for benchmarks across different points in the git commit history.
+### Format
+
+If feasible, visualizations should be SVG files, again taking inspiration from flame graphs. To avoid cluttering the graph, `<count>` is initially hidden and revealed for a rectangle on hovering.
+
+Producing the graph as SVG file provides the following advantages: 
+
+- No dependencies required as SVG files can be viewed in a web browser.
+- They can be embedded in Github comments, markdown files and other documents.
+
+### Diff visualization
+
+It will be interesting to observe how changes to generated zkASM impact performance. Given the *Analysis* data for two different commits `C1` and `C2`, above visualization can be used for displaying diffs. The diff data can be calculated as `<count_x_C1> - <count_x_C2` for `MInst` and zkASM instructions. The graph based on diff data then helps to identify the instructions whose cost changes most between the commits `C1` and `C2`.
 
 ## Relating zkASM instructions to cycles
 
