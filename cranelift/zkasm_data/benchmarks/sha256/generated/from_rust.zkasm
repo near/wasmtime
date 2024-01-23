@@ -557,7 +557,7 @@ label_1_3:
   1n => B  ;; LoadConst32
   SP - 1 => SP
   B :MSTORE(SP)
-  $ => B :MLOAD(SP)
+  $ => B :MLOAD(SP + 1)
   zkPC + 2 => RR
   :JMP(function_2)
   SP + 1 => SP
@@ -572,7 +572,7 @@ label_1_5:
   1n => C  ;; LoadConst32
   SP - 1 => SP
   C :MSTORE(SP)
-  $ => B :MLOAD(SP)
+  $ => B :MLOAD(SP + 1)
   zkPC + 2 => RR
   :JMP(function_2)
   SP + 1 => SP
