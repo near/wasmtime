@@ -589,34 +589,34 @@ impl MachInstEmit for Inst {
                 let offset = from.get_offset_with_state(state);
                 let rd = allocs.next_writable(rd);
                 match from {
-                    AMode::RegOffset(r, off, _) => {
+                    AMode::RegOffset(r, ..) => {
                         debug_assert_eq!(r, e0());
                         put_string(
                             &format!(
                                 "$ => {} :MLOAD(MEM:{})\n",
                                 reg_name(rd.to_reg()),
-                                access_reg_with_offset(r, off)
+                                access_reg_with_offset(r, offset)
                             ),
                             sink,
                         );
                     }
-                    AMode::SPOffset(off, _) | AMode::NominalSPOffset(off, _) => {
-                        assert_eq!(off % 8, 0);
+                    AMode::SPOffset(..) | AMode::NominalSPOffset(..) => {
+                        assert_eq!(offset % 8, 0);
                         put_string(
                             &format!(
                                 "$ => {} :MLOAD({})\n",
                                 reg_name(rd.to_reg()),
-                                access_reg_with_offset(stack_reg(), off / 8),
+                                access_reg_with_offset(stack_reg(), offset / 8),
                             ),
                             sink,
                         );
                     }
-                    AMode::FPOffset(off, _) => {
+                    AMode::FPOffset(..) => {
                         put_string(
                             &format!(
                                 "$ => {} :MLOAD({})\n",
                                 reg_name(rd.to_reg()),
-                                access_reg_with_offset(fp_reg(), off),
+                                access_reg_with_offset(fp_reg(), offset),
                             ),
                             sink,
                         );
@@ -634,36 +634,37 @@ impl MachInstEmit for Inst {
             &Inst::Store { op, src, flags, to } => {
                 let to = to.clone().with_allocs(&mut allocs);
                 let src = allocs.next(src);
+                let offset = to.get_offset_with_state(state);
 
                 match to {
-                    AMode::RegOffset(r, off, _) => {
+                    AMode::RegOffset(r, ..) => {
                         debug_assert_eq!(r, e0());
                         put_string(
                             &format!(
                                 "{} :MSTORE(MEM:{})\n",
                                 reg_name(src),
-                                access_reg_with_offset(r, off)
+                                access_reg_with_offset(r, offset)
                             ),
                             sink,
                         );
                     }
-                    AMode::SPOffset(off, _) | AMode::NominalSPOffset(off, _) => {
-                        assert_eq!(off % 8, 0);
+                    AMode::SPOffset(..) | AMode::NominalSPOffset(..) => {
+                        assert_eq!(offset % 8, 0);
                         put_string(
                             &format!(
                                 "{} :MSTORE({})\n",
                                 reg_name(src),
-                                access_reg_with_offset(stack_reg(), off / 8),
+                                access_reg_with_offset(stack_reg(), offset / 8),
                             ),
                             sink,
                         );
                     }
-                    AMode::FPOffset(off, _) => {
+                    AMode::FPOffset(..) => {
                         put_string(
                             &format!(
                                 "{} :MSTORE({})\n",
                                 reg_name(src),
-                                access_reg_with_offset(fp_reg(), off),
+                                access_reg_with_offset(fp_reg(), offset),
                             ),
                             sink,
                         );
@@ -1182,13 +1183,12 @@ impl MachInstEmit for Inst {
             }
 
             &Inst::VirtualSPOffsetAdj { amount } => {
-                println!("virtual_sp_offset_adj {amount}");
-                // crate::trace!(
-                //     "virtual sp offset adjusted by {} -> {}",
-                //     amount,
-                //     state.virtual_sp_offset + amount
-                //     );
-                // state.virtual_sp_offset += amount;
+                crate::trace!(
+                    "virtual sp offset adjusted by {} -> {}",
+                    amount,
+                    state.virtual_sp_offset + amount
+                );
+                state.virtual_sp_offset += amount;
             }
 
             &Inst::LoadAddr { rd, mem } => {
