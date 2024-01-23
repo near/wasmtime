@@ -1475,16 +1475,7 @@ impl MachInstEmit for Inst {
                 ref name,
                 offset,
             } => {
-                // TODO(akashin): Replace this with a more general logic when we have more than
-                // one external constant.
-                let rd = allocs.next_writable(rd);
-                put_string(
-                    &format!(
-                        "{offset} => {}  ;; LoadExtName({name:?})\n",
-                        reg_name(rd.to_reg())
-                    ),
-                    sink,
-                );
+                unimplemented!("LoadExtName: {name:?}");
             }
             &Inst::TrapIfC {
                 rs1,
