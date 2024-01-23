@@ -600,23 +600,13 @@ impl MachInstEmit for Inst {
                             sink,
                         );
                     }
-                    AMode::SPOffset(..) | AMode::NominalSPOffset(..) => {
+                    AMode::SPOffset(..) | AMode::NominalSPOffset(..) | AMode::FPOffset(..) => {
                         assert_eq!(offset % 8, 0);
                         put_string(
                             &format!(
                                 "$ => {} :MLOAD({})\n",
                                 reg_name(rd.to_reg()),
                                 access_reg_with_offset(stack_reg(), offset / 8),
-                            ),
-                            sink,
-                        );
-                    }
-                    AMode::FPOffset(..) => {
-                        put_string(
-                            &format!(
-                                "$ => {} :MLOAD({})\n",
-                                reg_name(rd.to_reg()),
-                                access_reg_with_offset(fp_reg(), offset),
                             ),
                             sink,
                         );
@@ -648,23 +638,13 @@ impl MachInstEmit for Inst {
                             sink,
                         );
                     }
-                    AMode::SPOffset(..) | AMode::NominalSPOffset(..) => {
+                    AMode::SPOffset(..) | AMode::NominalSPOffset(..) | AMode::FPOffset(..) => {
                         assert_eq!(offset % 8, 0);
                         put_string(
                             &format!(
                                 "{} :MSTORE({})\n",
                                 reg_name(src),
                                 access_reg_with_offset(stack_reg(), offset / 8),
-                            ),
-                            sink,
-                        );
-                    }
-                    AMode::FPOffset(..) => {
-                        put_string(
-                            &format!(
-                                "{} :MSTORE({})\n",
-                                reg_name(src),
-                                access_reg_with_offset(fp_reg(), offset),
                             ),
                             sink,
                         );

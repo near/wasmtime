@@ -143,7 +143,7 @@ impl AMode {
         match self {
             &AMode::RegOffset(reg, ..) => Some(reg),
             &AMode::SPOffset(..) => Some(stack_reg()),
-            &AMode::FPOffset(..) => Some(fp_reg()),
+            &AMode::FPOffset(..) => Some(stack_reg()),
             &AMode::NominalSPOffset(..) => Some(stack_reg()),
             &AMode::Const(..) | AMode::Label(..) | AMode::Global(..) => None,
         }
@@ -151,6 +151,9 @@ impl AMode {
 
     pub(crate) fn get_offset_with_state(&self, state: &EmitState) -> i64 {
         match self {
+            // We don't have a frame pointer on ZKASM, but it can be easily computed
+            // based on the nominal sp.
+            &AMode::FPOffset(offset, _) => offset + state.nominal_sp_to_fp,
             &AMode::NominalSPOffset(offset, _) => offset + state.virtual_sp_offset,
             _ => self.get_offset(),
         }
