@@ -17,8 +17,8 @@ start:
   :JMP(function_1)
   :JMP(finalizeExecution)
 function_1:
-  RR :MSTORE(SP)
   SP - 1 => SP
+  RR :MSTORE(SP)
   C :MSTORE(SP - 1)
   D :MSTORE(SP - 2)
   E :MSTORE(SP - 3)
@@ -1656,12 +1656,12 @@ label_1_6:
   $ => D :MLOAD(SP - 2)
   $ => E :MLOAD(SP - 3)
   $ => B :MLOAD(SP - 4)
-  SP + 1 => SP
   $ => RR :MLOAD(SP)
+  SP + 1 => SP
   :JMP(RR)
 function_2:
-  RR :MSTORE(SP)
   SP - 1 => SP
+  RR :MSTORE(SP)
   C :MSTORE(SP - 1)
   SP - 2 => SP
   $ => C :MLOAD(SP + 3)
@@ -1672,12 +1672,12 @@ function_2:
   SP + 1 => SP
   SP + 2 => SP
   $ => C :MLOAD(SP - 1)
-  SP + 1 => SP
   $ => RR :MLOAD(SP)
+  SP + 1 => SP
   :JMP(RR)
 function_3:
-  RR :MSTORE(SP)
   SP - 1 => SP
+  RR :MSTORE(SP)
   C :MSTORE(SP - 1)
   D :MSTORE(SP - 2)
   E :MSTORE(SP - 3)
@@ -28164,12 +28164,12 @@ label_3_7:
   $ => D :MLOAD(SP - 2)
   $ => E :MLOAD(SP - 3)
   $ => B :MLOAD(SP - 4)
-  SP + 1 => SP
   $ => RR :MLOAD(SP)
+  SP + 1 => SP
   :JMP(RR)
 function_4:
-  RR :MSTORE(SP)
   SP - 1 => SP
+  RR :MSTORE(SP)
   C :MSTORE(SP - 1)
   SP - 2 => SP
   $ => C :MLOAD(SP + 3)
@@ -28180,12 +28180,12 @@ function_4:
   SP + 1 => SP
   SP + 2 => SP
   $ => C :MLOAD(SP - 1)
-  SP + 1 => SP
   $ => RR :MLOAD(SP)
+  SP + 1 => SP
   :JMP(RR)
 function_5:
-  RR :MSTORE(SP)
   SP - 1 => SP
+  RR :MSTORE(SP)
   C :MSTORE(SP - 1)
   D :MSTORE(SP - 2)
   E :MSTORE(SP - 3)
@@ -28375,8 +28375,8 @@ label_5_24:
   $ => D :MLOAD(SP - 2)
   $ => E :MLOAD(SP - 3)
   $ => B :MLOAD(SP - 4)
-  SP + 1 => SP
   $ => RR :MLOAD(SP)
+  SP + 1 => SP
   :JMP(RR)
 finalizeExecution:
   ${beforeLast()}  :JMPN(finalizeExecution)

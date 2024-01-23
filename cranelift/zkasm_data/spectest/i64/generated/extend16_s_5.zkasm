@@ -4,8 +4,8 @@ start:
   :JMP(function_1)
   :JMP(finalizeExecution)
 function_1:
-  RR :MSTORE(SP)
   SP - 1 => SP
+  RR :MSTORE(SP)
   B :MSTORE(SP - 1)
   SP - 2 => SP
   1311768467463733248n => A  ;; LoadConst64
@@ -13,8 +13,8 @@ function_1:
   B :ASSERT
   SP + 2 => SP
   $ => B :MLOAD(SP - 1)
-  SP + 1 => SP
   $ => RR :MLOAD(SP)
+  SP + 1 => SP
   :JMP(RR)
 finalizeExecution:
   ${beforeLast()}  :JMPN(finalizeExecution)
