@@ -169,7 +169,7 @@ impl ABIMachineSpec for ZkAsmMachineDeps {
     }
 
     fn fp_to_arg_offset(_call_conv: isa::CallConv, _flags: &settings::Flags) -> i64 {
-        8
+        8 // return address.
     }
 
     fn gen_load_stack(mem: StackAMode, into_reg: Writable<Reg>, ty: Type) -> Inst {
@@ -291,10 +291,10 @@ impl ABIMachineSpec for ZkAsmMachineDeps {
 
     fn compute_frame_layout(
         call_conv: isa::CallConv,
-        flags: &settings::Flags,
+        _flags: &settings::Flags,
         _sig: &Signature,
         regs: &[Writable<RealReg>],
-        is_leaf: bool,
+        _is_leaf: bool,
         stack_args_size: u32,
         fixed_frame_storage_size: u32,
         outgoing_args_size: u32,
@@ -311,19 +311,9 @@ impl ABIMachineSpec for ZkAsmMachineDeps {
         let clobber_size = compute_clobber_size(&regs);
 
         // Compute linkage frame size.
-        let setup_area_size = if flags.preserve_frame_pointers()
-            || !is_leaf
-            // FIXME: we don’t currently maintain a frame pointer?
-            // The function arguments that are passed on the stack are addressed
-            // relative to the Frame Pointer.
-            || stack_args_size > 0
-            || clobber_size > 0
-            || fixed_frame_storage_size > 0
-        {
-            8 // RR
-        } else {
-            0
-        };
+        // FIXME: We can avoid storing the return address for leaf functions, but we would also
+        // need to adjust the address calculation in `fp_to_arg_offset`.
+        let setup_area_size = 8; // return address.
 
         // Return FrameLayout structure.
         debug_assert!(outgoing_args_size == 0);
@@ -346,14 +336,13 @@ impl ABIMachineSpec for ZkAsmMachineDeps {
         let mut insts = SmallVec::new();
 
         if frame_layout.setup_area_size > 0 {
+            assert_eq!(frame_layout.setup_area_size, 8);
+            insts.push(Inst::ReserveSp { amount: 8 });
             insts.push(Self::gen_store_stack(
                 StackAMode::SPOffset(0, I64),
                 link_reg(),
                 I64,
             ));
-            insts.push(Inst::ReserveSp {
-                amount: frame_layout.setup_area_size.into(),
-            });
         }
 
         insts
@@ -368,14 +357,13 @@ impl ABIMachineSpec for ZkAsmMachineDeps {
         let mut insts = SmallVec::new();
 
         if frame_layout.setup_area_size > 0 {
-            insts.push(Inst::ReleaseSp {
-                amount: frame_layout.setup_area_size.into(),
-            });
+            assert_eq!(frame_layout.setup_area_size, 8);
             insts.push(Self::gen_load_stack(
                 StackAMode::SPOffset(0, I64),
                 writable_link_reg(),
                 I64,
             ));
+            insts.push(Inst::ReleaseSp { amount: 8 });
         }
 
         if call_conv == isa::CallConv::Tail {
