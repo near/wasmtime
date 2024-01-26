@@ -375,6 +375,10 @@ impl generated_code::Context for ZkAsmIsleContext<'_, '_, MInst, ZkAsmBackend> {
             match name {
                 ExternalName::User(user_name_ref) => {
                     // All ZKASM "memory"-like accesses use this name, but different offsets.
+                    // This is our convention as is not related to the actual offsets in zkAsm
+                    // machine memory that will be used by each base.
+                    // These offsets need to be aligned with the offsets used in
+                    // `cranelift_wasm::environ::zkasm::ZkasmFuncEnvironment`.
                     if user_name_ref.index() != 0 {
                         return None;
                     }
