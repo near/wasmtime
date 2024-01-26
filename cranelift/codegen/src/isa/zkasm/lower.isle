@@ -353,9 +353,10 @@
   (load_ext_name name 0))
 
 ;;;;;  Rules for `symbol_value`;;;;;;;;;
+;; Heap starts at offset 0 in zkAsm machine memory.
 (rule
-   (lower (symbol_value (symbol_value_data name _ offset)))
-   (load_ext_name name offset))
+   (lower (symbol_value (zkasm_base ZkasmBase.Heap)))
+   (imm $I32 0))
 
 ;;;;;  Rules for `bitcast`;;;;;;;;;
 (rule
