@@ -125,12 +125,14 @@ Logs are then processed to produce above data structure.
 
 ## Construct visualizations
 
-Histograms allow to get a quick overview of which instructions and labels are executed how often. The histograms will be generated as SVG files using the [`svg` crate](https://crates.io/crates/svg). Having visualizations as SVGs provides a number of advantages:
+Histograms allow to get a quick overview of which instructions and labels are executed how often. In the beginning, modifying graph schemes should be easy as we are iterating towards the final presentation. Therefore a visualization library like [matplotlib](https://matplotlib.org/stable/gallery/statistics/hist.html#histograms) (Python), [seaborn](https://seaborn.pydata.org/examples/faceted_histogram.html) (Python), or [plotters](https://docs.rs/plotters/latest/plotters/#what-types-of-figure-are-supported) (Rust) will be used.
 
-- No dependencies required as SVG files can be viewed in a web browser.
+The library should be able to store visualizations as image or SVG files, as these formats offer the following benefits:
+
+- No dependencies required as they can be viewed in browsers, for example.
 - They can be embedded in Github comments, markdown files and other documents.
 
-In case SVG generation proves to be too complicated for a MVP, other formats can be generated. For example histograms might be contained in HTML.
+In case image or SVG generation proves to be too complicated for a MVP, other formats can be generated. For example histograms might be contained in HTML.
 
 Later on visualizations with an UI that provides options to modify the graph might be helpful. Such visualizations might be built using web (frontend) technologies.
 
