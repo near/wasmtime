@@ -1,2 +1,2 @@
 Test,Status,Cycles
-from_rust,runtime error,
+from_rust,pass,27166

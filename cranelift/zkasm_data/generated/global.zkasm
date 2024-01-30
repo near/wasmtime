@@ -11,10 +11,11 @@ function_1:
   SP - 1 => SP
   RR :MSTORE(SP)
   D :MSTORE(SP - 1)
-  B :MSTORE(SP - 2)
-  SP - 2 => SP
-  3n => D  ;; LoadConst32
-  D :MSTORE(global_1)
+  E :MSTORE(SP - 2)
+  B :MSTORE(SP - 3)
+  SP - 4 => SP
+  3n => E  ;; LoadConst32
+  E :MSTORE(global_1)
   $ => A :MLOAD(global_0)
   $ => B :MLOAD(global_1)
   $ => A :ADD
@@ -22,9 +23,10 @@ function_1:
   $ => A :AND
   1n => B  ;; LoadConst32
   B :ASSERT
-  SP + 2 => SP
+  SP + 4 => SP
   $ => D :MLOAD(SP - 1)
-  $ => B :MLOAD(SP - 2)
+  $ => E :MLOAD(SP - 2)
+  $ => B :MLOAD(SP - 3)
   $ => RR :MLOAD(SP)
   SP + 1 => SP
   :JMP(RR)

@@ -591,14 +591,74 @@ impl MachInstEmit for Inst {
                 match from {
                     AMode::RegOffset(r, ..) => {
                         debug_assert_eq!(r, e0());
+                        // TODO(#43): Implement the conversion using verifiable computations.
+                        put_string(
+                            &format!(
+                                "${{ ({}) / 8 }} => {}\n",
+                                access_reg_with_offset(r, offset),
+                                reg_name(r)
+                            ),
+                            sink,
+                        );
+                        let rem = offset % 8;
+                        let width = op.width() as i64;
+
                         put_string(
                             &format!(
                                 "$ => {} :MLOAD(MEM:{})\n",
                                 reg_name(rd.to_reg()),
-                                access_reg_with_offset(r, offset)
+                                reg_name(r)
                             ),
                             sink,
                         );
+                        // TODO(#34): Implement unaligned and narrow reads using verifiable
+                        // computations.
+                        if rem > 0 {
+                            put_string(
+                                &format!(
+                                    "${{ {} >> {} }} => {}\n",
+                                    reg_name(rd.to_reg()),
+                                    8 * rem,
+                                    reg_name(rd.to_reg())
+                                ),
+                                sink,
+                            );
+                        }
+
+                        // Handle the case when read spans two slots.
+                        if rem + width > 8 {
+                            let rem = rem + width - 8;
+                            put_string(
+                                &format!(
+                                    "$ => {} :MLOAD(MEM:{})\n",
+                                    reg_name(d0()),
+                                    access_reg_with_offset(r, 1)
+                                ),
+                                sink,
+                            );
+                            put_string(
+                                &format!(
+                                    "${{ (D << {}) | {} }} => {}\n",
+                                    64 - 8 * rem,
+                                    reg_name(rd.to_reg()),
+                                    reg_name(rd.to_reg()),
+                                ),
+                                sink,
+                            );
+                        }
+
+                        // Mask the value to the width of the resulting type.
+                        if width < 8 {
+                            put_string(
+                                &format!(
+                                    "${{ {} & ((1 << {}) - 1) }} => {}\n",
+                                    reg_name(rd.to_reg()),
+                                    8 * width,
+                                    reg_name(rd.to_reg()),
+                                ),
+                                sink,
+                            );
+                        }
                     }
                     AMode::SPOffset(..) | AMode::NominalSPOffset(..) | AMode::FPOffset(..) => {
                         assert_eq!(offset % 8, 0);
@@ -629,14 +689,77 @@ impl MachInstEmit for Inst {
                 match to {
                     AMode::RegOffset(r, ..) => {
                         debug_assert_eq!(r, e0());
+                        // TODO(#43): Implement the conversion using verifiable computations.
                         put_string(
                             &format!(
-                                "{} :MSTORE(MEM:{})\n",
-                                reg_name(src),
-                                access_reg_with_offset(r, offset)
+                                "${{ ({}) / 8 }} => {}\n",
+                                access_reg_with_offset(r, offset),
+                                reg_name(r)
                             ),
                             sink,
                         );
+                        let rem = offset % 8;
+                        let width = op.width() as i64;
+
+                        if op == StoreOP::I64 && rem == 0 {
+                            put_string(
+                                &format!("{} :MSTORE(MEM:{})\n", reg_name(src), reg_name(r)),
+                                sink,
+                            );
+                            return;
+                        }
+
+                        // TODO(#34): Implement unaligned and narrow writes using verifiable
+                        // computations.
+                        if width < 8 {
+                            put_string(
+                                &format!(
+                                    "${{ {} & ((1 << {}) - 1) }} => {}\n",
+                                    reg_name(src),
+                                    8 * width,
+                                    reg_name(src),
+                                ),
+                                sink,
+                            );
+                        }
+                        put_string(
+                            &format!("$ => {} :MLOAD(MEM:{})\n", reg_name(d0()), reg_name(r)),
+                            sink,
+                        );
+                        put_string(
+                            &format!(
+                                "${{ (D & ~(((1 << {}) - 1) << {})) | ({} << {}) }} :MSTORE(MEM:{})\n",
+                                8 * width,
+                                8 * rem,
+                                reg_name(src),
+                                8 * rem,
+                                reg_name(r),
+                            ),
+                            sink,
+                        );
+
+                        // Handle the case when write spans two slots.
+                        if rem + width > 8 {
+                            let rem = rem + width - 8;
+                            put_string(
+                                &format!(
+                                    "$ => {} :MLOAD(MEM:{})\n",
+                                    reg_name(d0()),
+                                    access_reg_with_offset(r, 1)
+                                ),
+                                sink,
+                            );
+                            put_string(
+                                &format!(
+                                    "${{ (D & ~((1 << {}) - 1)) | ({} & ((1 << {}) - 1)) }} :MSTORE(MEM:{})\n",
+                                    8 * rem,
+                                    reg_name(src),
+                                    8 * rem,
+                                    access_reg_with_offset(r, 1),
+                                ),
+                                sink,
+                            );
+                        }
                     }
                     AMode::SPOffset(..) | AMode::NominalSPOffset(..) | AMode::FPOffset(..) => {
                         assert_eq!(offset % 8, 0);

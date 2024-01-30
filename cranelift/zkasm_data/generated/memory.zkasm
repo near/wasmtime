@@ -15,22 +15,32 @@ function_1:
   2n => C  ;; LoadConst32
   0n => A  ;; LoadConst32
   $ => E :ADD
-  C :MSTORE(MEM:E)
+  ${ (E) / 8 } => E
+  ${ C & ((1 << 32) - 1) } => C
+  $ => D :MLOAD(MEM:E)
+  ${ (D & ~(((1 << 32) - 1) << 0)) | (C << 0) } :MSTORE(MEM:E)
   8n => B  ;; LoadConst32
   3n => C  ;; LoadConst32
   0n => A  ;; LoadConst32
   $ => E :ADD
-  C :MSTORE(MEM:E)
+  ${ (E) / 8 } => E
+  ${ C & ((1 << 32) - 1) } => C
+  $ => D :MLOAD(MEM:E)
+  ${ (D & ~(((1 << 32) - 1) << 0)) | (C << 0) } :MSTORE(MEM:E)
   0n => B  ;; LoadConst32
   0n => A  ;; LoadConst32
   $ => E :ADD
+  ${ (E) / 8 } => E
   $ => A :MLOAD(MEM:E)
-  A => D
+  ${ A & ((1 << 32) - 1) } => A
+  A => C
   8n => B  ;; LoadConst32
   0n => A  ;; LoadConst32
   $ => E :ADD
+  ${ (E) / 8 } => E
   $ => B :MLOAD(MEM:E)
-  D => A
+  ${ B & ((1 << 32) - 1) } => B
+  C => A
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
   $ => A :AND

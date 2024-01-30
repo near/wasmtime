@@ -7,7 +7,7 @@ counter,pass,124
 div,pass,27
 eqz,pass,27
 fibonacci,pass,224
-global,pass,26
+global,pass,28
 i32_add_overflows,pass,20
 i32_const,pass,16
 i32_mul_overflows,pass,26
@@ -20,8 +20,8 @@ locals,pass,20
 locals_simple,pass,16
 lt_s,pass,55
 lt_u,pass,27
-memory,pass,44
-memory_i32,runtime error,
+memory,pass,54
+memory_i32,pass,237
 mul,pass,26
 ne,pass,29
 nop,pass,16
