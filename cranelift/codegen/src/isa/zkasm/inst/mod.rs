@@ -337,6 +337,7 @@ fn zkasm_get_operands<F: Fn(VReg) -> VReg>(inst: &Inst, collector: &mut OperandC
                 collector.reg_fixed_use(r, e0());
             }
             let mut clobbered = PRegSet::empty();
+            clobbered.add(a0().to_real_reg().unwrap().into());
             clobbered.add(d0().to_real_reg().unwrap().into());
             collector.reg_clobbers(clobbered);
             collector.reg_def(rd);
@@ -346,6 +347,7 @@ fn zkasm_get_operands<F: Fn(VReg) -> VReg>(inst: &Inst, collector: &mut OperandC
                 collector.reg_fixed_use(r, e0());
             }
             let mut clobbered = PRegSet::empty();
+            clobbered.add(a0().to_real_reg().unwrap().into());
             clobbered.add(d0().to_real_reg().unwrap().into());
             collector.reg_clobbers(clobbered);
             collector.reg_late_use(src);

@@ -591,6 +591,11 @@ impl MachInstEmit for Inst {
                 match from {
                     AMode::RegOffset(r, ..) => {
                         debug_assert_eq!(r, e0());
+                        // For simplicity we assume that register address is word-aligned.
+                        // This was the case for Rust-generated code, but might be violated in the
+                        // future.
+                        put_string(&format!("${{ {} % 8 }} => A\n", reg_name(r)), sink);
+                        put_string(&format!("0: ASSERT\n"), sink);
                         // TODO(#43): Implement the conversion using verifiable computations.
                         put_string(
                             &format!(
@@ -689,6 +694,11 @@ impl MachInstEmit for Inst {
                 match to {
                     AMode::RegOffset(r, ..) => {
                         debug_assert_eq!(r, e0());
+                        // For simplicity we assume that register address is word-aligned.
+                        // This was the case for Rust-generated code, but might be violated in the
+                        // future.
+                        put_string(&format!("${{ {} % 8 }} => A\n", reg_name(r)), sink);
+                        put_string(&format!("0: ASSERT\n"), sink);
                         // TODO(#43): Implement the conversion using verifiable computations.
                         put_string(
                             &format!(

@@ -11,229 +11,306 @@ start:
 function_1:
   SP - 1 => SP
   RR :MSTORE(SP)
-  D :MSTORE(SP - 1)
-  E :MSTORE(SP - 2)
-  B :MSTORE(SP - 3)
+  C :MSTORE(SP - 1)
+  D :MSTORE(SP - 2)
+  E :MSTORE(SP - 3)
+  B :MSTORE(SP - 4)
   SP - 4 => SP
   0n => B  ;; LoadConst32
   0n => A  ;; LoadConst32
   $ => E :ADD
+  ${ E % 8 } => A
+  0: ASSERT
   ${ (E) / 8 } => E
-  $ => A :MLOAD(MEM:E)
-  ${ A & ((1 << 8) - 1) } => A
+  $ => B :MLOAD(MEM:E)
+  ${ B & ((1 << 8) - 1) } => B
+  B => A
   97n => B  ;; LoadConst32
   B :ASSERT
   0n => B  ;; LoadConst32
   0n => A  ;; LoadConst32
   $ => E :ADD
+  ${ E % 8 } => A
+  0: ASSERT
   ${ (E) / 8 } => E
-  $ => A :MLOAD(MEM:E)
-  ${ A & ((1 << 8) - 1) } => A
+  $ => C :MLOAD(MEM:E)
+  ${ C & ((1 << 8) - 1) } => C
+  C => A
   97n => B  ;; LoadConst32
   B :ASSERT
   0n => B  ;; LoadConst32
   0n => A  ;; LoadConst32
   $ => E :ADD
+  ${ E % 8 } => A
+  0: ASSERT
   ${ (E + 1) / 8 } => E
-  $ => A :MLOAD(MEM:E)
-  ${ A >> 8 } => A
-  ${ A & ((1 << 8) - 1) } => A
+  $ => E :MLOAD(MEM:E)
+  ${ E >> 8 } => E
+  ${ E & ((1 << 8) - 1) } => E
+  E => A
   98n => B  ;; LoadConst32
   B :ASSERT
   0n => B  ;; LoadConst32
   0n => A  ;; LoadConst32
   $ => E :ADD
+  ${ E % 8 } => A
+  0: ASSERT
   ${ (E + 2) / 8 } => E
-  $ => A :MLOAD(MEM:E)
-  ${ A >> 16 } => A
-  ${ A & ((1 << 8) - 1) } => A
+  $ => E :MLOAD(MEM:E)
+  ${ E >> 16 } => E
+  ${ E & ((1 << 8) - 1) } => E
+  E => A
   99n => B  ;; LoadConst32
   B :ASSERT
   0n => B  ;; LoadConst32
   0n => A  ;; LoadConst32
   $ => E :ADD
+  ${ E % 8 } => A
+  0: ASSERT
   ${ (E + 25) / 8 } => E
-  $ => A :MLOAD(MEM:E)
-  ${ A >> 8 } => A
-  ${ A & ((1 << 8) - 1) } => A
+  $ => B :MLOAD(MEM:E)
+  ${ B >> 8 } => B
+  ${ B & ((1 << 8) - 1) } => B
+  B => A
   122n => B  ;; LoadConst32
   B :ASSERT
   0n => B  ;; LoadConst32
   0n => A  ;; LoadConst32
   $ => E :ADD
+  ${ E % 8 } => A
+  0: ASSERT
   ${ (E) / 8 } => E
-  $ => A :MLOAD(MEM:E)
-  ${ A & ((1 << 8) - 1) } => A
+  $ => B :MLOAD(MEM:E)
+  ${ B & ((1 << 8) - 1) } => B
+  B => A
   97n => B  ;; LoadConst32
   B :ASSERT
   0n => B  ;; LoadConst32
   0n => A  ;; LoadConst32
   $ => E :ADD
+  ${ E % 8 } => A
+  0: ASSERT
   ${ (E) / 8 } => E
-  $ => A :MLOAD(MEM:E)
-  ${ A & ((1 << 8) - 1) } => A
+  $ => C :MLOAD(MEM:E)
+  ${ C & ((1 << 8) - 1) } => C
+  C => A
   97n => B  ;; LoadConst32
   B :ASSERT
   0n => B  ;; LoadConst32
   0n => A  ;; LoadConst32
   $ => E :ADD
+  ${ E % 8 } => A
+  0: ASSERT
   ${ (E + 1) / 8 } => E
-  $ => A :MLOAD(MEM:E)
-  ${ A >> 8 } => A
-  ${ A & ((1 << 8) - 1) } => A
+  $ => E :MLOAD(MEM:E)
+  ${ E >> 8 } => E
+  ${ E & ((1 << 8) - 1) } => E
+  E => A
   98n => B  ;; LoadConst32
   B :ASSERT
   0n => B  ;; LoadConst32
   0n => A  ;; LoadConst32
   $ => E :ADD
+  ${ E % 8 } => A
+  0: ASSERT
   ${ (E + 2) / 8 } => E
-  $ => A :MLOAD(MEM:E)
-  ${ A >> 16 } => A
-  ${ A & ((1 << 8) - 1) } => A
+  $ => E :MLOAD(MEM:E)
+  ${ E >> 16 } => E
+  ${ E & ((1 << 8) - 1) } => E
+  E => A
   99n => B  ;; LoadConst32
   B :ASSERT
   0n => B  ;; LoadConst32
   0n => A  ;; LoadConst32
   $ => E :ADD
+  ${ E % 8 } => A
+  0: ASSERT
   ${ (E + 25) / 8 } => E
-  $ => A :MLOAD(MEM:E)
-  ${ A >> 8 } => A
-  ${ A & ((1 << 8) - 1) } => A
+  $ => B :MLOAD(MEM:E)
+  ${ B >> 8 } => B
+  ${ B & ((1 << 8) - 1) } => B
+  B => A
   122n => B  ;; LoadConst32
   B :ASSERT
   0n => B  ;; LoadConst32
   0n => A  ;; LoadConst32
   $ => E :ADD
+  ${ E % 8 } => A
+  0: ASSERT
   ${ (E) / 8 } => E
-  $ => A :MLOAD(MEM:E)
-  ${ A & ((1 << 16) - 1) } => A
+  $ => B :MLOAD(MEM:E)
+  ${ B & ((1 << 16) - 1) } => B
+  B => A
   25185n => B  ;; LoadConst32
   B :ASSERT
   0n => B  ;; LoadConst32
   0n => A  ;; LoadConst32
   $ => E :ADD
+  ${ E % 8 } => A
+  0: ASSERT
   ${ (E) / 8 } => E
-  $ => A :MLOAD(MEM:E)
-  ${ A & ((1 << 16) - 1) } => A
+  $ => C :MLOAD(MEM:E)
+  ${ C & ((1 << 16) - 1) } => C
+  C => A
   25185n => B  ;; LoadConst32
   B :ASSERT
   0n => B  ;; LoadConst32
   0n => A  ;; LoadConst32
   $ => E :ADD
+  ${ E % 8 } => A
+  0: ASSERT
   ${ (E + 1) / 8 } => E
-  $ => A :MLOAD(MEM:E)
-  ${ A >> 8 } => A
-  ${ A & ((1 << 16) - 1) } => A
+  $ => E :MLOAD(MEM:E)
+  ${ E >> 8 } => E
+  ${ E & ((1 << 16) - 1) } => E
+  E => A
   25442n => B  ;; LoadConst32
   B :ASSERT
   0n => B  ;; LoadConst32
   0n => A  ;; LoadConst32
   $ => E :ADD
+  ${ E % 8 } => A
+  0: ASSERT
   ${ (E + 2) / 8 } => E
-  $ => A :MLOAD(MEM:E)
-  ${ A >> 16 } => A
-  ${ A & ((1 << 16) - 1) } => A
+  $ => E :MLOAD(MEM:E)
+  ${ E >> 16 } => E
+  ${ E & ((1 << 16) - 1) } => E
+  E => A
   25699n => B  ;; LoadConst32
   B :ASSERT
   0n => B  ;; LoadConst32
   0n => A  ;; LoadConst32
   $ => E :ADD
+  ${ E % 8 } => A
+  0: ASSERT
   ${ (E + 25) / 8 } => E
-  $ => A :MLOAD(MEM:E)
-  ${ A >> 8 } => A
-  ${ A & ((1 << 16) - 1) } => A
+  $ => B :MLOAD(MEM:E)
+  ${ B >> 8 } => B
+  ${ B & ((1 << 16) - 1) } => B
+  B => A
   122n => B  ;; LoadConst32
   B :ASSERT
   0n => B  ;; LoadConst32
   0n => A  ;; LoadConst32
   $ => E :ADD
+  ${ E % 8 } => A
+  0: ASSERT
   ${ (E) / 8 } => E
-  $ => A :MLOAD(MEM:E)
-  ${ A & ((1 << 16) - 1) } => A
+  $ => B :MLOAD(MEM:E)
+  ${ B & ((1 << 16) - 1) } => B
+  B => A
   25185n => B  ;; LoadConst32
   B :ASSERT
   0n => B  ;; LoadConst32
   0n => A  ;; LoadConst32
   $ => E :ADD
+  ${ E % 8 } => A
+  0: ASSERT
   ${ (E) / 8 } => E
-  $ => A :MLOAD(MEM:E)
-  ${ A & ((1 << 16) - 1) } => A
+  $ => C :MLOAD(MEM:E)
+  ${ C & ((1 << 16) - 1) } => C
+  C => A
   25185n => B  ;; LoadConst32
   B :ASSERT
   0n => B  ;; LoadConst32
   0n => A  ;; LoadConst32
   $ => E :ADD
+  ${ E % 8 } => A
+  0: ASSERT
   ${ (E + 1) / 8 } => E
-  $ => A :MLOAD(MEM:E)
-  ${ A >> 8 } => A
-  ${ A & ((1 << 16) - 1) } => A
+  $ => E :MLOAD(MEM:E)
+  ${ E >> 8 } => E
+  ${ E & ((1 << 16) - 1) } => E
+  E => A
   25442n => B  ;; LoadConst32
   B :ASSERT
   0n => B  ;; LoadConst32
   0n => A  ;; LoadConst32
   $ => E :ADD
+  ${ E % 8 } => A
+  0: ASSERT
   ${ (E + 2) / 8 } => E
-  $ => A :MLOAD(MEM:E)
-  ${ A >> 16 } => A
-  ${ A & ((1 << 16) - 1) } => A
+  $ => E :MLOAD(MEM:E)
+  ${ E >> 16 } => E
+  ${ E & ((1 << 16) - 1) } => E
+  E => A
   25699n => B  ;; LoadConst32
   B :ASSERT
   0n => B  ;; LoadConst32
   0n => A  ;; LoadConst32
   $ => E :ADD
+  ${ E % 8 } => A
+  0: ASSERT
   ${ (E + 25) / 8 } => E
-  $ => A :MLOAD(MEM:E)
-  ${ A >> 8 } => A
-  ${ A & ((1 << 16) - 1) } => A
+  $ => B :MLOAD(MEM:E)
+  ${ B >> 8 } => B
+  ${ B & ((1 << 16) - 1) } => B
+  B => A
   122n => B  ;; LoadConst32
   B :ASSERT
   0n => B  ;; LoadConst32
   0n => A  ;; LoadConst32
   $ => E :ADD
+  ${ E % 8 } => A
+  0: ASSERT
   ${ (E) / 8 } => E
-  $ => A :MLOAD(MEM:E)
-  ${ A & ((1 << 32) - 1) } => A
+  $ => B :MLOAD(MEM:E)
+  ${ B & ((1 << 32) - 1) } => B
+  B => A
   1684234849n => B  ;; LoadConst32
   B :ASSERT
   0n => B  ;; LoadConst32
   0n => A  ;; LoadConst32
   $ => E :ADD
+  ${ E % 8 } => A
+  0: ASSERT
   ${ (E) / 8 } => E
-  $ => A :MLOAD(MEM:E)
-  ${ A & ((1 << 32) - 1) } => A
+  $ => C :MLOAD(MEM:E)
+  ${ C & ((1 << 32) - 1) } => C
+  C => A
   1684234849n => B  ;; LoadConst32
   B :ASSERT
   0n => B  ;; LoadConst32
   0n => A  ;; LoadConst32
   $ => E :ADD
+  ${ E % 8 } => A
+  0: ASSERT
   ${ (E + 1) / 8 } => E
-  $ => A :MLOAD(MEM:E)
-  ${ A >> 8 } => A
-  ${ A & ((1 << 32) - 1) } => A
+  $ => E :MLOAD(MEM:E)
+  ${ E >> 8 } => E
+  ${ E & ((1 << 32) - 1) } => E
+  E => A
   1701077858n => B  ;; LoadConst32
   B :ASSERT
   0n => B  ;; LoadConst32
   0n => A  ;; LoadConst32
   $ => E :ADD
+  ${ E % 8 } => A
+  0: ASSERT
   ${ (E + 2) / 8 } => E
-  $ => A :MLOAD(MEM:E)
-  ${ A >> 16 } => A
-  ${ A & ((1 << 32) - 1) } => A
+  $ => E :MLOAD(MEM:E)
+  ${ E >> 16 } => E
+  ${ E & ((1 << 32) - 1) } => E
+  E => A
   1717920867n => B  ;; LoadConst32
   B :ASSERT
   0n => B  ;; LoadConst32
   0n => A  ;; LoadConst32
   $ => E :ADD
+  ${ E % 8 } => A
+  0: ASSERT
   ${ (E + 25) / 8 } => E
-  $ => A :MLOAD(MEM:E)
-  ${ A >> 8 } => A
-  ${ A & ((1 << 32) - 1) } => A
+  $ => B :MLOAD(MEM:E)
+  ${ B >> 8 } => B
+  ${ B & ((1 << 32) - 1) } => B
+  B => A
   122n => B  ;; LoadConst32
   B :ASSERT
   SP + 4 => SP
-  $ => D :MLOAD(SP - 1)
-  $ => E :MLOAD(SP - 2)
-  $ => B :MLOAD(SP - 3)
+  $ => C :MLOAD(SP - 1)
+  $ => D :MLOAD(SP - 2)
+  $ => E :MLOAD(SP - 3)
+  $ => B :MLOAD(SP - 4)
   $ => RR :MLOAD(SP)
   SP + 1 => SP
   :JMP(RR)
