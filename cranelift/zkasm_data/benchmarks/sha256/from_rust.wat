@@ -4,399 +4,248 @@
   (type (;0;) (func (param i64 i64)))
   (type (;1;) (func))
   (type (;2;) (func (param i32 i32 i32)))
-  (type (;3;) (func (param i32 i32 i32) (result i32)))
   (import "env" "assert_eq_i64" (func (;0;) (type 0)))
   (func (;1;) (type 1)
-    (local i32 i32 i32 i32 i32 i32 i32 i32 i64 i64 i64 i32 i32)
+    (local i32 i32 i32 i32 i32 i32 i32 i32 i32 i32 i32)
     global.get 0
-    i32.const 240
+    i32.const 112
     i32.sub
     local.tee 0
     global.set 0
     local.get 0
-    i32.const 8
-    i32.add
-    i32.const 8
+    i32.const 24
     i32.add
     local.tee 1
-    i64.const 0
+    i32.const 0
+    i64.load offset=2072
     i64.store
     local.get 0
-    i32.const 8
-    i32.add
     i32.const 16
     i32.add
     local.tee 2
-    i64.const 0
+    i32.const 0
+    i64.load offset=2064
     i64.store
     local.get 0
     i32.const 8
-    i32.add
-    i32.const 24
     i32.add
     local.tee 3
-    i64.const 0
+    i32.const 0
+    i64.load offset=2056
     i64.store
+    local.get 0
+    i32.const 50
+    i32.add
+    i64.const 0
+    i64.store align=2
+    local.get 0
+    i32.const 58
+    i32.add
+    i64.const 0
+    i64.store align=2
+    local.get 0
+    i32.const 66
+    i32.add
+    i64.const 0
+    i64.store align=2
+    local.get 0
+    i32.const 74
+    i32.add
+    i64.const 0
+    i64.store align=2
+    local.get 0
+    i32.const 82
+    i32.add
+    i64.const 0
+    i64.store align=2
+    local.get 0
+    i32.const 88
+    i32.add
+    i64.const 0
+    i64.store align=2
+    local.get 0
+    i32.const 1
+    i32.store8 offset=104
+    local.get 0
+    i64.const 0
+    i64.store offset=32
+    local.get 0
+    i64.const 0
+    i64.store offset=42 align=2
+    local.get 0
+    i32.const 32856
+    i32.store16 offset=40
+    local.get 0
+    i32.const 0
+    i64.load offset=2048
+    i64.store
+    local.get 0
+    i32.const 96
+    i32.add
+    i64.const 576460752303423488
+    i64.store
+    local.get 0
     local.get 0
     i32.const 40
     i32.add
-    local.tee 4
-    i64.const 0
-    i64.store
-    local.get 0
-    i32.const 8
-    i32.add
-    i32.const 40
-    i32.add
-    local.tee 5
-    i64.const 0
-    i64.store
-    local.get 0
-    i32.const 53
-    i32.add
-    local.tee 6
-    i64.const 0
-    i64.store align=1
-    local.get 0
-    i64.const 0
-    i64.store offset=8
-    local.get 0
-    i32.const 64
-    i32.add
-    i32.const 24
-    i32.add
-    i32.const 0
-    i64.load offset=1048600
-    i64.store
-    local.get 0
-    i32.const 64
-    i32.add
-    i32.const 16
-    i32.add
-    i32.const 0
-    i64.load offset=1048592
-    i64.store
-    local.get 0
-    i32.const 64
-    i32.add
-    i32.const 8
-    i32.add
-    i32.const 0
-    i64.load offset=1048584
-    i64.store
-    local.get 0
-    i32.const 111
-    i32.add
-    i32.const 0
-    i32.load offset=1048615 align=1
-    i32.store align=1
-    local.get 0
-    i32.const 0
-    i64.load offset=1048576
-    i64.store offset=64
-    local.get 0
-    i64.const 0
-    i64.store offset=96
-    local.get 0
-    i32.const 0
-    i64.load offset=1048608
-    i64.store offset=104
-    local.get 0
-    i32.const 115
-    i32.add
-    local.tee 7
-    local.get 0
-    i64.load offset=8
-    i64.store align=1
-    local.get 0
-    i32.const 123
-    i32.add
+    i32.const 1
+    call 2
     local.get 1
-    i64.load
-    i64.store align=1
-    local.get 0
-    i32.const 131
-    i32.add
+    i32.load
+    local.set 1
     local.get 2
-    i64.load
-    i64.store align=1
-    local.get 0
-    i32.const 139
-    i32.add
-    local.get 3
-    i64.load
-    i64.store align=1
-    local.get 0
-    i32.const 147
-    i32.add
-    local.get 4
-    i64.load
-    i64.store align=1
-    local.get 0
-    i32.const 155
-    i32.add
-    local.get 5
-    i64.load
-    i64.store align=1
-    local.get 0
-    i32.const 160
-    i32.add
-    local.get 6
-    i64.load align=1
-    i64.store align=1
-    local.get 0
-    i32.const 11
-    i32.store8 offset=168
-    local.get 0
-    i32.const 172
-    i32.add
-    local.get 0
-    i32.const 4
-    i32.add
-    i32.load align=1
-    i32.store align=1
-    local.get 0
-    local.get 0
-    i32.load offset=1 align=1
-    i32.store offset=169 align=1
-    local.get 7
-    i32.const 128
-    i32.store8
-    local.get 0
-    i64.load offset=96
-    local.tee 8
-    i64.const 9
-    i64.shl
-    local.tee 9
-    i64.const 88
-    i64.or
-    local.tee 10
-    i64.const 65024
-    i64.and
-    i64.const 40
-    i64.shl
-    local.get 10
-    i64.const 16711680
-    i64.and
-    i64.const 24
-    i64.shl
-    local.get 10
-    i64.const 4278190080
-    i64.and
-    i64.const 8
-    i64.shl
-    i64.or
-    i64.or
-    local.get 8
-    i64.const 1
-    i64.shl
-    i64.const 4278190080
-    i64.and
-    local.get 8
-    i64.const 15
-    i64.shr_u
-    i64.const 16711680
-    i64.and
-    i64.or
-    local.get 8
-    i64.const 31
-    i64.shr_u
-    i64.const 65280
-    i64.and
-    local.get 9
-    i64.const 56
-    i64.shr_u
-    i64.or
-    i64.or
-    i64.or
-    local.set 8
-    local.get 0
-    i32.const 64
-    i32.add
-    i32.const 40
-    i32.add
-    local.set 1
-    block  ;; label = @1
-      i32.const 0
-      br_if 0 (;@1;)
-      i32.const 11
-      local.get 1
-      i32.add
-      i32.const 1
-      i32.add
-      i32.const 0
-      i32.const 52
-      call 4
-      drop
-    end
-    local.get 8
-    i64.const 6341068275337658368
-    i64.or
-    local.set 8
-    block  ;; label = @1
-      block  ;; label = @2
-        i32.const 11
-        i32.const 56
-        i32.xor
-        i32.const 8
-        i32.lt_u
-        br_if 0 (;@2;)
-        local.get 0
-        i32.const 160
-        i32.add
-        local.get 8
-        i64.store
-        local.get 0
-        i32.const 64
-        i32.add
-        local.get 1
-        i32.const 1
-        call 2
-        br 1 (;@1;)
-      end
-      local.get 0
-      i32.const 64
-      i32.add
-      local.get 1
-      i32.const 1
-      call 2
-      local.get 0
-      i32.const 224
-      i32.add
-      i64.const 0
-      i64.store
-      local.get 0
-      i32.const 216
-      i32.add
-      i64.const 0
-      i64.store
-      local.get 0
-      i32.const 208
-      i32.add
-      i64.const 0
-      i64.store
-      local.get 0
-      i32.const 200
-      i32.add
-      i64.const 0
-      i64.store
-      local.get 0
-      i32.const 192
-      i32.add
-      i64.const 0
-      i64.store
-      local.get 0
-      i32.const 184
-      i32.add
-      i64.const 0
-      i64.store
-      local.get 0
-      i64.const 0
-      i64.store offset=176
-      local.get 0
-      local.get 8
-      i64.store offset=232
-      local.get 0
-      i32.const 64
-      i32.add
-      local.get 0
-      i32.const 176
-      i32.add
-      i32.const 1
-      call 2
-    end
-    local.get 0
-    i32.load offset=92
-    local.set 1
-    local.get 0
-    i32.load offset=88
+    i32.load
     local.set 2
-    local.get 0
-    i32.load offset=84
+    local.get 3
+    i32.load
     local.set 3
     local.get 0
-    i32.load offset=80
+    i32.load offset=28
     local.set 4
     local.get 0
-    i32.load offset=76
+    i32.load offset=20
     local.set 5
     local.get 0
-    i32.load offset=72
+    i32.load offset=12
     local.set 6
     local.get 0
-    i32.load offset=64
-    local.tee 7
-    i32.const 24
-    i32.shl
-    local.get 7
-    i32.const 65280
-    i32.and
-    i32.const 8
-    i32.shl
-    local.tee 11
-    i32.or
-    local.get 7
-    i32.const 8
-    i32.shr_u
-    i32.const 65280
-    i32.and
-    local.get 7
-    i32.const 24
-    i32.shr_u
-    local.tee 7
-    i32.or
-    i32.or
-    local.tee 12
-    i32.const 65280
-    i32.and
-    local.get 7
-    i32.const 16
-    i32.shl
-    i32.or
-    local.get 11
-    i32.const 16
-    i32.shr_u
-    i32.or
-    i64.extend_i32_u
-    i64.const 32
-    i64.shl
-    local.get 12
-    i32.const -16777216
-    i32.and
+    i32.load offset=4
+    local.set 7
+    i64.const 75
     local.get 0
-    i32.load offset=68
+    i32.load
+    local.tee 8
+    i32.const 24
+    i32.shl
+    local.get 8
+    i32.const 65280
+    i32.and
+    i32.const 8
+    i32.shl
+    local.tee 9
+    i32.or
+    local.get 8
+    i32.const 8
+    i32.shr_u
+    i32.const 65280
+    i32.and
+    local.tee 10
+    local.get 8
+    i32.const 24
+    i32.shr_u
+    i32.or
+    i32.or
+    i32.const 255
+    i32.and
+    i64.extend_i32_u
+    call 0
+    i64.const 104
+    local.get 10
+    i32.const 8
+    i32.shr_u
+    i64.extend_i32_u
+    call 0
+    i64.const 171
+    local.get 9
+    i32.const 16
+    i32.shr_u
+    i64.extend_i32_u
+    call 0
+    i64.const 56
+    local.get 8
+    i32.const 255
+    i32.and
+    i64.extend_i32_u
+    call 0
+    i64.const 71
+    local.get 7
+    i32.const 24
+    i32.shl
+    local.get 7
+    i32.const 65280
+    i32.and
+    i32.const 8
+    i32.shl
+    local.tee 8
+    i32.or
+    local.get 7
+    i32.const 8
+    i32.shr_u
+    i32.const 65280
+    i32.and
+    local.tee 9
+    local.get 7
+    i32.const 24
+    i32.shr_u
+    i32.or
+    i32.or
+    i32.const 255
+    i32.and
+    i64.extend_i32_u
+    call 0
+    i64.const 254
+    local.get 9
+    i32.const 8
+    i32.shr_u
+    i64.extend_i32_u
+    call 0
+    i64.const 218
+    local.get 8
+    i32.const 16
+    i32.shr_u
+    i64.extend_i32_u
+    call 0
+    i64.const 125
+    local.get 7
+    i32.const 255
+    i32.and
+    i64.extend_i32_u
+    call 0
+    i64.const 108
+    local.get 3
+    i32.const 24
+    i32.shl
+    local.get 3
+    i32.const 65280
+    i32.and
+    i32.const 8
+    i32.shl
     local.tee 7
+    i32.or
+    local.get 3
+    i32.const 8
+    i32.shr_u
+    i32.const 65280
+    i32.and
+    local.tee 8
+    local.get 3
     i32.const 24
     i32.shr_u
-    i32.const 16
-    i32.shl
     i32.or
-    i64.extend_i32_u
-    i64.or
-    local.get 7
-    i32.const 8
-    i32.shr_u
-    i32.const 65280
-    i32.and
-    local.get 7
-    i32.const 65280
-    i32.and
-    i32.const 8
-    i32.shl
-    i32.const 16
-    i32.shr_u
     i32.or
-    i64.extend_i32_u
-    i64.or
-    i64.const 8
-    i64.shl
-    local.get 7
     i32.const 255
     i32.and
     i64.extend_i32_u
-    i64.or
-    i64.const -5094371925492417016
     call 0
+    i64.const 98
+    local.get 8
+    i32.const 8
+    i32.shr_u
+    i64.extend_i32_u
+    call 0
+    i64.const 193
+    local.get 7
+    i32.const 16
+    i32.shr_u
+    i64.extend_i32_u
+    call 0
+    i64.const 251
+    local.get 3
+    i32.const 255
+    i32.and
+    i64.extend_i32_u
+    call 0
+    i64.const 203
     local.get 6
     i32.const 24
     i32.shl
@@ -405,138 +254,42 @@
     i32.and
     i32.const 8
     i32.shl
+    local.tee 3
+    i32.or
+    local.get 6
+    i32.const 8
+    i32.shr_u
+    i32.const 65280
+    i32.and
     local.tee 7
-    i32.or
-    local.get 6
-    i32.const 8
-    i32.shr_u
-    i32.const 65280
-    i32.and
     local.get 6
     i32.const 24
     i32.shr_u
-    local.tee 6
     i32.or
     i32.or
-    local.tee 11
-    i32.const 65280
+    i32.const 255
     i32.and
-    local.get 6
-    i32.const 16
-    i32.shl
-    i32.or
+    i64.extend_i32_u
+    call 0
+    i64.const 238
     local.get 7
-    i32.const 16
-    i32.shr_u
-    i32.or
-    i64.extend_i32_u
-    i64.const 32
-    i64.shl
-    local.get 11
-    i32.const -16777216
-    i32.and
-    local.get 5
-    i32.const 24
-    i32.shr_u
-    i32.const 16
-    i32.shl
-    i32.or
-    i64.extend_i32_u
-    i64.or
-    local.get 5
     i32.const 8
     i32.shr_u
-    i32.const 65280
-    i32.and
-    local.get 5
-    i32.const 65280
-    i32.and
-    i32.const 8
-    i32.shl
-    i32.const 16
-    i32.shr_u
-    i32.or
     i64.extend_i32_u
-    i64.or
-    i64.const 8
-    i64.shl
-    local.get 5
-    i32.const 255
-    i32.and
-    i64.extend_i32_u
-    i64.or
-    i64.const -6544202121485636614
     call 0
-    local.get 4
-    i32.const 24
-    i32.shl
-    local.get 4
-    i32.const 65280
-    i32.and
-    i32.const 8
-    i32.shl
-    local.tee 5
-    i32.or
-    local.get 4
-    i32.const 8
-    i32.shr_u
-    i32.const 65280
-    i32.and
-    local.get 4
-    i32.const 24
-    i32.shr_u
-    local.tee 4
-    i32.or
-    i32.or
-    local.tee 6
-    i32.const 65280
-    i32.and
-    local.get 4
-    i32.const 16
-    i32.shl
-    i32.or
-    local.get 5
+    i64.const 191
+    local.get 3
     i32.const 16
     i32.shr_u
-    i32.or
     i64.extend_i32_u
-    i64.const 32
-    i64.shl
+    call 0
+    i64.const 163
     local.get 6
-    i32.const -16777216
-    i32.and
-    local.get 3
-    i32.const 24
-    i32.shr_u
-    i32.const 16
-    i32.shl
-    i32.or
-    i64.extend_i32_u
-    i64.or
-    local.get 3
-    i32.const 8
-    i32.shr_u
-    i32.const 65280
-    i32.and
-    local.get 3
-    i32.const 65280
-    i32.and
-    i32.const 8
-    i32.shl
-    i32.const 16
-    i32.shr_u
-    i32.or
-    i64.extend_i32_u
-    i64.or
-    i64.const 8
-    i64.shl
-    local.get 3
     i32.const 255
     i32.and
     i64.extend_i32_u
-    i64.or
-    i64.const -4286037185060962066
     call 0
+    i64.const 94
     local.get 2
     i32.const 24
     i32.shl
@@ -552,71 +305,171 @@
     i32.shr_u
     i32.const 65280
     i32.and
+    local.tee 6
     local.get 2
     i32.const 24
     i32.shr_u
-    local.tee 2
     i32.or
     i32.or
-    local.tee 4
-    i32.const 65280
+    i32.const 255
     i32.and
-    local.get 2
-    i32.const 16
-    i32.shl
-    i32.or
+    i64.extend_i32_u
+    call 0
+    i64.const 171
+    local.get 6
+    i32.const 8
+    i32.shr_u
+    i64.extend_i32_u
+    call 0
+    i64.const 115
     local.get 3
     i32.const 16
     i32.shr_u
-    i32.or
     i64.extend_i32_u
-    i64.const 32
-    i64.shl
-    local.get 4
-    i32.const -16777216
+    call 0
+    i64.const 81
+    local.get 2
+    i32.const 255
     i32.and
+    i64.extend_i32_u
+    call 0
+    i64.const 237
+    local.get 5
+    i32.const 24
+    i32.shl
+    local.get 5
+    i32.const 65280
+    i32.and
+    i32.const 8
+    i32.shl
+    local.tee 2
+    i32.or
+    local.get 5
+    i32.const 8
+    i32.shr_u
+    i32.const 65280
+    i32.and
+    local.tee 3
+    local.get 5
+    i32.const 24
+    i32.shr_u
+    i32.or
+    i32.or
+    i32.const 255
+    i32.and
+    i64.extend_i32_u
+    call 0
+    i64.const 94
+    local.get 3
+    i32.const 8
+    i32.shr_u
+    i64.extend_i32_u
+    call 0
+    i64.const 120
+    local.get 2
+    i32.const 16
+    i32.shr_u
+    i64.extend_i32_u
+    call 0
+    i64.const 244
+    local.get 5
+    i32.const 255
+    i32.and
+    i64.extend_i32_u
+    call 0
+    i64.const 221
+    local.get 1
+    i32.const 24
+    i32.shl
+    local.get 1
+    i32.const 65280
+    i32.and
+    i32.const 8
+    i32.shl
+    local.tee 2
+    i32.or
+    local.get 1
+    i32.const 8
+    i32.shr_u
+    i32.const 65280
+    i32.and
+    local.tee 3
     local.get 1
     i32.const 24
     i32.shr_u
-    i32.const 16
-    i32.shl
     i32.or
+    i32.or
+    i32.const 255
+    i32.and
     i64.extend_i32_u
-    i64.or
-    local.get 1
+    call 0
+    i64.const 173
+    local.get 3
     i32.const 8
     i32.shr_u
-    i32.const 65280
-    i32.and
-    local.get 1
-    i32.const 65280
-    i32.and
-    i32.const 8
-    i32.shl
+    i64.extend_i32_u
+    call 0
+    i64.const 234
+    local.get 2
     i32.const 16
     i32.shr_u
-    i32.or
     i64.extend_i32_u
-    i64.or
-    i64.const 8
-    i64.shl
+    call 0
+    i64.const 93
     local.get 1
     i32.const 255
     i32.and
     i64.extend_i32_u
-    i64.or
-    i64.const -8031897613501477399
+    call 0
+    i64.const 246
+    local.get 4
+    i32.const 24
+    i32.shl
+    local.get 4
+    i32.const 65280
+    i32.and
+    i32.const 8
+    i32.shl
+    local.tee 1
+    i32.or
+    local.get 4
+    i32.const 8
+    i32.shr_u
+    i32.const 65280
+    i32.and
+    local.tee 2
+    local.get 4
+    i32.const 24
+    i32.shr_u
+    i32.or
+    i32.or
+    i32.const 255
+    i32.and
+    i64.extend_i32_u
+    call 0
+    i64.const 75
+    local.get 2
+    i32.const 8
+    i32.shr_u
+    i64.extend_i32_u
+    call 0
+    i64.const 128
+    local.get 1
+    i32.const 16
+    i32.shr_u
+    i64.extend_i32_u
+    call 0
+    i64.const 21
+    local.get 4
+    i32.const 255
+    i32.and
+    i64.extend_i32_u
     call 0
     local.get 0
-    i32.const 240
+    i32.const 112
     i32.add
     global.set 0)
   (func (;2;) (type 2) (param i32 i32 i32)
-    local.get 0
-    local.get 1
-    local.get 2
-    call 3)
-  (func (;3;) (type 2) (param i32 i32 i32)
     (local i32 i32 i32 i32 i32 i32 i32 i32 i32 i32 i32 i32 i32 i32 i32 i32 i32 i32 i32 i32 i32 i32 i32 i32 i32 i32 i32 i32 i32 i32 i32 i32 i32 i32 i32)
     local.get 0
     i32.load offset=28
@@ -5610,120 +5463,14 @@
     local.get 0
     local.get 10
     i32.store)
-  (func (;4;) (type 3) (param i32 i32 i32) (result i32)
-    local.get 0
-    local.get 1
-    local.get 2
-    call 5)
-  (func (;5;) (type 3) (param i32 i32 i32) (result i32)
-    (local i32 i32 i32)
-    block  ;; label = @1
-      block  ;; label = @2
-        local.get 2
-        i32.const 15
-        i32.gt_u
-        br_if 0 (;@2;)
-        local.get 0
-        local.set 3
-        br 1 (;@1;)
-      end
-      local.get 0
-      i32.const 0
-      local.get 0
-      i32.sub
-      i32.const 3
-      i32.and
-      local.tee 4
-      i32.add
-      local.set 5
-      block  ;; label = @2
-        local.get 4
-        i32.eqz
-        br_if 0 (;@2;)
-        local.get 0
-        local.set 3
-        loop  ;; label = @3
-          local.get 3
-          local.get 1
-          i32.store8
-          local.get 3
-          i32.const 1
-          i32.add
-          local.tee 3
-          local.get 5
-          i32.lt_u
-          br_if 0 (;@3;)
-        end
-      end
-      local.get 5
-      local.get 2
-      local.get 4
-      i32.sub
-      local.tee 4
-      i32.const -4
-      i32.and
-      local.tee 2
-      i32.add
-      local.set 3
-      block  ;; label = @2
-        local.get 2
-        i32.const 1
-        i32.lt_s
-        br_if 0 (;@2;)
-        local.get 1
-        i32.const 255
-        i32.and
-        i32.const 16843009
-        i32.mul
-        local.set 2
-        loop  ;; label = @3
-          local.get 5
-          local.get 2
-          i32.store
-          local.get 5
-          i32.const 4
-          i32.add
-          local.tee 5
-          local.get 3
-          i32.lt_u
-          br_if 0 (;@3;)
-        end
-      end
-      local.get 4
-      i32.const 3
-      i32.and
-      local.set 2
-    end
-    block  ;; label = @1
-      local.get 2
-      i32.eqz
-      br_if 0 (;@1;)
-      local.get 3
-      local.get 2
-      i32.add
-      local.set 5
-      loop  ;; label = @2
-        local.get 3
-        local.get 1
-        i32.store8
-        local.get 3
-        i32.const 1
-        i32.add
-        local.tee 3
-        local.get 5
-        i32.lt_u
-        br_if 0 (;@2;)
-      end
-    end
-    local.get 0)
 	(start 1)
   (table (;0;) 1 1 funcref)
-  (memory (;0;) 17)
-  (global (;0;) (mut i32) (i32.const 1048576))
-  (global (;1;) i32 (i32.const 1048619))
-  (global (;2;) i32 (i32.const 1048624))
+  (memory (;0;) 1)
+  (global (;0;) (mut i32) (i32.const 2048))
+  (global (;1;) i32 (i32.const 2080))
+  (global (;2;) i32 (i32.const 2080))
   (export "memory" (memory 0))
   (export "main" (func 1))
   (export "__data_end" (global 1))
   (export "__heap_base" (global 2))
-  (data (;0;) (i32.const 1048576) "g\e6\09j\85\aeg\bbr\f3n<:\f5O\a5\7fR\0eQ\8ch\05\9b\ab\d9\83\1f\19\cd\e0[hello world"))
+  (data (;0;) (i32.const 2048) "g\e6\09j\85\aeg\bbr\f3n<:\f5O\a5\7fR\0eQ\8ch\05\9b\ab\d9\83\1f\19\cd\e0["))
