@@ -211,6 +211,16 @@
   (lower (has_type ty (ireduce x)))
   (value_regs_get x 0))
 
+;;;;;  Rules for `fpromote`;;;;;;;;;;;;;;;;;
+;; TODO(akashin): Fix this rule.
+(rule (lower (fpromote x))
+  x)
+
+;;;;;  Rules for `fdemote`;;;;;;;;;;;;;;;;;;
+;; TODO(akashin): Fix this rule.
+(rule (lower (fdemote x))
+  x)
+
 ;;;;;  Rules for `stack_addr`;;;;;;;;;
 (rule
   (lower (stack_addr ss offset))

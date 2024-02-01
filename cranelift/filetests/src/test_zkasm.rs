@@ -16,7 +16,9 @@ mod tests {
     }
 
     fn run_wat_file(path: &Path) -> Result<(), Box<dyn std::error::Error>> {
-        let engine = Engine::default();
+        let mut config = Config::default();
+        config.static_memory_maximum_size(0);
+        let engine = Engine::new(&config)?;
         let binary = wat::parse_file(path)?;
         let module = Module::new(&engine, &binary)?;
         let mut store = Store::new(&engine, ());
@@ -178,6 +180,7 @@ mod tests {
     fn run_benchmarks() {
         test_wat_in_directory(Path::new(&format!("../zkasm_data/benchmarks/fibonacci")));
         test_wat_in_directory(Path::new(&format!("../zkasm_data/benchmarks/sha256")));
+        test_wat_in_directory(Path::new(&format!("../zkasm_data/benchmarks/wasmi")));
     }
 
     macro_rules! testcases {
