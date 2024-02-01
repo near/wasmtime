@@ -799,7 +799,7 @@ impl MachInstEmit for Inst {
                 );
             }
             &Inst::CallInd { ref info } => {
-                put_string(&format!(";; FIXME: Inst::CallInd({info:?})\n"), sink);
+                put_string(&format!("FIXME: Inst::CallInd({info:?})\n"), sink);
 
                 /*
                 let rn = allocs.next(info.rn);
@@ -828,7 +828,7 @@ impl MachInstEmit for Inst {
                 ref info,
             } => {
                 put_string(
-                    &format!(";; FIXME: Inst::ReturnCall({callee:?}, {info:?})\n"),
+                    &format!("FIXME: Inst::ReturnCall({callee:?}, {info:?})\n"),
                     sink,
                 );
                 /* emit_return_call_common_sequence(
@@ -855,7 +855,7 @@ impl MachInstEmit for Inst {
 
             &Inst::ReturnCallInd { callee, ref info } => {
                 put_string(
-                    &format!(";; FIXME: Inst::ReturnCallInd({callee:?}, {info:?})\n"),
+                    &format!("FIXME: Inst::ReturnCallInd({callee:?}, {info:?})\n"),
                     sink,
                 );
                 /* let callee = allocs.next(callee);
@@ -892,7 +892,7 @@ impl MachInstEmit for Inst {
                         put_string(&format!(":JMP(label_{})\n", label.index()), sink);
                     }
                     BranchTarget::ResolvedOffset(offset) => {
-                        put_string(&format!(";; FIXME: Inst::Jal({dest:?})\n"), sink);
+                        put_string(&format!("FIXME: Inst::Jal({dest:?})\n"), sink);
                         /*
                         let offset = offset as i64;
                         if offset != 0 {
@@ -941,9 +941,7 @@ impl MachInstEmit for Inst {
                     }
                     BranchTarget::ResolvedOffset(offset) => {
                         put_string(
-                            &format!(
-                                ";; FIXME: Inst::CondBr({taken:?}, {not_taken:?}, {kind:?})\n"
-                            ),
+                            &format!("FIXME: Inst::CondBr({taken:?}, {not_taken:?}, {kind:?})\n"),
                             sink,
                         );
                         // if LabelUse::B12.offset_in_range(offset as i64) {
@@ -1015,10 +1013,7 @@ impl MachInstEmit for Inst {
             }
 
             &Inst::MovFromPReg { rd, rm } => {
-                put_string(
-                    &format!(";; FIXME: Inst::MovFromPReg({rd:?}, {rm:?})\n"),
-                    sink,
-                );
+                put_string(&format!("FIXME: Inst::MovFromPReg({rd:?}, {rm:?})\n"), sink);
                 /* debug_assert!([px_reg(2), px_reg(8)].contains(&rm));
                 let rd = allocs.next_writable(rd);
                 let x = Inst::AluRRImm12 {
@@ -1037,9 +1032,7 @@ impl MachInstEmit for Inst {
                 ref targets,
             } => {
                 put_string(
-                    &format!(
-                        ";; FIXME: Inst::BrTable({index:?}, {tmp1:?}, {tmp2:?}, {targets:?})\n"
-                    ),
+                    &format!("FIXME: Inst::BrTable({index:?}, {tmp1:?}, {tmp2:?}, {targets:?})\n"),
                     sink,
                 );
                 /* let index = allocs.next(index);
@@ -1190,10 +1183,7 @@ impl MachInstEmit for Inst {
             }
 
             &Inst::LoadAddr { rd, mem } => {
-                put_string(
-                    &format!(";; FIXME: Inst::LoadAddr({rd:?}, {mem:?})\n"),
-                    sink,
-                );
+                put_string(&format!("FIXME: Inst::LoadAddr({rd:?}, {mem:?})\n"), sink);
                 /* let mem = mem.with_allocs(&mut allocs);
                 let rd = allocs.next_writable(rd);
 
@@ -1260,9 +1250,7 @@ impl MachInstEmit for Inst {
                 ty: _ty,
             } => {
                 put_string(
-                    &format!(
-                        ";; FIXME: Inst::Select({dst:?}, {condition:?}, {x:?}, {y:?}, {_ty})\n"
-                    ),
+                    &format!("FIXME: Inst::Select({dst:?}, {condition:?}, {x:?}, {y:?}, {_ty})\n"),
                     sink,
                 );
                 /* let condition = allocs.next(condition);
@@ -1306,7 +1294,7 @@ impl MachInstEmit for Inst {
             }
             &Inst::Jalr { rd, base, offset } => {
                 put_string(
-                    &format!(";; FIXME: Inst::Jalr({rd:?}, {base:?}, {offset:?})\n"),
+                    &format!("FIXME: Inst::Jalr({rd:?}, {base:?}, {offset:?})\n"),
                     sink,
                 );
                 /* let rd = allocs.next_writable(rd);
@@ -1424,7 +1412,7 @@ impl MachInstEmit for Inst {
                 ty,
             } => {
                 put_string(
-                    &format!(";; FIXME: Inst::IntSelect({op:?}, {dst:?}, {x:?}, {y:?}, {ty:?})\n"),
+                    &format!("FIXME: Inst::IntSelect({op:?}, {dst:?}, {x:?}, {y:?}, {ty:?})\n"),
                     sink,
                 );
                 /* let x = alloc_value_regs(x, &mut allocs);
@@ -1482,9 +1470,7 @@ impl MachInstEmit for Inst {
                 rs2,
             } => {
                 put_string(
-                    &format!(
-                        ";; FIXME: Inst::SelectReg({condition:?}, {rd:?}, {rs1:?}, {rs2:?})\n"
-                    ),
+                    &format!("FIXME: Inst::SelectReg({condition:?}, {rd:?}, {rs1:?}, {rs2:?})\n"),
                     sink,
                 );
                 /* let mut condition = condition.clone();
@@ -1574,9 +1560,7 @@ impl MachInstEmit for Inst {
                 ty,
             } => {
                 put_string(
-                    &format!(
-                        ";; FIXME: Inst::Popcnt({sum:?}, {tmp:?}, {step:?}, {rs:?}, {ty:?})\n"
-                    ),
+                    &format!("FIXME: Inst::Popcnt({sum:?}, {tmp:?}, {step:?}, {rs:?}, {ty:?})\n"),
                     sink,
                 );
                 /* let rs = allocs.next(rs);
@@ -1746,7 +1730,7 @@ impl MachInstEmit for Inst {
             } => {
                 put_string(
                     &format!(
-                        ";; FIXME: Inst::Cltz({sum:?}, {tmp:?}, {step:?}, {rs:?}, {leading:?}, {ty:?})\n"
+                        "FIXME: Inst::Cltz({sum:?}, {tmp:?}, {step:?}, {rs:?}, {leading:?}, {ty:?})\n"
                     ),
                     sink,
                 );
