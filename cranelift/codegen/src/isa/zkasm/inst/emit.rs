@@ -799,15 +799,10 @@ impl MachInstEmit for Inst {
                 );
             }
             &Inst::CallInd { ref info } => {
-                // let rn = allocs.next(info.rn);
-                // put_string(&format!("CALL {}, {:?}\n", reg_name(rn), info.uses), sink);
-
-                dbg!(info);
-                todo!();
-                // For now we only support calls.
-                // assert!(info.opcode.is_call());
+                put_string(&format!(";; FIXME: Inst::CallInd({info:?})\n"), sink);
 
                 /*
+                let rn = allocs.next(info.rn);
                 if let Some(s) = state.take_stack_map() {
                     sink.add_stack_map(StackMapExtent::UpcomingBytes(4), s);
                 }
@@ -824,59 +819,68 @@ impl MachInstEmit for Inst {
                 trace!(
                     "call adjusts virtual sp offset by {callee_pop_size} -> {}",
                     state.virtual_sp_offset
-                ); */
+                );
+                */
             }
 
             &Inst::ReturnCall {
                 ref callee,
                 ref info,
             } => {
-                todo!() /* emit_return_call_common_sequence(
-                            &mut allocs,
-                            sink,
-                            emit_info,
-                            state,
-                            info.new_stack_arg_size,
-                            info.old_stack_arg_size,
-                            &info.uses,
-                        );
+                put_string(
+                    &format!(";; FIXME: Inst::ReturnCall({callee:?}, {info:?})\n"),
+                    sink,
+                );
+                /* emit_return_call_common_sequence(
+                    &mut allocs,
+                    sink,
+                    emit_info,
+                    state,
+                    info.new_stack_arg_size,
+                    info.old_stack_arg_size,
+                    &info.uses,
+                );
 
-                        sink.add_call_site(ir::Opcode::ReturnCall);
-                        sink.add_reloc(Reloc::RiscvCall, &callee, 0);
-                        Inst::construct_auipc_and_jalr(None, writable_spilltmp_reg(), 0)
-                            .into_iter()
-                            .for_each(|i| i.emit(&[], sink, emit_info, state));
+                sink.add_call_site(ir::Opcode::ReturnCall);
+                sink.add_reloc(Reloc::RiscvCall, &callee, 0);
+                Inst::construct_auipc_and_jalr(None, writable_spilltmp_reg(), 0)
+                    .into_iter()
+                    .for_each(|i| i.emit(&[], sink, emit_info, state));
 
-                        // `emit_return_call_common_sequence` emits an island if
-                        // necessary, so we can safely disable the worst-case-size check
-                        // in this case.
-                        start_off = sink.cur_offset(); */
+                // `emit_return_call_common_sequence` emits an island if
+                // necessary, so we can safely disable the worst-case-size check
+                // in this case.
+                start_off = sink.cur_offset(); */
             }
 
             &Inst::ReturnCallInd { callee, ref info } => {
-                todo!() /* let callee = allocs.next(callee);
+                put_string(
+                    &format!(";; FIXME: Inst::ReturnCallInd({callee:?}, {info:?})\n"),
+                    sink,
+                );
+                /* let callee = allocs.next(callee);
 
-                        emit_return_call_common_sequence(
-                            &mut allocs,
-                            sink,
-                            emit_info,
-                            state,
-                            info.new_stack_arg_size,
-                            info.old_stack_arg_size,
-                            &info.uses,
-                        );
+                emit_return_call_common_sequence(
+                    &mut allocs,
+                    sink,
+                    emit_info,
+                    state,
+                    info.new_stack_arg_size,
+                    info.old_stack_arg_size,
+                    &info.uses,
+                );
 
-                        Inst::Jalr {
-                            rd: writable_zero_reg(),
-                            base: callee,
-                            offset: Imm12::zero(),
-                        }
-                        .emit(&[], sink, emit_info, state);
+                Inst::Jalr {
+                    rd: writable_zero_reg(),
+                    base: callee,
+                    offset: Imm12::zero(),
+                }
+                .emit(&[], sink, emit_info, state);
 
-                        // `emit_return_call_common_sequence` emits an island if
-                        // necessary, so we can safely disable the worst-case-size check
-                        // in this case.
-                        start_off = sink.cur_offset(); */
+                // `emit_return_call_common_sequence` emits an island if
+                // necessary, so we can safely disable the worst-case-size check
+                // in this case.
+                start_off = sink.cur_offset(); */
             }
 
             &Inst::Jal { dest } => {
@@ -888,25 +892,26 @@ impl MachInstEmit for Inst {
                         put_string(&format!(":JMP(label_{})\n", label.index()), sink);
                     }
                     BranchTarget::ResolvedOffset(offset) => {
-                        todo!() /*
-                                let offset = offset as i64;
-                                if offset != 0 {
-                                    if LabelUse::Jal20.offset_in_range(offset) {
-                                        let mut code = code.to_le_bytes();
-                                        LabelUse::Jal20.patch_raw_offset(&mut code, offset);
-                                        sink.put_data(&code[..]);
-                                    } else {
-                                        Inst::construct_auipc_and_jalr(
-                                            None,
-                                            writable_spilltmp_reg(),
-                                            offset,
-                                        )
-                                        .into_iter()
-                                        .for_each(|i| i.emit(&[], sink, emit_info, state));
-                                    }
-                                } else {
-                                    // CondBr often generate Jal {dest : 0}, means otherwise no jump.
-                                } */
+                        put_string(&format!(";; FIXME: Inst::Jal({dest:?})\n"), sink);
+                        /*
+                        let offset = offset as i64;
+                        if offset != 0 {
+                            if LabelUse::Jal20.offset_in_range(offset) {
+                                let mut code = code.to_le_bytes();
+                                LabelUse::Jal20.patch_raw_offset(&mut code, offset);
+                                sink.put_data(&code[..]);
+                            } else {
+                                Inst::construct_auipc_and_jalr(
+                                    None,
+                                    writable_spilltmp_reg(),
+                                    offset,
+                                )
+                                .into_iter()
+                                .for_each(|i| i.emit(&[], sink, emit_info, state));
+                            }
+                        } else {
+                            // CondBr often generate Jal {dest : 0}, means otherwise no jump.
+                        } */
                     }
                 }
             }
@@ -935,9 +940,12 @@ impl MachInstEmit for Inst {
                         );
                     }
                     BranchTarget::ResolvedOffset(offset) => {
-                        assert!(offset != 0);
-                        todo!();
-
+                        put_string(
+                            &format!(
+                                ";; FIXME: Inst::CondBr({taken:?}, {not_taken:?}, {kind:?})\n"
+                            ),
+                            sink,
+                        );
                         // if LabelUse::B12.offset_in_range(offset as i64) {
                         //     let code = kind.emit();
                         //     let mut code = code.to_le_bytes();
@@ -1007,15 +1015,19 @@ impl MachInstEmit for Inst {
             }
 
             &Inst::MovFromPReg { rd, rm } => {
-                todo!() /* debug_assert!([px_reg(2), px_reg(8)].contains(&rm));
-                        let rd = allocs.next_writable(rd);
-                        let x = Inst::AluRRImm12 {
-                            alu_op: AluOPRRI::Ori,
-                            rd,
-                            rs: Reg::from(rm),
-                            imm12: Imm12::zero(),
-                        };
-                        x.emit(&[], sink, emit_info, state); */
+                put_string(
+                    &format!(";; FIXME: Inst::MovFromPReg({rd:?}, {rm:?})\n"),
+                    sink,
+                );
+                /* debug_assert!([px_reg(2), px_reg(8)].contains(&rm));
+                let rd = allocs.next_writable(rd);
+                let x = Inst::AluRRImm12 {
+                    alu_op: AluOPRRI::Ori,
+                    rd,
+                    rs: Reg::from(rm),
+                    imm12: Imm12::zero(),
+                };
+                x.emit(&[], sink, emit_info, state); */
             }
 
             &Inst::BrTable {
@@ -1024,142 +1036,148 @@ impl MachInstEmit for Inst {
                 tmp2,
                 ref targets,
             } => {
-                todo!() /* let index = allocs.next(index);
-                        let tmp1 = allocs.next_writable(tmp1);
-                        let tmp2 = allocs.next_writable(tmp2);
-                        let ext_index = writable_spilltmp_reg();
+                put_string(
+                    &format!(
+                        ";; FIXME: Inst::BrTable({index:?}, {tmp1:?}, {tmp2:?}, {targets:?})\n"
+                    ),
+                    sink,
+                );
+                /* let index = allocs.next(index);
+                let tmp1 = allocs.next_writable(tmp1);
+                let tmp2 = allocs.next_writable(tmp2);
+                let ext_index = writable_spilltmp_reg();
 
-                        // The default target is passed in as the 0th element of `targets`
-                        // separate it here for clarity.
-                        let default_target = targets[0];
-                        let targets = &targets[1..];
+                // The default target is passed in as the 0th element of `targets`
+                // separate it here for clarity.
+                let default_target = targets[0];
+                let targets = &targets[1..];
 
-                        // We emit a bounds check on the index, if the index is larger than the number of
-                        // jump table entries, we jump to the default block.  Otherwise we compute a jump
-                        // offset by multiplying the index by 8 (the size of each entry) and then jump to
-                        // that offset. Each jump table entry is a regular auipc+jalr which we emit sequentially.
-                        //
-                        // Build the following sequence:
-                        //
-                        // extend_index:
-                        //     zext.w  ext_index, index
-                        // bounds_check:
-                        //     li      tmp, n_labels
-                        //     bltu    ext_index, tmp, compute_target
-                        // jump_to_default_block:
-                        //     auipc   pc, 0
-                        //     jalr    zero, pc, default_block
-                        // compute_target:
-                        //     auipc   pc, 0
-                        //     slli    tmp, ext_index, 3
-                        //     add     pc, pc, tmp
-                        //     jalr    zero, pc, 0x10
-                        // jump_table:
-                        //     ; This repeats for each entry in the jumptable
-                        //     auipc   pc, 0
-                        //     jalr    zero, pc, block_target
+                // We emit a bounds check on the index, if the index is larger than the number of
+                // jump table entries, we jump to the default block.  Otherwise we compute a jump
+                // offset by multiplying the index by 8 (the size of each entry) and then jump to
+                // that offset. Each jump table entry is a regular auipc+jalr which we emit sequentially.
+                //
+                // Build the following sequence:
+                //
+                // extend_index:
+                //     zext.w  ext_index, index
+                // bounds_check:
+                //     li      tmp, n_labels
+                //     bltu    ext_index, tmp, compute_target
+                // jump_to_default_block:
+                //     auipc   pc, 0
+                //     jalr    zero, pc, default_block
+                // compute_target:
+                //     auipc   pc, 0
+                //     slli    tmp, ext_index, 3
+                //     add     pc, pc, tmp
+                //     jalr    zero, pc, 0x10
+                // jump_table:
+                //     ; This repeats for each entry in the jumptable
+                //     auipc   pc, 0
+                //     jalr    zero, pc, block_target
 
-                        // Extend the index to 64 bits.
-                        //
-                        // This prevents us branching on the top 32 bits of the index, which
-                        // are undefined.
-                        Inst::Extend {
-                            rd: ext_index,
-                            rn: index,
-                            signed: false,
-                            from_bits: 32,
-                            to_bits: 64,
-                        }
-                        .emit(&[], sink, emit_info, state);
+                // Extend the index to 64 bits.
+                //
+                // This prevents us branching on the top 32 bits of the index, which
+                // are undefined.
+                Inst::Extend {
+                    rd: ext_index,
+                    rn: index,
+                    signed: false,
+                    from_bits: 32,
+                    to_bits: 64,
+                }
+                .emit(&[], sink, emit_info, state);
 
-                        // Bounds check.
-                        //
-                        // Check if the index passed in is larger than the number of jumptable
-                        // entries that we have. If it is, we fallthrough to a jump into the
-                        // default block.
-                        Inst::load_constant_u32(tmp2, targets.len() as u64, &mut |_| tmp2)
-                            .iter()
-                            .for_each(|i| i.emit(&[], sink, emit_info, state));
-                        Inst::CondBr {
-                            taken: BranchTarget::offset(Inst::INSTRUCTION_SIZE * 3),
-                            not_taken: BranchTarget::zero(),
-                            kind: IntegerCompare {
-                                kind: IntCC::UnsignedLessThan,
-                                rs1: ext_index.to_reg(),
-                                rs2: tmp2.to_reg(),
-                            },
-                        }
-                        .emit(&[], sink, emit_info, state);
-                        sink.use_label_at_offset(
-                            sink.cur_offset(),
-                            default_target.as_label().unwrap(),
-                            LabelUse::PCRel32,
-                        );
-                        Inst::construct_auipc_and_jalr(None, tmp2, 0)
-                            .iter()
-                            .for_each(|i| i.emit(&[], sink, emit_info, state));
+                // Bounds check.
+                //
+                // Check if the index passed in is larger than the number of jumptable
+                // entries that we have. If it is, we fallthrough to a jump into the
+                // default block.
+                Inst::load_constant_u32(tmp2, targets.len() as u64, &mut |_| tmp2)
+                    .iter()
+                    .for_each(|i| i.emit(&[], sink, emit_info, state));
+                Inst::CondBr {
+                    taken: BranchTarget::offset(Inst::INSTRUCTION_SIZE * 3),
+                    not_taken: BranchTarget::zero(),
+                    kind: IntegerCompare {
+                        kind: IntCC::UnsignedLessThan,
+                        rs1: ext_index.to_reg(),
+                        rs2: tmp2.to_reg(),
+                    },
+                }
+                .emit(&[], sink, emit_info, state);
+                sink.use_label_at_offset(
+                    sink.cur_offset(),
+                    default_target.as_label().unwrap(),
+                    LabelUse::PCRel32,
+                );
+                Inst::construct_auipc_and_jalr(None, tmp2, 0)
+                    .iter()
+                    .for_each(|i| i.emit(&[], sink, emit_info, state));
 
-                        // Compute the jump table offset.
-                        // We need to emit a PC relative offset,
+                // Compute the jump table offset.
+                // We need to emit a PC relative offset,
 
 
-                        // Multiply the index by 8, since that is the size in
-                        // bytes of each jump table entry
-                        Inst::AluRRImm12 {
-                            alu_op: AluOPRRI::Slli,
-                            rd: tmp2,
-                            rs: ext_index.to_reg(),
-                            imm12: Imm12::from_bits(3),
-                        }
-                        .emit(&[], sink, emit_info, state);
+                // Multiply the index by 8, since that is the size in
+                // bytes of each jump table entry
+                Inst::AluRRImm12 {
+                    alu_op: AluOPRRI::Slli,
+                    rd: tmp2,
+                    rs: ext_index.to_reg(),
+                    imm12: Imm12::from_bits(3),
+                }
+                .emit(&[], sink, emit_info, state);
 
-                        // Calculate the base of the jump, PC + the offset from above.
-                        Inst::AluRRR {
-                            alu_op: AluOPRRR::Add,
-                            rd: tmp1,
-                            rs1: tmp1.to_reg(),
-                            rs2: tmp2.to_reg(),
-                        }
-                        .emit(&[], sink, emit_info, state);
+                // Calculate the base of the jump, PC + the offset from above.
+                Inst::AluRRR {
+                    alu_op: AluOPRRR::Add,
+                    rd: tmp1,
+                    rs1: tmp1.to_reg(),
+                    rs2: tmp2.to_reg(),
+                }
+                .emit(&[], sink, emit_info, state);
 
-                        // Jump to the middle of the jump table.
-                        // We add a 16 byte offset here, since we used 4 instructions
-                        // since the AUIPC that was used to get the PC.
-                        Inst::Jalr {
-                            rd: writable_zero_reg(),
-                            base: tmp1.to_reg(),
-                            offset: Imm12::from_bits((4 * Inst::INSTRUCTION_SIZE) as i16),
-                        }
-                        .emit(&[], sink, emit_info, state);
+                // Jump to the middle of the jump table.
+                // We add a 16 byte offset here, since we used 4 instructions
+                // since the AUIPC that was used to get the PC.
+                Inst::Jalr {
+                    rd: writable_zero_reg(),
+                    base: tmp1.to_reg(),
+                    offset: Imm12::from_bits((4 * Inst::INSTRUCTION_SIZE) as i16),
+                }
+                .emit(&[], sink, emit_info, state);
 
-                        // Emit the jump table.
-                        //
-                        // Each entry is a aupc + jalr to the target block. We also start with a island
-                        // if necessary.
+                // Emit the jump table.
+                //
+                // Each entry is a aupc + jalr to the target block. We also start with a island
+                // if necessary.
 
-                        // Each entry in the jump table is 2 instructions, so 8 bytes. Check if
-                        // we need to emit a jump table here to support that jump.
-                        let distance = (targets.len() * 2 * Inst::INSTRUCTION_SIZE as usize) as u32;
-                        if sink.island_needed(distance) {
-                            sink.emit_island(&mut state.ctrl_plane);
-                        }
+                // Each entry in the jump table is 2 instructions, so 8 bytes. Check if
+                // we need to emit a jump table here to support that jump.
+                let distance = (targets.len() * 2 * Inst::INSTRUCTION_SIZE as usize) as u32;
+                if sink.island_needed(distance) {
+                    sink.emit_island(&mut state.ctrl_plane);
+                }
 
-                        // Emit the jumps back to back
-                        for target in targets.iter() {
-                            sink.use_label_at_offset(
-                                sink.cur_offset(),
-                                target.as_label().unwrap(),
-                                LabelUse::PCRel32,
-                            );
+                // Emit the jumps back to back
+                for target in targets.iter() {
+                    sink.use_label_at_offset(
+                        sink.cur_offset(),
+                        target.as_label().unwrap(),
+                        LabelUse::PCRel32,
+                    );
 
-                            Inst::construct_auipc_and_jalr(None, tmp2, 0)
-                                .iter()
-                                .for_each(|i| i.emit(&[], sink, emit_info, state));
-                        }
+                    Inst::construct_auipc_and_jalr(None, tmp2, 0)
+                        .iter()
+                        .for_each(|i| i.emit(&[], sink, emit_info, state));
+                }
 
-                        // We've just emitted an island that is safe up to *here*.
-                        // Mark it as such so that we don't needlessly emit additional islands.
-                        start_off = sink.cur_offset(); */
+                // We've just emitted an island that is safe up to *here*.
+                // Mark it as such so that we don't needlessly emit additional islands.
+                start_off = sink.cur_offset(); */
             }
 
             &Inst::VirtualSPOffsetAdj { amount } => {
@@ -1172,62 +1190,66 @@ impl MachInstEmit for Inst {
             }
 
             &Inst::LoadAddr { rd, mem } => {
-                todo!() /* let mem = mem.with_allocs(&mut allocs);
-                        let rd = allocs.next_writable(rd);
+                put_string(
+                    &format!(";; FIXME: Inst::LoadAddr({rd:?}, {mem:?})\n"),
+                    sink,
+                );
+                /* let mem = mem.with_allocs(&mut allocs);
+                let rd = allocs.next_writable(rd);
 
-                        let base = mem.get_base_register();
-                        let offset = mem.get_offset_with_state(state);
-                        let offset_imm12 = Imm12::maybe_from_u64(offset as u64);
+                let base = mem.get_base_register();
+                let offset = mem.get_offset_with_state(state);
+                let offset_imm12 = Imm12::maybe_from_u64(offset as u64);
 
-                        match (mem, base, offset_imm12) {
-                            (_, Some(rs), Some(imm12)) => {
-                                Inst::AluRRImm12 {
-                                    alu_op: AluOPRRI::Addi,
-                                    rd,
-                                    rs,
-                                    imm12,
-                                }
-                                .emit(&[], sink, emit_info, state);
-                            }
-                            (_, Some(rs), None) => {
-                                LoadConstant::U64(offset as u64)
-                                    .load_constant_and_add(rd, rs)
-                                    .into_iter()
-                                    .for_each(|inst| inst.emit(&[], sink, emit_info, state));
-                            }
-                            (AMode::Const(addr), None, _) => {
-                                // Get an address label for the constant and recurse.
-                                let label = sink.get_label_for_constant(addr);
-                                Inst::LoadAddr {
-                                    rd,
-                                    mem: AMode::Label(label),
-                                }
-                                .emit(&[], sink, emit_info, state);
-                            }
-                            (AMode::Label(label), None, _) => {
-                                // Get the current PC.
-                                sink.use_label_at_offset(sink.cur_offset(), label, LabelUse::PCRelHi20);
-                                let inst = Inst::Auipc {
-                                    rd,
-                                    imm: Imm20::from_bits(0),
-                                };
-                                inst.emit(&[], sink, emit_info, state);
+                match (mem, base, offset_imm12) {
+                    (_, Some(rs), Some(imm12)) => {
+                        Inst::AluRRImm12 {
+                            alu_op: AluOPRRI::Addi,
+                            rd,
+                            rs,
+                            imm12,
+                        }
+                        .emit(&[], sink, emit_info, state);
+                    }
+                    (_, Some(rs), None) => {
+                        LoadConstant::U64(offset as u64)
+                            .load_constant_and_add(rd, rs)
+                            .into_iter()
+                            .for_each(|inst| inst.emit(&[], sink, emit_info, state));
+                    }
+                    (AMode::Const(addr), None, _) => {
+                        // Get an address label for the constant and recurse.
+                        let label = sink.get_label_for_constant(addr);
+                        Inst::LoadAddr {
+                            rd,
+                            mem: AMode::Label(label),
+                        }
+                        .emit(&[], sink, emit_info, state);
+                    }
+                    (AMode::Label(label), None, _) => {
+                        // Get the current PC.
+                        sink.use_label_at_offset(sink.cur_offset(), label, LabelUse::PCRelHi20);
+                        let inst = Inst::Auipc {
+                            rd,
+                            imm: Imm20::from_bits(0),
+                        };
+                        inst.emit(&[], sink, emit_info, state);
 
-                                // Emit an add to the address with a relocation.
-                                // This later gets patched up with the correct offset.
-                                sink.use_label_at_offset(sink.cur_offset(), label, LabelUse::PCRelLo12I);
-                                Inst::AluRRImm12 {
-                                    alu_op: AluOPRRI::Addi,
-                                    rd,
-                                    rs: rd.to_reg(),
-                                    imm12: Imm12::zero(),
-                                }
-                                .emit(&[], sink, emit_info, state);
-                            }
-                            (amode, _, _) => {
-                                unimplemented!("LoadAddr: {:?}", amode);
-                            }
-                        } */
+                        // Emit an add to the address with a relocation.
+                        // This later gets patched up with the correct offset.
+                        sink.use_label_at_offset(sink.cur_offset(), label, LabelUse::PCRelLo12I);
+                        Inst::AluRRImm12 {
+                            alu_op: AluOPRRI::Addi,
+                            rd,
+                            rs: rd.to_reg(),
+                            imm12: Imm12::zero(),
+                        }
+                        .emit(&[], sink, emit_info, state);
+                    }
+                    (amode, _, _) => {
+                        unimplemented!("LoadAddr: {:?}", amode);
+                    }
+                } */
             }
 
             &Inst::Select {
@@ -1237,49 +1259,59 @@ impl MachInstEmit for Inst {
                 ref y,
                 ty: _ty,
             } => {
-                todo!() /* let condition = allocs.next(condition);
-                        let x = alloc_value_regs(x, &mut allocs);
-                        let y = alloc_value_regs(y, &mut allocs);
-                        let dst: Vec<_> = dst
-                            .clone()
-                            .into_iter()
-                            .map(|r| allocs.next_writable(r))
-                            .collect();
+                put_string(
+                    &format!(
+                        ";; FIXME: Inst::Select({dst:?}, {condition:?}, {x:?}, {y:?}, {_ty})\n"
+                    ),
+                    sink,
+                );
+                /* let condition = allocs.next(condition);
+                let x = alloc_value_regs(x, &mut allocs);
+                let y = alloc_value_regs(y, &mut allocs);
+                let dst: Vec<_> = dst
+                    .clone()
+                    .into_iter()
+                    .map(|r| allocs.next_writable(r))
+                    .collect();
 
-                        let mut insts = SmallInstVec::new();
-                        let label_false = sink.get_label();
-                        insts.push(Inst::CondBr {
-                            taken: BranchTarget::Label(label_false),
-                            not_taken: BranchTarget::zero(),
-                            kind: IntegerCompare {
-                                kind: IntCC::Equal,
-                                rs1: condition,
-                                rs2: zero_reg(),
-                            },
-                        });
-                        // here is the true
-                        // select the first value
-                        insts.extend(gen_moves(&dst[..], x.regs()));
-                        let label_jump_over = sink.get_label();
-                        insts.push(Inst::Jal {
-                            dest: BranchTarget::Label(label_jump_over),
-                        });
-                        // here is false
-                        insts
-                            .drain(..)
-                            .for_each(|i: Inst| i.emit(&[], sink, emit_info, state));
-                        sink.bind_label(label_false, &mut state.ctrl_plane);
-                        // select second value1
-                        insts.extend(gen_moves(&dst[..], y.regs()));
-                        insts
-                            .into_iter()
-                            .for_each(|i| i.emit(&[], sink, emit_info, state));
-                        sink.bind_label(label_jump_over, &mut state.ctrl_plane); */
+                let mut insts = SmallInstVec::new();
+                let label_false = sink.get_label();
+                insts.push(Inst::CondBr {
+                    taken: BranchTarget::Label(label_false),
+                    not_taken: BranchTarget::zero(),
+                    kind: IntegerCompare {
+                        kind: IntCC::Equal,
+                        rs1: condition,
+                        rs2: zero_reg(),
+                    },
+                });
+                // here is the true
+                // select the first value
+                insts.extend(gen_moves(&dst[..], x.regs()));
+                let label_jump_over = sink.get_label();
+                insts.push(Inst::Jal {
+                    dest: BranchTarget::Label(label_jump_over),
+                });
+                // here is false
+                insts
+                    .drain(..)
+                    .for_each(|i: Inst| i.emit(&[], sink, emit_info, state));
+                sink.bind_label(label_false, &mut state.ctrl_plane);
+                // select second value1
+                insts.extend(gen_moves(&dst[..], y.regs()));
+                insts
+                    .into_iter()
+                    .for_each(|i| i.emit(&[], sink, emit_info, state));
+                sink.bind_label(label_jump_over, &mut state.ctrl_plane); */
             }
             &Inst::Jalr { rd, base, offset } => {
-                todo!() /* let rd = allocs.next_writable(rd);
-                        let x = enc_jalr(rd, base, offset);
-                        sink.put4(x); */
+                put_string(
+                    &format!(";; FIXME: Inst::Jalr({rd:?}, {base:?}, {offset:?})\n"),
+                    sink,
+                );
+                /* let rd = allocs.next_writable(rd);
+                let x = enc_jalr(rd, base, offset);
+                sink.put4(x); */
             }
             &Inst::ECall => {
                 todo!() // sink.put4(0x00000073);
@@ -1391,52 +1423,56 @@ impl MachInstEmit for Inst {
                 ref y,
                 ty,
             } => {
-                todo!() /* let x = alloc_value_regs(x, &mut allocs);
-                        let y = alloc_value_regs(y, &mut allocs);
-                        let dst: Vec<_> = dst.iter().map(|r| allocs.next_writable(*r)).collect();
-                        let label_true = sink.get_label();
-                        let label_false = sink.get_label();
-                        let label_done = sink.get_label();
-                        Inst::lower_br_icmp(
-                            op.to_int_cc(),
-                            x,
-                            y,
-                            BranchTarget::Label(label_true),
-                            BranchTarget::Label(label_false),
+                put_string(
+                    &format!(";; FIXME: Inst::IntSelect({op:?}, {dst:?}, {x:?}, {y:?}, {ty:?})\n"),
+                    sink,
+                );
+                /* let x = alloc_value_regs(x, &mut allocs);
+                let y = alloc_value_regs(y, &mut allocs);
+                let dst: Vec<_> = dst.iter().map(|r| allocs.next_writable(*r)).collect();
+                let label_true = sink.get_label();
+                let label_false = sink.get_label();
+                let label_done = sink.get_label();
+                Inst::lower_br_icmp(
+                    op.to_int_cc(),
+                    x,
+                    y,
+                    BranchTarget::Label(label_true),
+                    BranchTarget::Label(label_false),
+                    ty,
+                )
+                .into_iter()
+                .for_each(|i| i.emit(&[], sink, emit_info, state));
+
+                let gen_move = |dst: &Vec<Writable<Reg>>,
+                                val: &ValueRegs<Reg>,
+                                sink: &mut MachBuffer<Inst>,
+                                state: &mut EmitState| {
+                    let mut insts = SmallInstVec::new();
+                    insts.push(Inst::Mov {
+                        rd: dst[0],
+                        rm: val.regs()[0],
+                        ty: I64,
+                    });
+                    if ty.bits() == 128 {
+                        insts.push(Inst::Mov {
+                            rd: dst[1],
+                            rm: val.regs()[1],
                             ty,
-                        )
+                        });
+                    }
+                    insts
                         .into_iter()
                         .for_each(|i| i.emit(&[], sink, emit_info, state));
-
-                        let gen_move = |dst: &Vec<Writable<Reg>>,
-                                        val: &ValueRegs<Reg>,
-                                        sink: &mut MachBuffer<Inst>,
-                                        state: &mut EmitState| {
-                            let mut insts = SmallInstVec::new();
-                            insts.push(Inst::Mov {
-                                rd: dst[0],
-                                rm: val.regs()[0],
-                                ty: I64,
-                            });
-                            if ty.bits() == 128 {
-                                insts.push(Inst::Mov {
-                                    rd: dst[1],
-                                    rm: val.regs()[1],
-                                    ty,
-                                });
-                            }
-                            insts
-                                .into_iter()
-                                .for_each(|i| i.emit(&[], sink, emit_info, state));
-                        };
-                        //here is true , use x.
-                        sink.bind_label(label_true, &mut state.ctrl_plane);
-                        gen_move(&dst, &x, sink, state);
-                        Inst::gen_jump(label_done).emit(&[], sink, emit_info, state);
-                        // here is false use y
-                        sink.bind_label(label_false, &mut state.ctrl_plane);
-                        gen_move(&dst, &y, sink, state);
-                        sink.bind_label(label_done, &mut state.ctrl_plane); */
+                };
+                //here is true , use x.
+                sink.bind_label(label_true, &mut state.ctrl_plane);
+                gen_move(&dst, &x, sink, state);
+                Inst::gen_jump(label_done).emit(&[], sink, emit_info, state);
+                // here is false use y
+                sink.bind_label(label_false, &mut state.ctrl_plane);
+                gen_move(&dst, &y, sink, state);
+                sink.bind_label(label_done, &mut state.ctrl_plane); */
             }
 
             &Inst::SelectReg {
@@ -1445,30 +1481,36 @@ impl MachInstEmit for Inst {
                 rs1,
                 rs2,
             } => {
-                todo!() /* let mut condition = condition.clone();
-                        condition.rs1 = allocs.next(condition.rs1);
-                        condition.rs2 = allocs.next(condition.rs2);
-                        let rs1 = allocs.next(rs1);
-                        let rs2 = allocs.next(rs2);
-                        let rd = allocs.next_writable(rd);
-                        let label_true = sink.get_label();
-                        let label_jump_over = sink.get_label();
-                        let ty = Inst::canonical_type_for_rc(rs1.class());
+                put_string(
+                    &format!(
+                        ";; FIXME: Inst::SelectReg({condition:?}, {rd:?}, {rs1:?}, {rs2:?})\n"
+                    ),
+                    sink,
+                );
+                /* let mut condition = condition.clone();
+                condition.rs1 = allocs.next(condition.rs1);
+                condition.rs2 = allocs.next(condition.rs2);
+                let rs1 = allocs.next(rs1);
+                let rs2 = allocs.next(rs2);
+                let rd = allocs.next_writable(rd);
+                let label_true = sink.get_label();
+                let label_jump_over = sink.get_label();
+                let ty = Inst::canonical_type_for_rc(rs1.class());
 
-                        sink.use_label_at_offset(sink.cur_offset(), label_true, LabelUse::B12);
-                        let x = condition.emit();
-                        sink.put4(x);
-                        // here is false , use rs2
-                        Inst::gen_move(rd, rs2, ty).emit(&[], sink, emit_info, state);
-                        // and jump over
-                        Inst::Jal {
-                            dest: BranchTarget::Label(label_jump_over),
-                        }
-                        .emit(&[], sink, emit_info, state);
-                        // here condition is true , use rs1
-                        sink.bind_label(label_true, &mut state.ctrl_plane);
-                        Inst::gen_move(rd, rs1, ty).emit(&[], sink, emit_info, state);
-                        sink.bind_label(label_jump_over, &mut state.ctrl_plane); */
+                sink.use_label_at_offset(sink.cur_offset(), label_true, LabelUse::B12);
+                let x = condition.emit();
+                sink.put4(x);
+                // here is false , use rs2
+                Inst::gen_move(rd, rs2, ty).emit(&[], sink, emit_info, state);
+                // and jump over
+                Inst::Jal {
+                    dest: BranchTarget::Label(label_jump_over),
+                }
+                .emit(&[], sink, emit_info, state);
+                // here condition is true , use rs1
+                sink.bind_label(label_true, &mut state.ctrl_plane);
+                Inst::gen_move(rd, rs1, ty).emit(&[], sink, emit_info, state);
+                sink.bind_label(label_jump_over, &mut state.ctrl_plane); */
             }
             &Inst::LoadExtName {
                 rd,
@@ -1531,92 +1573,98 @@ impl MachInstEmit for Inst {
                 rs,
                 ty,
             } => {
-                todo!() /* let rs = allocs.next(rs);
-                        let tmp = allocs.next_writable(tmp);
-                        let step = allocs.next_writable(step);
-                        let sum = allocs.next_writable(sum);
-                        // load 0 to sum , init.
-                        Inst::gen_move(sum, zero_reg(), I64).emit(&[], sink, emit_info, state);
-                        // load
-                        Inst::load_imm12(step, Imm12::from_bits(ty.bits() as i16)).emit(
-                            &[],
-                            sink,
-                            emit_info,
-                            state,
-                        );
-                        //
-                        Inst::load_imm12(tmp, Imm12::from_bits(1)).emit(&[], sink, emit_info, state);
-                        Inst::AluRRImm12 {
-                            alu_op: AluOPRRI::Slli,
-                            rd: tmp,
-                            rs: tmp.to_reg(),
-                            imm12: Imm12::from_bits((ty.bits() - 1) as i16),
-                        }
-                        .emit(&[], sink, emit_info, state);
-                        let label_done = sink.get_label();
-                        let label_loop = sink.get_label();
-                        sink.bind_label(label_loop, &mut state.ctrl_plane);
-                        Inst::CondBr {
-                            taken: BranchTarget::Label(label_done),
-                            not_taken: BranchTarget::zero(),
-                            kind: IntegerCompare {
-                                kind: IntCC::SignedLessThanOrEqual,
-                                rs1: step.to_reg(),
-                                rs2: zero_reg(),
-                            },
-                        }
-                        .emit(&[], sink, emit_info, state);
-                        // test and add sum.
-                        {
-                            Inst::AluRRR {
-                                alu_op: AluOPRRR::And,
-                                rd: writable_spilltmp_reg2(),
-                                rs1: tmp.to_reg(),
-                                rs2: rs,
-                            }
-                            .emit(&[], sink, emit_info, state);
-                            let label_over = sink.get_label();
-                            Inst::CondBr {
-                                taken: BranchTarget::Label(label_over),
-                                not_taken: BranchTarget::zero(),
-                                kind: IntegerCompare {
-                                    kind: IntCC::Equal,
-                                    rs1: zero_reg(),
-                                    rs2: spilltmp_reg2(),
-                                },
-                            }
-                            .emit(&[], sink, emit_info, state);
-                            Inst::AluRRImm12 {
-                                alu_op: AluOPRRI::Addi,
-                                rd: sum,
-                                rs: sum.to_reg(),
-                                imm12: Imm12::from_bits(1),
-                            }
-                            .emit(&[], sink, emit_info, state);
-                            sink.bind_label(label_over, &mut state.ctrl_plane);
-                        }
-                        // set step and tmp.
-                        {
-                            Inst::AluRRImm12 {
-                                alu_op: AluOPRRI::Addi,
-                                rd: step,
-                                rs: step.to_reg(),
-                                imm12: Imm12::from_bits(-1),
-                            }
-                            .emit(&[], sink, emit_info, state);
-                            Inst::AluRRImm12 {
-                                alu_op: AluOPRRI::Srli,
-                                rd: tmp,
-                                rs: tmp.to_reg(),
-                                imm12: Imm12::from_bits(1),
-                            }
-                            .emit(&[], sink, emit_info, state);
-                            Inst::Jal {
-                                dest: BranchTarget::Label(label_loop),
-                            }
-                            .emit(&[], sink, emit_info, state);
-                        }
-                        sink.bind_label(label_done, &mut state.ctrl_plane); */
+                put_string(
+                    &format!(
+                        ";; FIXME: Inst::Popcnt({sum:?}, {tmp:?}, {step:?}, {rs:?}, {ty:?})\n"
+                    ),
+                    sink,
+                );
+                /* let rs = allocs.next(rs);
+                let tmp = allocs.next_writable(tmp);
+                let step = allocs.next_writable(step);
+                let sum = allocs.next_writable(sum);
+                // load 0 to sum , init.
+                Inst::gen_move(sum, zero_reg(), I64).emit(&[], sink, emit_info, state);
+                // load
+                Inst::load_imm12(step, Imm12::from_bits(ty.bits() as i16)).emit(
+                    &[],
+                    sink,
+                    emit_info,
+                    state,
+                );
+                //
+                Inst::load_imm12(tmp, Imm12::from_bits(1)).emit(&[], sink, emit_info, state);
+                Inst::AluRRImm12 {
+                    alu_op: AluOPRRI::Slli,
+                    rd: tmp,
+                    rs: tmp.to_reg(),
+                    imm12: Imm12::from_bits((ty.bits() - 1) as i16),
+                }
+                .emit(&[], sink, emit_info, state);
+                let label_done = sink.get_label();
+                let label_loop = sink.get_label();
+                sink.bind_label(label_loop, &mut state.ctrl_plane);
+                Inst::CondBr {
+                    taken: BranchTarget::Label(label_done),
+                    not_taken: BranchTarget::zero(),
+                    kind: IntegerCompare {
+                        kind: IntCC::SignedLessThanOrEqual,
+                        rs1: step.to_reg(),
+                        rs2: zero_reg(),
+                    },
+                }
+                .emit(&[], sink, emit_info, state);
+                // test and add sum.
+                {
+                    Inst::AluRRR {
+                        alu_op: AluOPRRR::And,
+                        rd: writable_spilltmp_reg2(),
+                        rs1: tmp.to_reg(),
+                        rs2: rs,
+                    }
+                    .emit(&[], sink, emit_info, state);
+                    let label_over = sink.get_label();
+                    Inst::CondBr {
+                        taken: BranchTarget::Label(label_over),
+                        not_taken: BranchTarget::zero(),
+                        kind: IntegerCompare {
+                            kind: IntCC::Equal,
+                            rs1: zero_reg(),
+                            rs2: spilltmp_reg2(),
+                        },
+                    }
+                    .emit(&[], sink, emit_info, state);
+                    Inst::AluRRImm12 {
+                        alu_op: AluOPRRI::Addi,
+                        rd: sum,
+                        rs: sum.to_reg(),
+                        imm12: Imm12::from_bits(1),
+                    }
+                    .emit(&[], sink, emit_info, state);
+                    sink.bind_label(label_over, &mut state.ctrl_plane);
+                }
+                // set step and tmp.
+                {
+                    Inst::AluRRImm12 {
+                        alu_op: AluOPRRI::Addi,
+                        rd: step,
+                        rs: step.to_reg(),
+                        imm12: Imm12::from_bits(-1),
+                    }
+                    .emit(&[], sink, emit_info, state);
+                    Inst::AluRRImm12 {
+                        alu_op: AluOPRRI::Srli,
+                        rd: tmp,
+                        rs: tmp.to_reg(),
+                        imm12: Imm12::from_bits(1),
+                    }
+                    .emit(&[], sink, emit_info, state);
+                    Inst::Jal {
+                        dest: BranchTarget::Label(label_loop),
+                    }
+                    .emit(&[], sink, emit_info, state);
+                }
+                sink.bind_label(label_done, &mut state.ctrl_plane); */
             }
             &Inst::Rev8 { rs, rd, tmp, step } => {
                 todo!() /* let rs = allocs.next(rs);
@@ -1696,96 +1744,102 @@ impl MachInstEmit for Inst {
                 leading,
                 ty,
             } => {
-                todo!() /* let rs = allocs.next(rs);
-                        let tmp = allocs.next_writable(tmp);
-                        let step = allocs.next_writable(step);
-                        let sum = allocs.next_writable(sum);
-                        // load 0 to sum , init.
-                        Inst::gen_move(sum, zero_reg(), I64).emit(&[], sink, emit_info, state);
-                        // load
-                        Inst::load_imm12(step, Imm12::from_bits(ty.bits() as i16)).emit(
-                            &[],
-                            sink,
-                            emit_info,
-                            state,
-                        );
-                        //
-                        Inst::load_imm12(tmp, Imm12::from_bits(1)).emit(&[], sink, emit_info, state);
-                        if leading {
-                            Inst::AluRRImm12 {
-                                alu_op: AluOPRRI::Slli,
-                                rd: tmp,
-                                rs: tmp.to_reg(),
-                                imm12: Imm12::from_bits((ty.bits() - 1) as i16),
-                            }
-                            .emit(&[], sink, emit_info, state);
-                        }
-                        let label_done = sink.get_label();
-                        let label_loop = sink.get_label();
-                        sink.bind_label(label_loop, &mut state.ctrl_plane);
-                        Inst::CondBr {
-                            taken: BranchTarget::Label(label_done),
-                            not_taken: BranchTarget::zero(),
-                            kind: IntegerCompare {
-                                kind: IntCC::SignedLessThanOrEqual,
-                                rs1: step.to_reg(),
-                                rs2: zero_reg(),
-                            },
-                        }
-                        .emit(&[], sink, emit_info, state);
-                        // test and add sum.
-                        {
-                            Inst::AluRRR {
-                                alu_op: AluOPRRR::And,
-                                rd: writable_spilltmp_reg2(),
-                                rs1: tmp.to_reg(),
-                                rs2: rs,
-                            }
-                            .emit(&[], sink, emit_info, state);
-                            Inst::CondBr {
-                                taken: BranchTarget::Label(label_done),
-                                not_taken: BranchTarget::zero(),
-                                kind: IntegerCompare {
-                                    kind: IntCC::NotEqual,
-                                    rs1: zero_reg(),
-                                    rs2: spilltmp_reg2(),
-                                },
-                            }
-                            .emit(&[], sink, emit_info, state);
-                            Inst::AluRRImm12 {
-                                alu_op: AluOPRRI::Addi,
-                                rd: sum,
-                                rs: sum.to_reg(),
-                                imm12: Imm12::from_bits(1),
-                            }
-                            .emit(&[], sink, emit_info, state);
-                        }
-                        // set step and tmp.
-                        {
-                            Inst::AluRRImm12 {
-                                alu_op: AluOPRRI::Addi,
-                                rd: step,
-                                rs: step.to_reg(),
-                                imm12: Imm12::from_bits(-1),
-                            }
-                            .emit(&[], sink, emit_info, state);
-                            Inst::AluRRImm12 {
-                                alu_op: if leading {
-                                    AluOPRRI::Srli
-                                } else {
-                                    AluOPRRI::Slli
-                                },
-                                rd: tmp,
-                                rs: tmp.to_reg(),
-                                imm12: Imm12::from_bits(1),
-                            }
-                            .emit(&[], sink, emit_info, state);
-                            Inst::Jal {
-                                dest: BranchTarget::Label(label_loop),
-                            }
-                            .emit(&[], sink, emit_info, state);
-                        }
-                        sink.bind_label(label_done, &mut state.ctrl_plane); */
+                put_string(
+                    &format!(
+                        ";; FIXME: Inst::Cltz({sum:?}, {tmp:?}, {step:?}, {rs:?}, {leading:?}, {ty:?})\n"
+                    ),
+                    sink,
+                );
+                /* let rs = allocs.next(rs);
+                let tmp = allocs.next_writable(tmp);
+                let step = allocs.next_writable(step);
+                let sum = allocs.next_writable(sum);
+                // load 0 to sum , init.
+                Inst::gen_move(sum, zero_reg(), I64).emit(&[], sink, emit_info, state);
+                // load
+                Inst::load_imm12(step, Imm12::from_bits(ty.bits() as i16)).emit(
+                    &[],
+                    sink,
+                    emit_info,
+                    state,
+                );
+                //
+                Inst::load_imm12(tmp, Imm12::from_bits(1)).emit(&[], sink, emit_info, state);
+                if leading {
+                    Inst::AluRRImm12 {
+                        alu_op: AluOPRRI::Slli,
+                        rd: tmp,
+                        rs: tmp.to_reg(),
+                        imm12: Imm12::from_bits((ty.bits() - 1) as i16),
+                    }
+                    .emit(&[], sink, emit_info, state);
+                }
+                let label_done = sink.get_label();
+                let label_loop = sink.get_label();
+                sink.bind_label(label_loop, &mut state.ctrl_plane);
+                Inst::CondBr {
+                    taken: BranchTarget::Label(label_done),
+                    not_taken: BranchTarget::zero(),
+                    kind: IntegerCompare {
+                        kind: IntCC::SignedLessThanOrEqual,
+                        rs1: step.to_reg(),
+                        rs2: zero_reg(),
+                    },
+                }
+                .emit(&[], sink, emit_info, state);
+                // test and add sum.
+                {
+                    Inst::AluRRR {
+                        alu_op: AluOPRRR::And,
+                        rd: writable_spilltmp_reg2(),
+                        rs1: tmp.to_reg(),
+                        rs2: rs,
+                    }
+                    .emit(&[], sink, emit_info, state);
+                    Inst::CondBr {
+                        taken: BranchTarget::Label(label_done),
+                        not_taken: BranchTarget::zero(),
+                        kind: IntegerCompare {
+                            kind: IntCC::NotEqual,
+                            rs1: zero_reg(),
+                            rs2: spilltmp_reg2(),
+                        },
+                    }
+                    .emit(&[], sink, emit_info, state);
+                    Inst::AluRRImm12 {
+                        alu_op: AluOPRRI::Addi,
+                        rd: sum,
+                        rs: sum.to_reg(),
+                        imm12: Imm12::from_bits(1),
+                    }
+                    .emit(&[], sink, emit_info, state);
+                }
+                // set step and tmp.
+                {
+                    Inst::AluRRImm12 {
+                        alu_op: AluOPRRI::Addi,
+                        rd: step,
+                        rs: step.to_reg(),
+                        imm12: Imm12::from_bits(-1),
+                    }
+                    .emit(&[], sink, emit_info, state);
+                    Inst::AluRRImm12 {
+                        alu_op: if leading {
+                            AluOPRRI::Srli
+                        } else {
+                            AluOPRRI::Slli
+                        },
+                        rd: tmp,
+                        rs: tmp.to_reg(),
+                        imm12: Imm12::from_bits(1),
+                    }
+                    .emit(&[], sink, emit_info, state);
+                    Inst::Jal {
+                        dest: BranchTarget::Label(label_loop),
+                    }
+                    .emit(&[], sink, emit_info, state);
+                }
+                sink.bind_label(label_done, &mut state.ctrl_plane); */
             }
             &Inst::Brev8 {
                 rs,
