@@ -591,12 +591,11 @@ impl MachInstEmit for Inst {
                 match from {
                     AMode::RegOffset(r, ..) => {
                         debug_assert_eq!(r, e0());
-                        // For simplicity we assume that register address is word-aligned.
-                        // This was the case for Rust-generated code, but might be violated in the
-                        // future.
-                        put_string(&format!("${{ {} % 8 }} => A\n", reg_name(r)), sink);
-                        put_string(&format!("0: ASSERT\n"), sink);
                         // TODO(#43): Implement the conversion using verifiable computations.
+                        put_string(
+                            &format!("${{ ({}) % 8 }} => A\n", access_reg_with_offset(r, offset),),
+                            sink,
+                        );
                         put_string(
                             &format!(
                                 "${{ ({}) / 8 }} => {}\n",
@@ -605,9 +604,18 @@ impl MachInstEmit for Inst {
                             ),
                             sink,
                         );
-                        let rem = offset % 8;
-                        let width = op.width() as i64;
 
+                        // Handle the case when read spans two slots.
+                        // We do this read first in case `rd == r == E` which will clobber the
+                        // address register after second `MLOAD`.
+                        put_string(
+                            &format!(
+                                "$ => {} :MLOAD(MEM:{})\n",
+                                reg_name(d0()),
+                                access_reg_with_offset(r, 1)
+                            ),
+                            sink,
+                        );
                         put_string(
                             &format!(
                                 "$ => {} :MLOAD(MEM:{})\n",
@@ -618,47 +626,33 @@ impl MachInstEmit for Inst {
                         );
                         // TODO(#34): Implement unaligned and narrow reads using verifiable
                         // computations.
-                        if rem > 0 {
-                            put_string(
-                                &format!(
-                                    "${{ {} >> {} }} => {}\n",
-                                    reg_name(rd.to_reg()),
-                                    8 * rem,
-                                    reg_name(rd.to_reg())
-                                ),
-                                sink,
-                            );
-                        }
+                        put_string(
+                            &format!(
+                                "${{ {} >> (8 * A) }} => {}\n",
+                                reg_name(rd.to_reg()),
+                                reg_name(rd.to_reg())
+                            ),
+                            sink,
+                        );
 
-                        // Handle the case when read spans two slots.
-                        if rem + width > 8 {
-                            let rem = rem + width - 8;
-                            put_string(
-                                &format!(
-                                    "$ => {} :MLOAD(MEM:{})\n",
-                                    reg_name(d0()),
-                                    access_reg_with_offset(r, 1)
-                                ),
-                                sink,
-                            );
-                            put_string(
-                                &format!(
-                                    "${{ (D << {}) | {} }} => {}\n",
-                                    64 - 8 * rem,
-                                    reg_name(rd.to_reg()),
-                                    reg_name(rd.to_reg()),
-                                ),
-                                sink,
-                            );
-                        }
+                        // Merge in the read from the second slot.
+                        put_string(
+                            &format!(
+                                "${{ (D << (128 - 8 * (A + {}))) | {} }} => {}\n",
+                                op.width(),
+                                reg_name(rd.to_reg()),
+                                reg_name(rd.to_reg()),
+                            ),
+                            sink,
+                        );
 
                         // Mask the value to the width of the resulting type.
-                        if width < 8 {
+                        if op.width() < 8 {
                             put_string(
                                 &format!(
                                     "${{ {} & ((1 << {}) - 1) }} => {}\n",
                                     reg_name(rd.to_reg()),
-                                    8 * width,
+                                    8 * op.width(),
                                     reg_name(rd.to_reg()),
                                 ),
                                 sink,
@@ -694,12 +688,11 @@ impl MachInstEmit for Inst {
                 match to {
                     AMode::RegOffset(r, ..) => {
                         debug_assert_eq!(r, e0());
-                        // For simplicity we assume that register address is word-aligned.
-                        // This was the case for Rust-generated code, but might be violated in the
-                        // future.
-                        put_string(&format!("${{ {} % 8 }} => A\n", reg_name(r)), sink);
-                        put_string(&format!("0: ASSERT\n"), sink);
                         // TODO(#43): Implement the conversion using verifiable computations.
+                        put_string(
+                            &format!("${{ ({}) % 8 }} => A\n", access_reg_with_offset(r, offset)),
+                            sink,
+                        );
                         put_string(
                             &format!(
                                 "${{ ({}) / 8 }} => {}\n",
@@ -708,19 +701,10 @@ impl MachInstEmit for Inst {
                             ),
                             sink,
                         );
-                        let rem = offset % 8;
-                        let width = op.width() as i64;
-
-                        if op == StoreOP::I64 && rem == 0 {
-                            put_string(
-                                &format!("{} :MSTORE(MEM:{})\n", reg_name(src), reg_name(r)),
-                                sink,
-                            );
-                            return;
-                        }
 
                         // TODO(#34): Implement unaligned and narrow writes using verifiable
                         // computations.
+                        let width = op.width() as i64;
                         if width < 8 {
                             put_string(
                                 &format!(
@@ -738,38 +722,35 @@ impl MachInstEmit for Inst {
                         );
                         put_string(
                             &format!(
-                                "${{ (D & ~(((1 << {}) - 1) << {})) | ({} << {}) }} :MSTORE(MEM:{})\n",
+                                "${{ (D & ~(((1 << {}) - 1) << (8 * A))) | ({} << (8 * A)) }} :MSTORE(MEM:{})\n",
                                 8 * width,
-                                8 * rem,
                                 reg_name(src),
-                                8 * rem,
                                 reg_name(r),
                             ),
                             sink,
                         );
 
                         // Handle the case when write spans two slots.
-                        if rem + width > 8 {
-                            let rem = rem + width - 8;
-                            put_string(
-                                &format!(
-                                    "$ => {} :MLOAD(MEM:{})\n",
-                                    reg_name(d0()),
-                                    access_reg_with_offset(r, 1)
-                                ),
-                                sink,
-                            );
-                            put_string(
-                                &format!(
-                                    "${{ (D & ~((1 << {}) - 1)) | ({} & ((1 << {}) - 1)) }} :MSTORE(MEM:{})\n",
-                                    8 * rem,
-                                    reg_name(src),
-                                    8 * rem,
-                                    access_reg_with_offset(r, 1),
-                                ),
-                                sink,
-                            );
-                        }
+                        put_string(
+                            &format!("${{ (A + {width} > 8) ? (A + {width} - 8) : 0 }} => A\n"),
+                            sink,
+                        );
+                        put_string(
+                            &format!(
+                                "$ => {} :MLOAD(MEM:{})\n",
+                                reg_name(d0()),
+                                access_reg_with_offset(r, 1)
+                            ),
+                            sink,
+                        );
+                        put_string(
+                            &format!(
+                                "${{ (D & ~((1 << (8 * A)) - 1)) | ({} & ((1 << (8 * A)) - 1)) }} :MSTORE(MEM:{})\n",
+                                reg_name(src),
+                                access_reg_with_offset(r, 1),
+                            ),
+                            sink,
+                        );
                     }
                     AMode::SPOffset(..) | AMode::NominalSPOffset(..) | AMode::FPOffset(..) => {
                         assert_eq!(offset % 8, 0);
