@@ -406,6 +406,7 @@ mod tests {
     fn run_benchmarks() {
         test_wat_in_directory(Path::new(&format!("../zkasm_data/benchmarks/fibonacci")));
         test_wat_in_directory(Path::new(&format!("../zkasm_data/benchmarks/sha256")));
+        test_wat_in_directory(Path::new(&format!("../zkasm_data/benchmarks/keccak")));
     }
 
     macro_rules! testcases {

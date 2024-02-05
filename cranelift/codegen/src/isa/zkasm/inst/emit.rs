@@ -1663,7 +1663,7 @@ impl MachInstEmit for Inst {
                         sink.bind_label(label_jump_over, &mut state.ctrl_plane); */
             }
             &Inst::Udf { trap_code } => {
-                put_string(&format!("UNREACHABLE: {}\n", trap_code), sink);
+                // put_string(&format!("UNREACHABLE: {}\n", trap_code), sink);
             }
 
             &Inst::Popcnt {
