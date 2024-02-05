@@ -1,0 +1,26 @@
+[project]
+name = "wasmtime"
+version = "0.1.0"
+description = "Tools for testing zkAsm backend."
+authors = [
+    {name = "Andrei Kashin", email = "andrei.kashin@near.org"},
+    {name = "Vikar Makouski", email = "viktar@near.org"}
+]
+dependencies = []
+requires-python = ">=3.11"
+
+
+[tool.pdm]
+distribution = false
+
+[tool.pdm.dev-dependencies]
+lint = [
+    "ruff>=0.2.0",
+    "mypy>=1.8.0",
+]
+
+[tool.ruff]
+include = ["ci/*.py"]
+
+[tool.mypy]
+files = ["ci/*.py"]
