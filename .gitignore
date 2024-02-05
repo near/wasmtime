@@ -26,3 +26,6 @@ examples/.cache
 
 # JS dependencies
 node_modules/
+
+# Python packages
+.pdm-python
