@@ -22,5 +22,9 @@ lint = [
 [tool.ruff]
 include = ["ci/*.py"]
 
+[tool.ruff.lint]
+# Enable Pyflakes (`F`) and pycodestyle (`E`) by default.
+select = ["F", "E"]
+
 [tool.mypy]
 files = ["ci/*.py"]
