@@ -28,6 +28,7 @@ select = ["F", "E"]
 
 [tool.mypy]
 files = ["ci/*.py"]
+strict = true
 
 [tool.pdm.scripts]
 lint = "ruff ."
