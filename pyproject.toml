@@ -28,3 +28,7 @@ select = ["F", "E"]
 
 [tool.mypy]
 files = ["ci/*.py"]
+
+[tool.pdm.scripts]
+lint = "ruff ."
+fmt = "ruff format ."
