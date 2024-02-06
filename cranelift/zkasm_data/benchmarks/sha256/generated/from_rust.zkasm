@@ -5,7 +5,7 @@ start:
   2048 :MSTORE(global_0)  ;; Global32(2048)
   2080 :MSTORE(global_1)  ;; Global32(2080)
   2080 :MSTORE(global_2)  ;; Global32(2080)
-  2048 => E
+  256 => E
   13503953895726638695n :MSTORE(MEM:E + 0)
   11912009169889063794n :MSTORE(MEM:E + 1)
   11170449402626986623n :MSTORE(MEM:E + 2)
@@ -22,14 +22,17 @@ function_1:
   E :MSTORE(SP - 3)
   B :MSTORE(SP - 4)
   SP - 18 => SP
-  $ => A :MLOAD(global_0)
+  $ => E :MLOAD(global_0)
+  E => A
   112n => B  ;; LoadConst32
   $ => A :SUB
   4294967295n => B  ;; LoadConst64
   $ => A :AND
+  A => B
   A :MSTORE(SP + 13)
-  A :MSTORE(global_0)
+  B :MSTORE(global_0)
   24n => B  ;; LoadConst32
+  $ => A :MLOAD(SP + 13)
   $ => D :ADD
   D => A
   4294967295n => B  ;; LoadConst64
@@ -38,11 +41,22 @@ function_1:
   0n => B  ;; LoadConst32
   0n => A  ;; LoadConst32
   $ => E :ADD
-  $ => C :MLOAD(MEM:E + 2072)
+  ${ (E + 2072) % 8 } => A
+  ${ (E + 2072) / 8 } => E
+  $ => D :MLOAD(MEM:E + 1)
+  $ => C :MLOAD(MEM:E)
+  ${ C >> (8 * A) } => C
+  ${ (D << (128 - 8 * (A + 8))) | C } => C
   0n => A  ;; LoadConst32
   $ => B :MLOAD(SP + 2)
   $ => E :ADD
-  C :MSTORE(MEM:E)
+  ${ (E) % 8 } => A
+  ${ (E) / 8 } => E
+  $ => D :MLOAD(MEM:E)
+  ${ (D & ~(((1 << 64) - 1) << (8 * A))) | (C << (8 * A)) } :MSTORE(MEM:E)
+  ${ ((A + 8) > 8) ? (A + 8 - 8) : 0 } => A
+  $ => D :MLOAD(MEM:E + 1)
+  ${ (D & ~((1 << (8 * A)) - 1)) | (C & ((1 << (8 * A)) - 1)) } :MSTORE(MEM:E + 1)
   16n => B  ;; LoadConst32
   $ => A :MLOAD(SP + 13)
   $ => E :ADD
@@ -53,11 +67,22 @@ function_1:
   0n => B  ;; LoadConst32
   0n => A  ;; LoadConst32
   $ => E :ADD
-  $ => C :MLOAD(MEM:E + 2064)
+  ${ (E + 2064) % 8 } => A
+  ${ (E + 2064) / 8 } => E
+  $ => D :MLOAD(MEM:E + 1)
+  $ => C :MLOAD(MEM:E)
+  ${ C >> (8 * A) } => C
+  ${ (D << (128 - 8 * (A + 8))) | C } => C
   0n => A  ;; LoadConst32
   $ => B :MLOAD(SP + 1)
   $ => E :ADD
-  C :MSTORE(MEM:E)
+  ${ (E) % 8 } => A
+  ${ (E) / 8 } => E
+  $ => D :MLOAD(MEM:E)
+  ${ (D & ~(((1 << 64) - 1) << (8 * A))) | (C << (8 * A)) } :MSTORE(MEM:E)
+  ${ ((A + 8) > 8) ? (A + 8 - 8) : 0 } => A
+  $ => D :MLOAD(MEM:E + 1)
+  ${ (D & ~((1 << (8 * A)) - 1)) | (C & ((1 << (8 * A)) - 1)) } :MSTORE(MEM:E + 1)
   8n => B  ;; LoadConst32
   $ => A :MLOAD(SP + 13)
   $ => B :ADD
@@ -68,21 +93,38 @@ function_1:
   0n => B  ;; LoadConst32
   0n => A  ;; LoadConst32
   $ => E :ADD
-  $ => C :MLOAD(MEM:E + 2056)
+  ${ (E + 2056) % 8 } => A
+  ${ (E + 2056) / 8 } => E
+  $ => D :MLOAD(MEM:E + 1)
+  $ => C :MLOAD(MEM:E)
+  ${ C >> (8 * A) } => C
+  ${ (D << (128 - 8 * (A + 8))) | C } => C
   0n => A  ;; LoadConst32
   $ => B :MLOAD(SP)
   $ => E :ADD
-  C :MSTORE(MEM:E)
+  ${ (E) % 8 } => A
+  ${ (E) / 8 } => E
+  $ => D :MLOAD(MEM:E)
+  ${ (D & ~(((1 << 64) - 1) << (8 * A))) | (C << (8 * A)) } :MSTORE(MEM:E)
+  ${ ((A + 8) > 8) ? (A + 8 - 8) : 0 } => A
+  $ => D :MLOAD(MEM:E + 1)
+  ${ (D & ~((1 << (8 * A)) - 1)) | (C & ((1 << (8 * A)) - 1)) } :MSTORE(MEM:E + 1)
   50n => B  ;; LoadConst32
   $ => A :MLOAD(SP + 13)
   $ => B :ADD
   B => A
   4294967295n => B  ;; LoadConst64
   $ => B :AND
-  0n => D  ;; LoadConst64
+  0n => C  ;; LoadConst64
   0n => A  ;; LoadConst32
   $ => E :ADD
-  D :MSTORE(MEM:E)
+  ${ (E) % 8 } => A
+  ${ (E) / 8 } => E
+  $ => D :MLOAD(MEM:E)
+  ${ (D & ~(((1 << 64) - 1) << (8 * A))) | (C << (8 * A)) } :MSTORE(MEM:E)
+  ${ ((A + 8) > 8) ? (A + 8 - 8) : 0 } => A
+  $ => D :MLOAD(MEM:E + 1)
+  ${ (D & ~((1 << (8 * A)) - 1)) | (C & ((1 << (8 * A)) - 1)) } :MSTORE(MEM:E + 1)
   58n => B  ;; LoadConst32
   $ => A :MLOAD(SP + 13)
   $ => C :ADD
@@ -92,7 +134,13 @@ function_1:
   0n => C  ;; LoadConst64
   0n => A  ;; LoadConst32
   $ => E :ADD
-  C :MSTORE(MEM:E)
+  ${ (E) % 8 } => A
+  ${ (E) / 8 } => E
+  $ => D :MLOAD(MEM:E)
+  ${ (D & ~(((1 << 64) - 1) << (8 * A))) | (C << (8 * A)) } :MSTORE(MEM:E)
+  ${ ((A + 8) > 8) ? (A + 8 - 8) : 0 } => A
+  $ => D :MLOAD(MEM:E + 1)
+  ${ (D & ~((1 << (8 * A)) - 1)) | (C & ((1 << (8 * A)) - 1)) } :MSTORE(MEM:E + 1)
   66n => B  ;; LoadConst32
   $ => A :MLOAD(SP + 13)
   $ => D :ADD
@@ -102,7 +150,13 @@ function_1:
   0n => C  ;; LoadConst64
   0n => A  ;; LoadConst32
   $ => E :ADD
-  C :MSTORE(MEM:E)
+  ${ (E) % 8 } => A
+  ${ (E) / 8 } => E
+  $ => D :MLOAD(MEM:E)
+  ${ (D & ~(((1 << 64) - 1) << (8 * A))) | (C << (8 * A)) } :MSTORE(MEM:E)
+  ${ ((A + 8) > 8) ? (A + 8 - 8) : 0 } => A
+  $ => D :MLOAD(MEM:E + 1)
+  ${ (D & ~((1 << (8 * A)) - 1)) | (C & ((1 << (8 * A)) - 1)) } :MSTORE(MEM:E + 1)
   74n => B  ;; LoadConst32
   $ => A :MLOAD(SP + 13)
   $ => E :ADD
@@ -112,7 +166,13 @@ function_1:
   0n => C  ;; LoadConst64
   0n => A  ;; LoadConst32
   $ => E :ADD
-  C :MSTORE(MEM:E)
+  ${ (E) % 8 } => A
+  ${ (E) / 8 } => E
+  $ => D :MLOAD(MEM:E)
+  ${ (D & ~(((1 << 64) - 1) << (8 * A))) | (C << (8 * A)) } :MSTORE(MEM:E)
+  ${ ((A + 8) > 8) ? (A + 8 - 8) : 0 } => A
+  $ => D :MLOAD(MEM:E + 1)
+  ${ (D & ~((1 << (8 * A)) - 1)) | (C & ((1 << (8 * A)) - 1)) } :MSTORE(MEM:E + 1)
   82n => B  ;; LoadConst32
   $ => A :MLOAD(SP + 13)
   $ => B :ADD
@@ -122,42 +182,91 @@ function_1:
   0n => C  ;; LoadConst64
   0n => A  ;; LoadConst32
   $ => E :ADD
-  C :MSTORE(MEM:E)
+  ${ (E) % 8 } => A
+  ${ (E) / 8 } => E
+  $ => D :MLOAD(MEM:E)
+  ${ (D & ~(((1 << 64) - 1) << (8 * A))) | (C << (8 * A)) } :MSTORE(MEM:E)
+  ${ ((A + 8) > 8) ? (A + 8 - 8) : 0 } => A
+  $ => D :MLOAD(MEM:E + 1)
+  ${ (D & ~((1 << (8 * A)) - 1)) | (C & ((1 << (8 * A)) - 1)) } :MSTORE(MEM:E + 1)
   88n => B  ;; LoadConst32
   $ => A :MLOAD(SP + 13)
   $ => B :ADD
   B => A
   4294967295n => B  ;; LoadConst64
   $ => B :AND
-  0n => D  ;; LoadConst64
+  0n => C  ;; LoadConst64
   0n => A  ;; LoadConst32
   $ => E :ADD
-  D :MSTORE(MEM:E)
+  ${ (E) % 8 } => A
+  ${ (E) / 8 } => E
+  $ => D :MLOAD(MEM:E)
+  ${ (D & ~(((1 << 64) - 1) << (8 * A))) | (C << (8 * A)) } :MSTORE(MEM:E)
+  ${ ((A + 8) > 8) ? (A + 8 - 8) : 0 } => A
+  $ => D :MLOAD(MEM:E + 1)
+  ${ (D & ~((1 << (8 * A)) - 1)) | (C & ((1 << (8 * A)) - 1)) } :MSTORE(MEM:E + 1)
   1n => C  ;; LoadConst32
   0n => A  ;; LoadConst32
   $ => B :MLOAD(SP + 13)
   $ => E :ADD
-  C :MSTORE(MEM:E + 104)
+  ${ (E + 104) % 8 } => A
+  ${ (E + 104) / 8 } => E
+  ${ C & ((1 << 8) - 1) } => C
+  $ => D :MLOAD(MEM:E)
+  ${ (D & ~(((1 << 8) - 1) << (8 * A))) | (C << (8 * A)) } :MSTORE(MEM:E)
+  ${ ((A + 1) > 8) ? (A + 1 - 8) : 0 } => A
+  $ => D :MLOAD(MEM:E + 1)
+  ${ (D & ~((1 << (8 * A)) - 1)) | (C & ((1 << (8 * A)) - 1)) } :MSTORE(MEM:E + 1)
   0n => C  ;; LoadConst64
   0n => A  ;; LoadConst32
   $ => E :ADD
-  C :MSTORE(MEM:E + 32)
+  ${ (E + 32) % 8 } => A
+  ${ (E + 32) / 8 } => E
+  $ => D :MLOAD(MEM:E)
+  ${ (D & ~(((1 << 64) - 1) << (8 * A))) | (C << (8 * A)) } :MSTORE(MEM:E)
+  ${ ((A + 8) > 8) ? (A + 8 - 8) : 0 } => A
+  $ => D :MLOAD(MEM:E + 1)
+  ${ (D & ~((1 << (8 * A)) - 1)) | (C & ((1 << (8 * A)) - 1)) } :MSTORE(MEM:E + 1)
   0n => C  ;; LoadConst64
   0n => A  ;; LoadConst32
   $ => E :ADD
-  C :MSTORE(MEM:E + 42)
+  ${ (E + 42) % 8 } => A
+  ${ (E + 42) / 8 } => E
+  $ => D :MLOAD(MEM:E)
+  ${ (D & ~(((1 << 64) - 1) << (8 * A))) | (C << (8 * A)) } :MSTORE(MEM:E)
+  ${ ((A + 8) > 8) ? (A + 8 - 8) : 0 } => A
+  $ => D :MLOAD(MEM:E + 1)
+  ${ (D & ~((1 << (8 * A)) - 1)) | (C & ((1 << (8 * A)) - 1)) } :MSTORE(MEM:E + 1)
   32856n => C  ;; LoadConst32
   0n => A  ;; LoadConst32
   $ => E :ADD
-  C :MSTORE(MEM:E + 40)
+  ${ (E + 40) % 8 } => A
+  ${ (E + 40) / 8 } => E
+  ${ C & ((1 << 16) - 1) } => C
+  $ => D :MLOAD(MEM:E)
+  ${ (D & ~(((1 << 16) - 1) << (8 * A))) | (C << (8 * A)) } :MSTORE(MEM:E)
+  ${ ((A + 2) > 8) ? (A + 2 - 8) : 0 } => A
+  $ => D :MLOAD(MEM:E + 1)
+  ${ (D & ~((1 << (8 * A)) - 1)) | (C & ((1 << (8 * A)) - 1)) } :MSTORE(MEM:E + 1)
   0n => B  ;; LoadConst32
   0n => A  ;; LoadConst32
   $ => E :ADD
-  $ => D :MLOAD(MEM:E + 2048)
+  ${ (E + 2048) % 8 } => A
+  ${ (E + 2048) / 8 } => E
+  $ => D :MLOAD(MEM:E + 1)
+  $ => C :MLOAD(MEM:E)
+  ${ C >> (8 * A) } => C
+  ${ (D << (128 - 8 * (A + 8))) | C } => C
   0n => A  ;; LoadConst32
   $ => B :MLOAD(SP + 13)
   $ => E :ADD
-  D :MSTORE(MEM:E)
+  ${ (E) % 8 } => A
+  ${ (E) / 8 } => E
+  $ => D :MLOAD(MEM:E)
+  ${ (D & ~(((1 << 64) - 1) << (8 * A))) | (C << (8 * A)) } :MSTORE(MEM:E)
+  ${ ((A + 8) > 8) ? (A + 8 - 8) : 0 } => A
+  $ => D :MLOAD(MEM:E + 1)
+  ${ (D & ~((1 << (8 * A)) - 1)) | (C & ((1 << (8 * A)) - 1)) } :MSTORE(MEM:E + 1)
   96n => B  ;; LoadConst32
   $ => A :MLOAD(SP + 13)
   $ => C :ADD
@@ -167,16 +276,22 @@ function_1:
   576460752303423488n => C  ;; LoadConst64
   0n => A  ;; LoadConst32
   $ => E :ADD
-  C :MSTORE(MEM:E)
+  ${ (E) % 8 } => A
+  ${ (E) / 8 } => E
+  $ => D :MLOAD(MEM:E)
+  ${ (D & ~(((1 << 64) - 1) << (8 * A))) | (C << (8 * A)) } :MSTORE(MEM:E)
+  ${ ((A + 8) > 8) ? (A + 8 - 8) : 0 } => A
+  $ => D :MLOAD(MEM:E + 1)
+  ${ (D & ~((1 << (8 * A)) - 1)) | (C & ((1 << (8 * A)) - 1)) } :MSTORE(MEM:E + 1)
   40n => B  ;; LoadConst32
   $ => A :MLOAD(SP + 13)
   $ => D :ADD
   D => A
   4294967295n => B  ;; LoadConst64
   $ => B :AND
-  1n => A  ;; LoadConst32
+  1n => C  ;; LoadConst32
   SP - 1 => SP
-  A :MSTORE(SP)
+  C :MSTORE(SP)
   $ => A :MLOAD(SP + 14)
   zkPC + 2 => RR
   :JMP(function_2)
@@ -184,41 +299,93 @@ function_1:
   0n => A  ;; LoadConst32
   $ => B :MLOAD(SP + 2)
   $ => E :ADD
-  $ => A :MLOAD(MEM:E)
-  A :MSTORE(SP + 12)
+  ${ (E) % 8 } => A
+  ${ (E) / 8 } => E
+  $ => D :MLOAD(MEM:E + 1)
+  $ => B :MLOAD(MEM:E)
+  ${ B >> (8 * A) } => B
+  ${ (D << (128 - 8 * (A + 4))) | B } => B
+  ${ B & ((1 << 32) - 1) } => B
+  B :MSTORE(SP + 12)
   0n => A  ;; LoadConst32
   $ => B :MLOAD(SP + 1)
   $ => E :ADD
-  $ => A :MLOAD(MEM:E)
-  A :MSTORE(SP + 11)
+  ${ (E) % 8 } => A
+  ${ (E) / 8 } => E
+  $ => D :MLOAD(MEM:E + 1)
+  $ => B :MLOAD(MEM:E)
+  ${ B >> (8 * A) } => B
+  ${ (D << (128 - 8 * (A + 4))) | B } => B
+  ${ B & ((1 << 32) - 1) } => B
+  B :MSTORE(SP + 11)
   0n => A  ;; LoadConst32
   $ => B :MLOAD(SP)
   $ => E :ADD
-  $ => A :MLOAD(MEM:E)
-  A :MSTORE(SP + 10)
+  ${ (E) % 8 } => A
+  ${ (E) / 8 } => E
+  $ => D :MLOAD(MEM:E + 1)
+  $ => B :MLOAD(MEM:E)
+  ${ B >> (8 * A) } => B
+  ${ (D << (128 - 8 * (A + 4))) | B } => B
+  ${ B & ((1 << 32) - 1) } => B
+  B :MSTORE(SP + 10)
   0n => A  ;; LoadConst32
   $ => B :MLOAD(SP + 13)
   $ => E :ADD
-  $ => A :MLOAD(MEM:E + 28)
-  A :MSTORE(SP + 9)
+  ${ (E + 28) % 8 } => A
+  ${ (E + 28) / 8 } => E
+  $ => D :MLOAD(MEM:E + 1)
+  $ => B :MLOAD(MEM:E)
+  ${ B >> (8 * A) } => B
+  ${ (D << (128 - 8 * (A + 4))) | B } => B
+  ${ B & ((1 << 32) - 1) } => B
+  B :MSTORE(SP + 9)
   0n => A  ;; LoadConst32
+  $ => B :MLOAD(SP + 13)
   $ => E :ADD
-  $ => A :MLOAD(MEM:E + 20)
-  A :MSTORE(SP + 8)
+  ${ (E + 20) % 8 } => A
+  ${ (E + 20) / 8 } => E
+  $ => D :MLOAD(MEM:E + 1)
+  $ => B :MLOAD(MEM:E)
+  ${ B >> (8 * A) } => B
+  ${ (D << (128 - 8 * (A + 4))) | B } => B
+  ${ B & ((1 << 32) - 1) } => B
+  B :MSTORE(SP + 8)
   0n => A  ;; LoadConst32
+  $ => B :MLOAD(SP + 13)
   $ => E :ADD
-  $ => A :MLOAD(MEM:E + 12)
-  A :MSTORE(SP + 7)
+  ${ (E + 12) % 8 } => A
+  ${ (E + 12) / 8 } => E
+  $ => D :MLOAD(MEM:E + 1)
+  $ => B :MLOAD(MEM:E)
+  ${ B >> (8 * A) } => B
+  ${ (D << (128 - 8 * (A + 4))) | B } => B
+  ${ B & ((1 << 32) - 1) } => B
+  B :MSTORE(SP + 7)
   0n => A  ;; LoadConst32
+  $ => B :MLOAD(SP + 13)
   $ => E :ADD
-  $ => A :MLOAD(MEM:E + 4)
-  A :MSTORE(SP + 6)
+  ${ (E + 4) % 8 } => A
+  ${ (E + 4) / 8 } => E
+  $ => D :MLOAD(MEM:E + 1)
+  $ => B :MLOAD(MEM:E)
+  ${ B >> (8 * A) } => B
+  ${ (D << (128 - 8 * (A + 4))) | B } => B
+  ${ B & ((1 << 32) - 1) } => B
+  B :MSTORE(SP + 6)
   75n => A  ;; LoadConst64
   A :MSTORE(SP + 4)
   0n => A  ;; LoadConst32
+  $ => B :MLOAD(SP + 13)
   $ => E :ADD
-  $ => A :MLOAD(MEM:E)
-  A :MSTORE(SP + 5)
+  ${ (E) % 8 } => A
+  ${ (E) / 8 } => E
+  $ => D :MLOAD(MEM:E + 1)
+  $ => B :MLOAD(MEM:E)
+  ${ B >> (8 * A) } => B
+  ${ (D << (128 - 8 * (A + 4))) | B } => B
+  ${ B & ((1 << 32) - 1) } => B
+  B :MSTORE(SP + 5)
   24n => A  ;; LoadConst32
   31n => B  ;; LoadConst64
   $ => E :AND
@@ -237,11 +404,11 @@ function_1:
   65280n => B  ;; LoadConst32
   $ => A :MLOAD(SP + 5)
   $ => B :AND
-  B => C
+  B => D
   8n => A  ;; LoadConst32
   31n => B  ;; LoadConst64
   $ => E :AND
-  C => A
+  D => A
 ;;NEED_INCLUDE: 2-exp
   zkPC + 2 => RR
     :JMP(@two_power + E)
@@ -332,11 +499,11 @@ function_1:
   $ => A :MLOAD(SP + 4)
   B :ASSERT
   56n => A  ;; LoadConst64
-  A => C
+  A => D
   255n => B  ;; LoadConst32
   $ => A :MLOAD(SP + 5)
   $ => B :AND
-  C => A
+  D => A
   B :ASSERT
   71n => A  ;; LoadConst64
   A :MSTORE(SP + 4)
@@ -358,11 +525,11 @@ function_1:
   65280n => B  ;; LoadConst32
   $ => A :MLOAD(SP + 6)
   $ => B :AND
-  B => C
+  B => D
   8n => A  ;; LoadConst32
   31n => B  ;; LoadConst64
   $ => E :AND
-  C => A
+  D => A
 ;;NEED_INCLUDE: 2-exp
   zkPC + 2 => RR
     :JMP(@two_power + E)
@@ -453,11 +620,11 @@ function_1:
   $ => A :MLOAD(SP + 4)
   B :ASSERT
   125n => A  ;; LoadConst64
-  A => E
+  A => C
   255n => B  ;; LoadConst32
   $ => A :MLOAD(SP + 6)
   $ => B :AND
-  E => A
+  C => A
   B :ASSERT
   108n => A  ;; LoadConst64
   A :MSTORE(SP + 4)
@@ -479,11 +646,11 @@ function_1:
   65280n => B  ;; LoadConst32
   $ => A :MLOAD(SP + 10)
   $ => E :AND
-  E => C
+  E => D
   8n => A  ;; LoadConst32
   31n => B  ;; LoadConst64
   $ => E :AND
-  C => A
+  D => A
 ;;NEED_INCLUDE: 2-exp
   zkPC + 2 => RR
     :JMP(@two_power + E)
@@ -600,11 +767,10 @@ function_1:
   65280n => B  ;; LoadConst32
   $ => A :MLOAD(SP + 7)
   $ => D :AND
-  D => C
   8n => A  ;; LoadConst32
   31n => B  ;; LoadConst64
   $ => E :AND
-  C => A
+  D => A
 ;;NEED_INCLUDE: 2-exp
   zkPC + 2 => RR
     :JMP(@two_power + E)
@@ -695,11 +861,11 @@ function_1:
   $ => A :MLOAD(SP + 4)
   B :ASSERT
   163n => A  ;; LoadConst64
-  A => D
+  A => E
   255n => B  ;; LoadConst32
   $ => A :MLOAD(SP + 7)
   $ => B :AND
-  D => A
+  E => A
   B :ASSERT
   94n => A  ;; LoadConst64
   A :MSTORE(SP + 4)
@@ -721,10 +887,11 @@ function_1:
   65280n => B  ;; LoadConst32
   $ => A :MLOAD(SP + 11)
   $ => C :AND
+  C => D
   8n => A  ;; LoadConst32
   31n => B  ;; LoadConst64
   $ => E :AND
-  C => A
+  D => A
 ;;NEED_INCLUDE: 2-exp
   zkPC + 2 => RR
     :JMP(@two_power + E)
@@ -841,11 +1008,11 @@ function_1:
   65280n => B  ;; LoadConst32
   $ => A :MLOAD(SP + 8)
   $ => B :AND
-  B => C
+  B => D
   8n => A  ;; LoadConst32
   31n => B  ;; LoadConst64
   $ => E :AND
-  C => A
+  D => A
 ;;NEED_INCLUDE: 2-exp
   zkPC + 2 => RR
     :JMP(@two_power + E)
@@ -936,11 +1103,11 @@ function_1:
   $ => A :MLOAD(SP + 4)
   B :ASSERT
   244n => A  ;; LoadConst64
-  A => C
+  A => D
   255n => B  ;; LoadConst32
   $ => A :MLOAD(SP + 8)
   $ => B :AND
-  C => A
+  D => A
   B :ASSERT
   221n => A  ;; LoadConst64
   A :MSTORE(SP + 4)
@@ -962,11 +1129,11 @@ function_1:
   65280n => B  ;; LoadConst32
   $ => A :MLOAD(SP + 12)
   $ => B :AND
-  B => C
+  B => D
   8n => A  ;; LoadConst32
   31n => B  ;; LoadConst64
   $ => E :AND
-  C => A
+  D => A
 ;;NEED_INCLUDE: 2-exp
   zkPC + 2 => RR
     :JMP(@two_power + E)
@@ -1057,11 +1224,11 @@ function_1:
   $ => A :MLOAD(SP + 3)
   B :ASSERT
   93n => A  ;; LoadConst64
-  A => E
+  A => C
   255n => B  ;; LoadConst32
   $ => A :MLOAD(SP + 12)
   $ => B :AND
-  E => A
+  C => A
   B :ASSERT
   246n => A  ;; LoadConst64
   A :MSTORE(SP + 3)
@@ -1083,11 +1250,11 @@ function_1:
   65280n => B  ;; LoadConst32
   $ => A :MLOAD(SP + 9)
   $ => E :AND
-  E => C
+  E => D
   8n => A  ;; LoadConst32
   31n => B  ;; LoadConst64
   $ => E :AND
-  C => A
+  D => A
 ;;NEED_INCLUDE: 2-exp
   zkPC + 2 => RR
     :JMP(@two_power + E)
@@ -1188,8 +1355,8 @@ function_1:
   $ => A :MLOAD(SP + 13)
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
-  $ => A :AND
-  A :MSTORE(global_0)
+  $ => B :AND
+  B :MSTORE(global_0)
   SP + 18 => SP
   $ => C :MLOAD(SP - 1)
   $ => D :MLOAD(SP - 2)
@@ -1208,40 +1375,88 @@ function_2:
   SP - 1182 => SP
   A :MSTORE(SP)
   B :MSTORE(SP + 1)
-  $ => A :MLOAD(SP + 1183)
-  A :MSTORE(SP + 2)
+  $ => B :MLOAD(SP + 1183)
+  B :MSTORE(SP + 2)
   0n => A  ;; LoadConst32
   $ => B :MLOAD(SP)
   $ => E :ADD
-  $ => D :MLOAD(MEM:E + 28)
-  D :MSTORE(SP + 9)
+  ${ (E + 28) % 8 } => A
+  ${ (E + 28) / 8 } => E
+  $ => D :MLOAD(MEM:E + 1)
+  $ => E :MLOAD(MEM:E)
+  ${ E >> (8 * A) } => E
+  ${ (D << (128 - 8 * (A + 4))) | E } => E
+  ${ E & ((1 << 32) - 1) } => E
+  E :MSTORE(SP + 9)
   0n => A  ;; LoadConst32
   $ => E :ADD
-  $ => C :MLOAD(MEM:E + 24)
+  ${ (E + 24) % 8 } => A
+  ${ (E + 24) / 8 } => E
+  $ => D :MLOAD(MEM:E + 1)
+  $ => C :MLOAD(MEM:E)
+  ${ C >> (8 * A) } => C
+  ${ (D << (128 - 8 * (A + 4))) | C } => C
+  ${ C & ((1 << 32) - 1) } => C
   C :MSTORE(SP + 10)
   0n => A  ;; LoadConst32
   $ => E :ADD
-  $ => C :MLOAD(MEM:E + 20)
+  ${ (E + 20) % 8 } => A
+  ${ (E + 20) / 8 } => E
+  $ => D :MLOAD(MEM:E + 1)
+  $ => C :MLOAD(MEM:E)
+  ${ C >> (8 * A) } => C
+  ${ (D << (128 - 8 * (A + 4))) | C } => C
+  ${ C & ((1 << 32) - 1) } => C
   C :MSTORE(SP + 11)
   0n => A  ;; LoadConst32
   $ => E :ADD
-  $ => A :MLOAD(MEM:E + 16)
-  A :MSTORE(SP + 12)
+  ${ (E + 16) % 8 } => A
+  ${ (E + 16) / 8 } => E
+  $ => D :MLOAD(MEM:E + 1)
+  $ => C :MLOAD(MEM:E)
+  ${ C >> (8 * A) } => C
+  ${ (D << (128 - 8 * (A + 4))) | C } => C
+  ${ C & ((1 << 32) - 1) } => C
+  C :MSTORE(SP + 12)
   0n => A  ;; LoadConst32
   $ => E :ADD
-  $ => E :MLOAD(MEM:E + 12)
+  ${ (E + 12) % 8 } => A
+  ${ (E + 12) / 8 } => E
+  $ => D :MLOAD(MEM:E + 1)
+  $ => E :MLOAD(MEM:E)
+  ${ E >> (8 * A) } => E
+  ${ (D << (128 - 8 * (A + 4))) | E } => E
+  ${ E & ((1 << 32) - 1) } => E
   E :MSTORE(SP + 13)
   0n => A  ;; LoadConst32
   $ => E :ADD
-  $ => D :MLOAD(MEM:E + 8)
-  D :MSTORE(SP + 14)
+  ${ (E + 8) % 8 } => A
+  ${ (E + 8) / 8 } => E
+  $ => D :MLOAD(MEM:E + 1)
+  $ => E :MLOAD(MEM:E)
+  ${ E >> (8 * A) } => E
+  ${ (D << (128 - 8 * (A + 4))) | E } => E
+  ${ E & ((1 << 32) - 1) } => E
+  E :MSTORE(SP + 14)
   0n => A  ;; LoadConst32
   $ => E :ADD
-  $ => C :MLOAD(MEM:E + 4)
+  ${ (E + 4) % 8 } => A
+  ${ (E + 4) / 8 } => E
+  $ => D :MLOAD(MEM:E + 1)
+  $ => C :MLOAD(MEM:E)
+  ${ C >> (8 * A) } => C
+  ${ (D << (128 - 8 * (A + 4))) | C } => C
+  ${ C & ((1 << 32) - 1) } => C
   C :MSTORE(SP + 15)
   0n => A  ;; LoadConst32
   $ => E :ADD
+  ${ (E) % 8 } => A
+  ${ (E) / 8 } => E
+  $ => D :MLOAD(MEM:E + 1)
   $ => B :MLOAD(MEM:E)
+  ${ B >> (8 * A) } => B
+  ${ (D << (128 - 8 * (A + 4))) | B } => B
+  ${ B & ((1 << 32) - 1) } => B
   B :MSTORE(SP + 16)
   0n => B  ;; LoadConst32
   $ => A :MLOAD(SP + 2)
@@ -1529,8 +1744,14 @@ label_2_3:
   0n => A  ;; LoadConst32
   $ => B :MLOAD(SP + 8)
   $ => E :ADD
-  $ => A :MLOAD(MEM:E)
-  A :MSTORE(SP + 1165)
+  ${ (E) % 8 } => A
+  ${ (E) / 8 } => E
+  $ => D :MLOAD(MEM:E + 1)
+  $ => B :MLOAD(MEM:E)
+  ${ B >> (8 * A) } => B
+  ${ (D << (128 - 8 * (A + 4))) | B } => B
+  ${ B & ((1 << 32) - 1) } => B
+  B :MSTORE(SP + 1165)
   24n => A  ;; LoadConst32
   31n => B  ;; LoadConst64
   $ => E :AND
@@ -1738,8 +1959,14 @@ label_2_3:
   0n => A  ;; LoadConst32
   $ => B :MLOAD(SP + 8)
   $ => E :ADD
-  $ => A :MLOAD(MEM:E + 4)
-  A :MSTORE(SP + 1155)
+  ${ (E + 4) % 8 } => A
+  ${ (E + 4) / 8 } => E
+  $ => D :MLOAD(MEM:E + 1)
+  $ => B :MLOAD(MEM:E)
+  ${ B >> (8 * A) } => B
+  ${ (D << (128 - 8 * (A + 4))) | B } => B
+  ${ B & ((1 << 32) - 1) } => B
+  B :MSTORE(SP + 1155)
   24n => A  ;; LoadConst32
   31n => B  ;; LoadConst64
   $ => E :AND
@@ -2073,8 +2300,14 @@ label_2_3:
   0n => A  ;; LoadConst32
   $ => B :MLOAD(SP + 8)
   $ => E :ADD
-  $ => A :MLOAD(MEM:E + 8)
-  A :MSTORE(SP + 1139)
+  ${ (E + 8) % 8 } => A
+  ${ (E + 8) / 8 } => E
+  $ => D :MLOAD(MEM:E + 1)
+  $ => B :MLOAD(MEM:E)
+  ${ B >> (8 * A) } => B
+  ${ (D << (128 - 8 * (A + 4))) | B } => B
+  ${ B & ((1 << 32) - 1) } => B
+  B :MSTORE(SP + 1139)
   24n => A  ;; LoadConst32
   31n => B  ;; LoadConst64
   $ => E :AND
@@ -2408,8 +2641,14 @@ label_2_3:
   0n => A  ;; LoadConst32
   $ => B :MLOAD(SP + 8)
   $ => E :ADD
-  $ => A :MLOAD(MEM:E + 12)
-  A :MSTORE(SP + 1123)
+  ${ (E + 12) % 8 } => A
+  ${ (E + 12) / 8 } => E
+  $ => D :MLOAD(MEM:E + 1)
+  $ => B :MLOAD(MEM:E)
+  ${ B >> (8 * A) } => B
+  ${ (D << (128 - 8 * (A + 4))) | B } => B
+  ${ B & ((1 << 32) - 1) } => B
+  B :MSTORE(SP + 1123)
   24n => A  ;; LoadConst32
   31n => B  ;; LoadConst64
   $ => E :AND
@@ -2743,8 +2982,14 @@ label_2_3:
   0n => A  ;; LoadConst32
   $ => B :MLOAD(SP + 8)
   $ => E :ADD
-  $ => A :MLOAD(MEM:E + 16)
-  A :MSTORE(SP + 1107)
+  ${ (E + 16) % 8 } => A
+  ${ (E + 16) / 8 } => E
+  $ => D :MLOAD(MEM:E + 1)
+  $ => B :MLOAD(MEM:E)
+  ${ B >> (8 * A) } => B
+  ${ (D << (128 - 8 * (A + 4))) | B } => B
+  ${ B & ((1 << 32) - 1) } => B
+  B :MSTORE(SP + 1107)
   24n => A  ;; LoadConst32
   31n => B  ;; LoadConst64
   $ => E :AND
@@ -3077,8 +3322,14 @@ label_2_3:
   0n => A  ;; LoadConst32
   $ => B :MLOAD(SP + 8)
   $ => E :ADD
-  $ => A :MLOAD(MEM:E + 20)
-  A :MSTORE(SP + 1091)
+  ${ (E + 20) % 8 } => A
+  ${ (E + 20) / 8 } => E
+  $ => D :MLOAD(MEM:E + 1)
+  $ => B :MLOAD(MEM:E)
+  ${ B >> (8 * A) } => B
+  ${ (D << (128 - 8 * (A + 4))) | B } => B
+  ${ B & ((1 << 32) - 1) } => B
+  B :MSTORE(SP + 1091)
   24n => A  ;; LoadConst32
   31n => B  ;; LoadConst64
   $ => E :AND
@@ -3412,8 +3663,14 @@ label_2_3:
   0n => A  ;; LoadConst32
   $ => B :MLOAD(SP + 8)
   $ => E :ADD
-  $ => A :MLOAD(MEM:E + 24)
-  A :MSTORE(SP + 1075)
+  ${ (E + 24) % 8 } => A
+  ${ (E + 24) / 8 } => E
+  $ => D :MLOAD(MEM:E + 1)
+  $ => B :MLOAD(MEM:E)
+  ${ B >> (8 * A) } => B
+  ${ (D << (128 - 8 * (A + 4))) | B } => B
+  ${ B & ((1 << 32) - 1) } => B
+  B :MSTORE(SP + 1075)
   24n => A  ;; LoadConst32
   31n => B  ;; LoadConst64
   $ => E :AND
@@ -3747,8 +4004,14 @@ label_2_3:
   0n => A  ;; LoadConst32
   $ => B :MLOAD(SP + 8)
   $ => E :ADD
-  $ => A :MLOAD(MEM:E + 28)
-  A :MSTORE(SP + 1059)
+  ${ (E + 28) % 8 } => A
+  ${ (E + 28) / 8 } => E
+  $ => D :MLOAD(MEM:E + 1)
+  $ => B :MLOAD(MEM:E)
+  ${ B >> (8 * A) } => B
+  ${ (D << (128 - 8 * (A + 4))) | B } => B
+  ${ B & ((1 << 32) - 1) } => B
+  B :MSTORE(SP + 1059)
   24n => A  ;; LoadConst32
   31n => B  ;; LoadConst64
   $ => E :AND
@@ -4082,8 +4345,14 @@ label_2_3:
   0n => A  ;; LoadConst32
   $ => B :MLOAD(SP + 8)
   $ => E :ADD
-  $ => A :MLOAD(MEM:E + 32)
-  A :MSTORE(SP + 1043)
+  ${ (E + 32) % 8 } => A
+  ${ (E + 32) / 8 } => E
+  $ => D :MLOAD(MEM:E + 1)
+  $ => B :MLOAD(MEM:E)
+  ${ B >> (8 * A) } => B
+  ${ (D << (128 - 8 * (A + 4))) | B } => B
+  ${ B & ((1 << 32) - 1) } => B
+  B :MSTORE(SP + 1043)
   24n => A  ;; LoadConst32
   31n => B  ;; LoadConst64
   $ => E :AND
@@ -4417,8 +4686,14 @@ label_2_3:
   0n => A  ;; LoadConst32
   $ => B :MLOAD(SP + 8)
   $ => E :ADD
-  $ => A :MLOAD(MEM:E + 36)
-  A :MSTORE(SP + 1027)
+  ${ (E + 36) % 8 } => A
+  ${ (E + 36) / 8 } => E
+  $ => D :MLOAD(MEM:E + 1)
+  $ => B :MLOAD(MEM:E)
+  ${ B >> (8 * A) } => B
+  ${ (D << (128 - 8 * (A + 4))) | B } => B
+  ${ B & ((1 << 32) - 1) } => B
+  B :MSTORE(SP + 1027)
   24n => A  ;; LoadConst32
   31n => B  ;; LoadConst64
   $ => E :AND
@@ -4752,8 +5027,14 @@ label_2_3:
   0n => A  ;; LoadConst32
   $ => B :MLOAD(SP + 8)
   $ => E :ADD
-  $ => A :MLOAD(MEM:E + 40)
-  A :MSTORE(SP + 1011)
+  ${ (E + 40) % 8 } => A
+  ${ (E + 40) / 8 } => E
+  $ => D :MLOAD(MEM:E + 1)
+  $ => B :MLOAD(MEM:E)
+  ${ B >> (8 * A) } => B
+  ${ (D << (128 - 8 * (A + 4))) | B } => B
+  ${ B & ((1 << 32) - 1) } => B
+  B :MSTORE(SP + 1011)
   24n => A  ;; LoadConst32
   31n => B  ;; LoadConst64
   $ => E :AND
@@ -5087,8 +5368,14 @@ label_2_3:
   0n => A  ;; LoadConst32
   $ => B :MLOAD(SP + 8)
   $ => E :ADD
-  $ => A :MLOAD(MEM:E + 44)
-  A :MSTORE(SP + 995)
+  ${ (E + 44) % 8 } => A
+  ${ (E + 44) / 8 } => E
+  $ => D :MLOAD(MEM:E + 1)
+  $ => B :MLOAD(MEM:E)
+  ${ B >> (8 * A) } => B
+  ${ (D << (128 - 8 * (A + 4))) | B } => B
+  ${ B & ((1 << 32) - 1) } => B
+  B :MSTORE(SP + 995)
   24n => A  ;; LoadConst32
   31n => B  ;; LoadConst64
   $ => E :AND
@@ -5422,8 +5709,14 @@ label_2_3:
   0n => A  ;; LoadConst32
   $ => B :MLOAD(SP + 8)
   $ => E :ADD
-  $ => A :MLOAD(MEM:E + 48)
-  A :MSTORE(SP + 979)
+  ${ (E + 48) % 8 } => A
+  ${ (E + 48) / 8 } => E
+  $ => D :MLOAD(MEM:E + 1)
+  $ => B :MLOAD(MEM:E)
+  ${ B >> (8 * A) } => B
+  ${ (D << (128 - 8 * (A + 4))) | B } => B
+  ${ B & ((1 << 32) - 1) } => B
+  B :MSTORE(SP + 979)
   24n => A  ;; LoadConst32
   31n => B  ;; LoadConst64
   $ => E :AND
@@ -5757,8 +6050,14 @@ label_2_3:
   0n => A  ;; LoadConst32
   $ => B :MLOAD(SP + 8)
   $ => E :ADD
-  $ => A :MLOAD(MEM:E + 52)
-  A :MSTORE(SP + 963)
+  ${ (E + 52) % 8 } => A
+  ${ (E + 52) / 8 } => E
+  $ => D :MLOAD(MEM:E + 1)
+  $ => B :MLOAD(MEM:E)
+  ${ B >> (8 * A) } => B
+  ${ (D << (128 - 8 * (A + 4))) | B } => B
+  ${ B & ((1 << 32) - 1) } => B
+  B :MSTORE(SP + 963)
   24n => A  ;; LoadConst32
   31n => B  ;; LoadConst64
   $ => E :AND
@@ -6092,8 +6391,14 @@ label_2_3:
   0n => A  ;; LoadConst32
   $ => B :MLOAD(SP + 8)
   $ => E :ADD
-  $ => A :MLOAD(MEM:E + 56)
-  A :MSTORE(SP + 947)
+  ${ (E + 56) % 8 } => A
+  ${ (E + 56) / 8 } => E
+  $ => D :MLOAD(MEM:E + 1)
+  $ => B :MLOAD(MEM:E)
+  ${ B >> (8 * A) } => B
+  ${ (D << (128 - 8 * (A + 4))) | B } => B
+  ${ B & ((1 << 32) - 1) } => B
+  B :MSTORE(SP + 947)
   24n => A  ;; LoadConst32
   31n => B  ;; LoadConst64
   $ => E :AND
@@ -6427,8 +6732,14 @@ label_2_3:
   0n => A  ;; LoadConst32
   $ => B :MLOAD(SP + 8)
   $ => E :ADD
-  $ => A :MLOAD(MEM:E + 60)
-  A :MSTORE(SP + 931)
+  ${ (E + 60) % 8 } => A
+  ${ (E + 60) / 8 } => E
+  $ => D :MLOAD(MEM:E + 1)
+  $ => B :MLOAD(MEM:E)
+  ${ B >> (8 * A) } => B
+  ${ (D << (128 - 8 * (A + 4))) | B } => B
+  ${ B & ((1 << 32) - 1) } => B
+  B :MSTORE(SP + 931)
   24n => A  ;; LoadConst32
   31n => B  ;; LoadConst64
   $ => E :AND
@@ -27566,12 +27877,12 @@ label_2_3:
   $ => B :AND
   $ => A :MLOAD(SP + 25)
   $ => A :ADD
-  B => E
+  B => D
   4294967295n => B  ;; LoadConst64
-  $ => C :AND
+  $ => E :AND
   $ => A :MLOAD(SP + 29)
   $ => B :MLOAD(SP + 1)
-  C :MSTORE(SP + 16)
+  E :MSTORE(SP + 16)
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
   $ => C :AND
@@ -27581,7 +27892,7 @@ label_2_3:
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
   $ => A :AND
-  E => B
+  D => B
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
   $ => A :AND
@@ -27608,8 +27919,8 @@ label_2_3:
   $ => A :MLOAD(SP + 36)
   $ => A :ADD
   4294967295n => B  ;; LoadConst64
-  $ => B :AND
-  B :MSTORE(SP + 10)
+  $ => A :AND
+  A :MSTORE(SP + 10)
   $ => B :MLOAD(SP + 4)
   $ => A :MLOAD(SP + 54)
   $ => A :ADD
@@ -27652,36 +27963,92 @@ label_2_7:
   0n => A  ;; LoadConst32
   $ => B :MLOAD(SP)
   $ => E :ADD
-  $ => A :MLOAD(SP + 9)
-  A :MSTORE(MEM:E + 28)
+  $ => C :MLOAD(SP + 9)
+  ${ (E + 28) % 8 } => A
+  ${ (E + 28) / 8 } => E
+  ${ C & ((1 << 32) - 1) } => C
+  $ => D :MLOAD(MEM:E)
+  ${ (D & ~(((1 << 32) - 1) << (8 * A))) | (C << (8 * A)) } :MSTORE(MEM:E)
+  ${ ((A + 4) > 8) ? (A + 4 - 8) : 0 } => A
+  $ => D :MLOAD(MEM:E + 1)
+  ${ (D & ~((1 << (8 * A)) - 1)) | (C & ((1 << (8 * A)) - 1)) } :MSTORE(MEM:E + 1)
   0n => A  ;; LoadConst32
   $ => E :ADD
   $ => C :MLOAD(SP + 10)
-  C :MSTORE(MEM:E + 24)
+  ${ (E + 24) % 8 } => A
+  ${ (E + 24) / 8 } => E
+  ${ C & ((1 << 32) - 1) } => C
+  $ => D :MLOAD(MEM:E)
+  ${ (D & ~(((1 << 32) - 1) << (8 * A))) | (C << (8 * A)) } :MSTORE(MEM:E)
+  ${ ((A + 4) > 8) ? (A + 4 - 8) : 0 } => A
+  $ => D :MLOAD(MEM:E + 1)
+  ${ (D & ~((1 << (8 * A)) - 1)) | (C & ((1 << (8 * A)) - 1)) } :MSTORE(MEM:E + 1)
   0n => A  ;; LoadConst32
   $ => E :ADD
   $ => C :MLOAD(SP + 11)
-  C :MSTORE(MEM:E + 20)
+  ${ (E + 20) % 8 } => A
+  ${ (E + 20) / 8 } => E
+  ${ C & ((1 << 32) - 1) } => C
+  $ => D :MLOAD(MEM:E)
+  ${ (D & ~(((1 << 32) - 1) << (8 * A))) | (C << (8 * A)) } :MSTORE(MEM:E)
+  ${ ((A + 4) > 8) ? (A + 4 - 8) : 0 } => A
+  $ => D :MLOAD(MEM:E + 1)
+  ${ (D & ~((1 << (8 * A)) - 1)) | (C & ((1 << (8 * A)) - 1)) } :MSTORE(MEM:E + 1)
   0n => A  ;; LoadConst32
   $ => E :ADD
-  $ => A :MLOAD(SP + 12)
-  A :MSTORE(MEM:E + 16)
+  $ => C :MLOAD(SP + 12)
+  ${ (E + 16) % 8 } => A
+  ${ (E + 16) / 8 } => E
+  ${ C & ((1 << 32) - 1) } => C
+  $ => D :MLOAD(MEM:E)
+  ${ (D & ~(((1 << 32) - 1) << (8 * A))) | (C << (8 * A)) } :MSTORE(MEM:E)
+  ${ ((A + 4) > 8) ? (A + 4 - 8) : 0 } => A
+  $ => D :MLOAD(MEM:E + 1)
+  ${ (D & ~((1 << (8 * A)) - 1)) | (C & ((1 << (8 * A)) - 1)) } :MSTORE(MEM:E + 1)
   0n => A  ;; LoadConst32
   $ => E :ADD
-  $ => D :MLOAD(SP + 13)
-  D :MSTORE(MEM:E + 12)
+  $ => C :MLOAD(SP + 13)
+  ${ (E + 12) % 8 } => A
+  ${ (E + 12) / 8 } => E
+  ${ C & ((1 << 32) - 1) } => C
+  $ => D :MLOAD(MEM:E)
+  ${ (D & ~(((1 << 32) - 1) << (8 * A))) | (C << (8 * A)) } :MSTORE(MEM:E)
+  ${ ((A + 4) > 8) ? (A + 4 - 8) : 0 } => A
+  $ => D :MLOAD(MEM:E + 1)
+  ${ (D & ~((1 << (8 * A)) - 1)) | (C & ((1 << (8 * A)) - 1)) } :MSTORE(MEM:E + 1)
   0n => A  ;; LoadConst32
   $ => E :ADD
-  $ => D :MLOAD(SP + 14)
-  D :MSTORE(MEM:E + 8)
+  $ => C :MLOAD(SP + 14)
+  ${ (E + 8) % 8 } => A
+  ${ (E + 8) / 8 } => E
+  ${ C & ((1 << 32) - 1) } => C
+  $ => D :MLOAD(MEM:E)
+  ${ (D & ~(((1 << 32) - 1) << (8 * A))) | (C << (8 * A)) } :MSTORE(MEM:E)
+  ${ ((A + 4) > 8) ? (A + 4 - 8) : 0 } => A
+  $ => D :MLOAD(MEM:E + 1)
+  ${ (D & ~((1 << (8 * A)) - 1)) | (C & ((1 << (8 * A)) - 1)) } :MSTORE(MEM:E + 1)
   0n => A  ;; LoadConst32
   $ => E :ADD
   $ => C :MLOAD(SP + 15)
-  C :MSTORE(MEM:E + 4)
+  ${ (E + 4) % 8 } => A
+  ${ (E + 4) / 8 } => E
+  ${ C & ((1 << 32) - 1) } => C
+  $ => D :MLOAD(MEM:E)
+  ${ (D & ~(((1 << 32) - 1) << (8 * A))) | (C << (8 * A)) } :MSTORE(MEM:E)
+  ${ ((A + 4) > 8) ? (A + 4 - 8) : 0 } => A
+  $ => D :MLOAD(MEM:E + 1)
+  ${ (D & ~((1 << (8 * A)) - 1)) | (C & ((1 << (8 * A)) - 1)) } :MSTORE(MEM:E + 1)
   0n => A  ;; LoadConst32
   $ => E :ADD
   $ => B :MLOAD(SP + 16)
-  B :MSTORE(MEM:E)
+  ${ (E) % 8 } => A
+  ${ (E) / 8 } => E
+  ${ B & ((1 << 32) - 1) } => B
+  $ => D :MLOAD(MEM:E)
+  ${ (D & ~(((1 << 32) - 1) << (8 * A))) | (B << (8 * A)) } :MSTORE(MEM:E)
+  ${ ((A + 4) > 8) ? (A + 4 - 8) : 0 } => A
+  $ => D :MLOAD(MEM:E + 1)
+  ${ (D & ~((1 << (8 * A)) - 1)) | (B & ((1 << (8 * A)) - 1)) } :MSTORE(MEM:E + 1)
   SP + 1182 => SP
   $ => C :MLOAD(SP - 1)
   $ => D :MLOAD(SP - 2)

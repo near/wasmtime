@@ -802,6 +802,19 @@ impl LoadOP {
             Self::Fld => 0b011,
         }
     }
+    pub(crate) fn width(self) -> u32 {
+        match self {
+            Self::I8 => 1,
+            Self::I16 => 2,
+            Self::I32 => 4,
+            Self::U32 => 4,
+            Self::U8 => 1,
+            Self::U16 => 2,
+            Self::U64 => 8,
+            Self::Flw => unimplemented!(),
+            Self::Fld => unimplemented!(),
+        }
+    }
 }
 
 impl StoreOP {
@@ -841,6 +854,16 @@ impl StoreOP {
             Self::I64 => 0b011,
             Self::Fsw => 0b010,
             Self::Fsd => 0b011,
+        }
+    }
+    pub(crate) fn width(self) -> u32 {
+        match self {
+            Self::I8 => 1,
+            Self::I16 => 2,
+            Self::I32 => 4,
+            Self::I64 => 8,
+            Self::Fsw => unimplemented!(),
+            Self::Fsd => unimplemented!(),
         }
     }
 }

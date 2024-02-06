@@ -60,7 +60,7 @@ mod tests {
 
         // Generate const data segments definitions.
         for (offset, data) in data_segments {
-            program.push(format!("  {offset} => E"));
+            program.push(format!("  {} => E", offset / 8));
             // Each slot stores 8 consecutive u8 numbers, with earlier addresses stored in lower
             // bits.
             for (i, chunk) in data.chunks(8).enumerate() {
