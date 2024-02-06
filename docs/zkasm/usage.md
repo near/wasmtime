@@ -15,6 +15,15 @@ In this guide, you'll learn how to use `cranelift` to compile `.wat` files into 
    git submodule update --init --recursive
    ```
 
+3. **(optional) Setup Python tooling**:
+
+   If you plan to use Python tooling, you would need to install the dev dependencies.
+   First install PDM by following https://pdm-project.org/latest/#installation. Then install the
+   dependencies with:
+   ```bash
+   pdm install
+   ```
+
 ## Compilation Process
 
 To compile a `.wat` file to `.zkasm`:
@@ -82,3 +91,18 @@ If you wish to compile a `.wat` file with logging (without generating a `.zkasm`
    ```bash
    RUST_LOG=trace cargo run --features=all-arch -p cranelift-tools --bin=clif-util wasm --target=zkasm cranelift/zkasm_data/add.wat 2>trace.txt
    ```
+
+## Python tooling
+
+We use Python to orchestrate the execution of tests and benchmarks on zkAsm interpreter and
+processing the execution results. The code lives in `ci/zkasm-result.py`.
+
+We have tools to enforce consistent formatting and check for lint errors in Python files:
+
+```bash
+# Show lint errors.
+pdm lint
+
+# Format the code.
+pdm fmt
+```
