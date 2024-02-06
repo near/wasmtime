@@ -732,7 +732,7 @@ impl MachInstEmit for Inst {
 
                         // Handle the case when write spans two slots.
                         put_string(
-                            &format!("${{ (A + {width} > 8) ? (A + {width} - 8) : 0 }} => A\n"),
+                            &format!("${{ ((A + {width}) > 8) ? (A + {width} - 8) : 0 }} => A\n"),
                             sink,
                         );
                         put_string(
