@@ -9,7 +9,7 @@
   "author": "Andrei Kashin",
   "license": "AGPL",
   "dependencies": {
-    "@0xpolygonhermez/zkasmcom": "https://github.com/0xPolygonHermez/zkasmcom.git#v1.0.0",
+    "@0xpolygonhermez/zkasmcom": "github:0xPolygonHermez/zkasmcom.git#v1.0.0",
     "yargs": "^17.5.1"
   },
   "devDependencies": {
