@@ -1,0 +1,17 @@
+test run-zkasm
+
+
+function %add_i64(i64, i64) -> i64 {
+block0(v0: i64,v1: i64):
+    v2 = iadd v0, v1
+    return v2
+}
+; run: %add_i64(0, 0) == 0
+; run: %add_i64(0, 1) == 1
+; run: %add_i64(-1, 0) == -1
+; run: %add_i64(-1, 1) == 0
+; run: %add_i64(0x7FFFFFFF_FFFFFFFF, 0x7FFFFFFF_FFFFFFFF) == -2
+; run: %add_i64(0x7FFFFFFF_FFFFFFFF, 0x80000000_00000000) == -1
+; run: %add_i64(0x01234567_89ABCDEF, 0xFEDCBA98_76543210) == -1
+; run: %add_i64(0xA00A00A0_0A00A00A, 0x0BB0BB0B_B0BB0BB0) == 0xABBABBAB_BABBABBA
+; run: %add_i64(0xC0FFEEEE_C0FFEEEE, 0x1DCB1111_1DCB1111) == 0xDECAFFFF_DECAFFFF
