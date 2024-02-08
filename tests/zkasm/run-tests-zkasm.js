@@ -35,8 +35,7 @@ async function main() {
     const cmPols = await compilePil();
 
     // Get all zkasm files
-    const pathZkasm = path.join(process.cwd(), process.argv[2]);
-    const files = await getTestFiles(pathZkasm);
+    const files = await getTestFiles(process.argv[2]);
 
     // Run all zkasm files
     let testResults = [];
