@@ -403,6 +403,18 @@ impl MachInstEmit for Inst {
         // to allow disabling the check for `JTSequence`, which is always
         // emitted following an `EmitIsland`.
         let mut start_off = sink.cur_offset();
+        // Add call to instrumentation _before_ the instruction's zkASM. Otherwise instrumentation
+        // might be skipped, e.g. in case of jumps.
+        match self {
+            // TODO handle label's separately as they'll have separate graph
+            &MInst::Label { .. } => {}
+            _ => {
+                put_string(
+                    &format!("$${{instrumentInst({})}}\n", self.print_name()),
+                    sink,
+                );
+            }
+        }
         match self {
             &Inst::Nop => {}
             &Inst::Label { imm } => {

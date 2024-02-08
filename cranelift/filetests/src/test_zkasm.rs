@@ -78,6 +78,11 @@ mod tests {
         program.push("  0xffff => SP".to_string());
         program.push("  zkPC + 2 => RR".to_string());
         program.push(format!("  :JMP(function_{})", start_func_index));
+
+        // When this function call is under the `finalizeExecution` label it is not executed.
+        // Hence call it before jumping there.
+        program.push("  $${writeInstCounters()}".to_string());
+
         program.push("  :JMP(finalizeExecution)".to_string());
         program
     }
