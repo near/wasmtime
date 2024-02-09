@@ -17,6 +17,8 @@ const emptyInput = require('@0xpolygonhermez/zkevm-proverjs/test/inputs/empty_in
 const pathMainPil = path.join(__dirname, 'node_modules/@0xpolygonhermez/zkevm-proverjs/pil/main.pil');
 const fileCachePil = path.join(__dirname, 'node_modules/@0xpolygonhermez/zkevm-proverjs/cache-main-pil.json');
 
+const InstrumentInst = require("./helpers/InstrumentInst")
+
 function value_to_json(key, value) {
     if (typeof value === "bigint") {
         return value.toString();
@@ -108,6 +110,11 @@ async function runTest(pathTest, cmPols) {
         debug: true,
         stepsN: 8388608,
         assertOutputs: false,
+        helpers: [
+            new InstrumentInst({
+                outputFile: "dummy.json"
+            }),
+        ]
     };
     try {
         const rom = await zkasm.compile(pathTest, null, configZkasm);
