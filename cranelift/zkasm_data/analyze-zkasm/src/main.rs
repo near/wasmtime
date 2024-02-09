@@ -4,7 +4,7 @@ use std::ops::Range;
 
 use plotters::prelude::*;
 
-const IN_FILE_NAME: &str = "../../../tests/zkasm/dummy.json";
+const IN_FILE_NAME: &str = "./tests/zkasm/dummy.json";
 const OUT_FILE_NAME: &str = "dummy.png";
 // Adapted from `plotters`'s histogram example:
 // https://github.com/plotters-rs/plotters/blob/master/plotters/examples/histogram.rs
@@ -19,7 +19,7 @@ fn main() -> anyhow::Result<()> {
         .x_label_area_size(35)
         .y_label_area_size(40)
         .margin(5)
-        .caption("Histogram Test", ("sans-serif", 50.0))
+        .caption("Inst Histogram", ("sans-serif", 50.0))
         // TODO fix y spec
         .build_cartesian_2d(
             trace.identifiers_x_range().into_segmented(),
