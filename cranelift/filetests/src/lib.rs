@@ -22,6 +22,7 @@ mod match_directive;
 mod runner;
 mod runone;
 mod subtest;
+mod zkasm_runner;
 
 mod test_alias_analysis;
 mod test_cat;
