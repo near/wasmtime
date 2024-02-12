@@ -74,7 +74,7 @@ pub fn run_zkasm_path(input_path: &Path) -> anyhow::Result<Vec<ExecutionResult>>
     )?;
 
     let mut output_file = NamedTempFile::new()?;
-    let _ = std::process::Command::new("npm")
+    let output = std::process::Command::new("npm")
         .args([
             "--prefix",
             "../../tests/zkasm",
@@ -83,6 +83,13 @@ pub fn run_zkasm_path(input_path: &Path) -> anyhow::Result<Vec<ExecutionResult>>
             output_file.path().to_str().unwrap(),
         ])
         .output()?;
+    if !output.status.success() {
+        return Err(anyhow::anyhow!(
+            "Failed to run `npm`: {}; stderr: {}",
+            output.status,
+            String::from_utf8(output.stderr)?
+        ));
+    }
     let mut buf = String::new();
     output_file.read_to_string(&mut buf)?;
     if buf.is_empty() {
