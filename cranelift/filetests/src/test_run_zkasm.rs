@@ -1,6 +1,5 @@
-//! Test command for interpreting CLIF files and verifying their results
+//! Test command for compiling CLIF files to .zkasm, running it, and verifying their results
 //!
-//! The `interpret` test command interprets each function on the host machine
 //! using [RunCommand](cranelift_reader::RunCommand)s.
 
 use crate::runone::FileUpdate;
