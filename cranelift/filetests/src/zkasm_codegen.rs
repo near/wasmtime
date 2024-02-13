@@ -1,6 +1,7 @@
 use cranelift_codegen::entity::EntityRef;
 use cranelift_codegen::ir::function::FunctionParameters;
 use cranelift_codegen::ir::ExternalName;
+use cranelift_codegen::ir::Function;
 use cranelift_codegen::isa::zkasm;
 use cranelift_codegen::{settings, FinalizedMachReloc, FinalizedRelocTarget};
 use cranelift_wasm::{translate_module, ZkasmEnvironment};
@@ -229,5 +230,26 @@ fn optimize_labels(code: &[&str], func_index: usize) -> Vec<String> {
     for index in lines_to_delete {
         lines.remove(index);
     }
+    lines
+}
+
+pub(crate) fn compile_clif_function(func: &Function) -> Vec<String> {
+    let flag_builder = settings::builder();
+    let isa_builder = zkasm::isa_builder("zkasm-unknown-unknown".parse().unwrap());
+    let isa = isa_builder
+        .finish(settings::Flags::new(flag_builder))
+        .unwrap();
+    let mut comp_ctx = cranelift_codegen::Context::for_function(func.clone());
+    let compiled_code = comp_ctx
+        .compile(isa.as_ref(), &mut Default::default())
+        .unwrap();
+    let mut code_buffer = compiled_code.code_buffer().to_vec();
+    fix_relocs(
+        &mut code_buffer,
+        &func.params,
+        compiled_code.buffer.relocs(),
+    );
+    let code = std::str::from_utf8(&code_buffer).unwrap();
+    let lines: Vec<String> = code.lines().map(|s| s.to_string()).collect();
     lines
 }
