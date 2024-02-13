@@ -20,39 +20,7 @@ We have two main use cases for our testing infra:
 
 ## How test file looks like?
 
-Lets take a look how test file looks like. 
-Firstly, it have a header, which usually looks like this:
-
-```
-test interpret
-test run
-test run-zkasm
-target aarch64
-target s390x
-target x86_64
-target riscv64 has_m
-target riscv64 has_c has_zcb
-```
-
-Here we see list of tests and list of targets. From it, we are interested only in `test run-zkasm`, this test tell parser that zkasm test should be executed. Our test is target independent, so, we don't care a lot about other tests and all targets. One line header `test run-zkasm` will work for us.
-
-Secondly, test file contains list of functions and invocations of this functions, they tipically look like this:
-
-```
-function %add_i64(i64, i64) -> i64 {
-block0(v0: i64,v1: i64):
-    v2 = iadd v0, v1
-    return v2
-}
-; run: %add_i64(0, 0) == 0
-; run: %add_i64(0, 1) == 1
-; run: %add_i64(-1, 0) == -1
-; run: %add_i64(-1, 1) == 0
-```
-
-Here, you first define function using `clif` ([Cranelift IR](https://github.com/bytecodealliance/wasmtime/blob/main/cranelift/docs/ir.md)).
-
-Than, you have a list of run commands, each of them compiles function to zkasm, runs function with given arguments, and checks the result.
+[Filetest docs describe it](https://github.com/bytecodealliance/wasmtime/blob/main/cranelift/filetests/README.md). To run our zkasm test simply add `test run-zkasm` to the header of `.clif` file.
 
 ## How to run a test on my machine?
 
@@ -62,12 +30,6 @@ To run a single test, you can use next command:
 To run multiple tests in a directory, you can use:
 `cargo run -- test <path-to-tests-directory>/`
 
-## How to add a new test?
-
-If you have add new `zkasm-run` test, you have two options:
-
-- firstly, you can simply add a new function and a list of it's invocations to the existing test file (or even add only some new invocations to an existing function).
-- secondly, you can create new test file, make shure it contains `test run-zkasm` in the header, and put your functions and invocations there. `cranelift/filetests/filetests/zkasm` would be a good place to put your file in.
 
 # Test infra implementation
 
