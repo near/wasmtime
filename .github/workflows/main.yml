@@ -409,6 +409,12 @@ jobs:
     - uses: ./.github/actions/install-rust
       with:
         toolchain: ${{ matrix.rust }}
+    - uses: actions/setup-node@v3
+      with:
+        node-version: '20.8.0'
+        cache: 'npm'
+        cache-dependency-path: tests/zkasm/package-lock.json
+    - run: npm ci --prefix tests/zkasm
 
     # Install targets in order to build various tests throughout the repo
     - run: rustup target add wasm32-wasi wasm32-unknown-unknown ${{ matrix.target }}

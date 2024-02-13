@@ -1,0 +1,27 @@
+start:
+  0xffff => SP
+  zkPC + 2 => RR
+  :JMP(function_1)
+  :JMP(finalizeExecution)
+function_1:
+  SP - 1 => SP
+  RR :MSTORE(SP)
+  C :MSTORE(SP - 1)
+  E :MSTORE(SP - 2)
+  B :MSTORE(SP - 3)
+  SP - 4 => SP
+  1n => B  ;; LoadConst64
+  FIXME: Inst::Cltz(Writable { reg: v199 }, Writable { reg: v197 }, Writable { reg: v198 }, v192, true, types::I64)
+  63n => B  ;; LoadConst64
+  B :ASSERT
+  SP + 4 => SP
+  $ => C :MLOAD(SP - 1)
+  $ => E :MLOAD(SP - 2)
+  $ => B :MLOAD(SP - 3)
+  $ => RR :MLOAD(SP)
+  SP + 1 => SP
+  :JMP(RR)
+finalizeExecution:
+  ${beforeLast()}  :JMPN(finalizeExecution)
+                   :JMP(start)
+INCLUDE "helpers/2-exp.zkasm"

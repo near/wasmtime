@@ -6,7 +6,7 @@ set -eux
 ALL_ARGS=$@
 
 function run_tests() {
-	./ci/test-zkasm.sh $1 $ALL_ARGS
+	./ci/test-zkasm.sh $(pwd)/$1 $ALL_ARGS
 }
 
 run_tests "cranelift/zkasm_data"
