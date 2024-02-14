@@ -30,6 +30,13 @@ function value_to_json(key, value) {
     return value;
 }
 
+/**
+ * Executes zkASM stored in files. Expects the following positional command line arguments:
+ *
+ * @param {string} path - The file or a directory to search for zkASM files.
+ * @param {string} [outFile] - If provided, results are written to this file. Otherwise they are
+ * printed to stdout.
+ */
 async function main() {
     // Compile pil
     const cmPols = await compilePil();
@@ -76,7 +83,12 @@ async function compilePil() {
     return newCommitPolsArray(pil);
 }
 
-// Get all zkasm test files
+/**
+ * Returns the path of all zkasm test files in `pathZkasm`.
+ *
+ * @param {string} pathZkasm
+ * @returns {string[]}
+ */
 function getTestFiles(pathZkasm) {
     if (!fs.existsSync(pathZkasm)) {
         return [];
@@ -94,7 +106,10 @@ function getTestFiles(pathZkasm) {
     return filesNames.map((fileName) => path.join(pathZkasm, fileName));
 }
 
-// returns true if test succeed and false if test failed
+/**
+ * @returns {Object} Which indicates if the test run succeeded or failed. Contains additional data
+ * related to the test run.
+ */
 async function runTest(pathTest, cmPols) {
     // Compile rom
     const configZkasm = {
