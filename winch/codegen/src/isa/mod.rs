@@ -1,6 +1,7 @@
 use crate::{BuiltinFunctions, TrampolineKind};
 use anyhow::{anyhow, Result};
 use core::fmt::Formatter;
+use cranelift_codegen::isa::unwind::{UnwindInfo, UnwindInfoKind};
 use cranelift_codegen::isa::{CallConv, IsaBuilder};
 use cranelift_codegen::settings;
 use cranelift_codegen::{Final, MachBufferFinalized, TextSectionBuilder};
@@ -10,7 +11,7 @@ use std::{
 };
 use target_lexicon::{Architecture, Triple};
 use wasmparser::{FuncValidator, FunctionBody, ValidatorResources};
-use wasmtime_environ::{ModuleTranslation, ModuleTypes, WasmFuncType};
+use wasmtime_environ::{ModuleTranslation, ModuleTypesBuilder, WasmFuncType};
 
 #[cfg(feature = "x64")]
 pub(crate) mod x64;
@@ -158,7 +159,7 @@ pub trait TargetIsa: Send + Sync {
         sig: &WasmFuncType,
         body: &FunctionBody,
         translation: &ModuleTranslation,
-        types: &ModuleTypes,
+        types: &ModuleTypesBuilder,
         builtins: &mut BuiltinFunctions,
         validator: &mut FuncValidator<ValidatorResources>,
     ) -> Result<MachBufferFinalized<Final>>;
@@ -183,6 +184,12 @@ pub trait TargetIsa: Send + Sync {
     fn endianness(&self) -> target_lexicon::Endianness {
         self.triple().endianness().unwrap()
     }
+
+    fn emit_unwind_info(
+        &self,
+        _result: &MachBufferFinalized<Final>,
+        _kind: UnwindInfoKind,
+    ) -> Result<Option<UnwindInfo>>;
 
     /// See `cranelift_codegen::isa::TargetIsa::create_systemv_cie`.
     fn create_systemv_cie(&self) -> Option<gimli::write::CommonInformationEntry> {

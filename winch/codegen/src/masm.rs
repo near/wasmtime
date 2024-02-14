@@ -1,7 +1,10 @@
 use crate::abi::{self, align_to, LocalSlot};
-use crate::codegen::{ptr_type_from_ptr_size, CodeGenContext, TableData};
+use crate::codegen::{CodeGenContext, HeapData, TableData};
 use crate::isa::reg::Reg;
-use cranelift_codegen::{ir::LibCall, Final, MachBufferFinalized, MachLabel};
+use cranelift_codegen::{
+    ir::{Endianness, LibCall, MemFlags},
+    Final, MachBufferFinalized, MachLabel,
+};
 use std::{fmt::Debug, ops::Range};
 use wasmtime_environ::PtrSize;
 
@@ -23,8 +26,40 @@ pub(crate) enum RemKind {
     Unsigned,
 }
 
+/// The direction to perform the memory move.
+#[derive(Debug, Clone, Eq, PartialEq)]
+pub(crate) enum MemMoveDirection {
+    /// From high memory addresses to low memory addresses.
+    /// Invariant: the source location is closer to the FP than the destination
+    /// location, which will be closer to the SP.
+    HighToLow,
+    /// From low memory addresses to high memory addresses.
+    /// Invariant: the source location is closer to the SP than the destination
+    /// location, which will be closer to the FP.
+    LowToHigh,
+}
+
+/// Classifies how to treat float-to-int conversions.
+#[derive(Debug, Copy, Clone, Eq, PartialEq)]
+pub(crate) enum TruncKind {
+    /// Saturating conversion. If the source value is greater than the maximum
+    /// value of the destination type, the result is clamped to the
+    /// destination maximum value.
+    Checked,
+    /// An exception is raised if the source value is greater than the maximum
+    /// value of the destination type.
+    Unchecked,
+}
+
+impl TruncKind {
+    /// Returns true if the truncation kind is checked.
+    pub(crate) fn is_checked(&self) -> bool {
+        *self == TruncKind::Checked
+    }
+}
+
 /// Representation of the stack pointer offset.
-#[derive(Copy, Clone, Eq, PartialEq, Debug)]
+#[derive(Copy, Clone, Eq, PartialEq, Debug, PartialOrd, Ord, Default)]
 pub struct SPOffset(u32);
 
 impl SPOffset {
@@ -114,9 +149,33 @@ pub(crate) enum ShiftKind {
     Rotr,
 }
 
+/// Kinds of extends in WebAssembly. Each MacroAssembler implementation
+/// is responsible for emitting the correct sequence of instructions when
+/// lowering to machine code.
+pub(crate) enum ExtendKind {
+    /// Sign extends i32 to i64.
+    I64ExtendI32S,
+    /// Zero extends i32 to i64.
+    I64ExtendI32U,
+    // Sign extends the 8 least significant bits to 32 bits.
+    I32Extend8S,
+    // Sign extends the 16 least significant bits to 32 bits.
+    I32Extend16S,
+    /// Sign extends the 8 least significant bits to 64 bits.
+    I64Extend8S,
+    /// Sign extends the 16 least significant bits to 64 bits.
+    I64Extend16S,
+    /// Sign extends the 32 least significant bits to 64 bits.
+    I64Extend32S,
+}
+
 /// Operand size, in bits.
 #[derive(Copy, Debug, Clone, Eq, PartialEq)]
 pub(crate) enum OperandSize {
+    /// 8 bits.
+    S8,
+    /// 16 bits.
+    S16,
     /// 32 bits.
     S32,
     /// 64 bits.
@@ -127,8 +186,10 @@ pub(crate) enum OperandSize {
 
 impl OperandSize {
     /// The number of bits in the operand.
-    pub fn num_bits(&self) -> i32 {
+    pub fn num_bits(&self) -> u8 {
         match self {
+            OperandSize::S8 => 8,
+            OperandSize::S16 => 16,
             OperandSize::S32 => 32,
             OperandSize::S64 => 64,
             OperandSize::S128 => 128,
@@ -138,6 +199,8 @@ impl OperandSize {
     /// The number of bytes in the operand.
     pub fn bytes(&self) -> u32 {
         match self {
+            Self::S8 => 1,
+            Self::S16 => 2,
             Self::S32 => 4,
             Self::S64 => 8,
             Self::S128 => 16,
@@ -147,6 +210,8 @@ impl OperandSize {
     /// The binary logarithm of the number of bits in the operand.
     pub fn log2(&self) -> u8 {
         match self {
+            OperandSize::S8 => 3,
+            OperandSize::S16 => 4,
             OperandSize::S32 => 5,
             OperandSize::S64 => 6,
             OperandSize::S128 => 7,
@@ -293,6 +358,14 @@ pub enum RoundingMode {
     Zero,
 }
 
+/// Memory flags for trusted loads/stores.
+pub const TRUSTED_FLAGS: MemFlags = MemFlags::trusted();
+
+/// Flags used for WebAssembly loads / stores.
+/// Untrusted by default so we don't set `no_trap`.
+/// We also ensure that the endianess is the right one for WebAssembly.
+pub const UNTRUSTED_FLAGS: MemFlags = MemFlags::new().with_endianness(Endianness::Little);
+
 /// Generic MacroAssembler interface used by the code generation.
 ///
 /// The MacroAssembler trait aims to expose an interface, high-level enough,
@@ -323,6 +396,9 @@ pub(crate) trait MacroAssembler {
 
     /// Emit the function prologue.
     fn prologue(&mut self);
+
+    /// Emit a stack check.
+    fn check_stack(&mut self);
 
     /// Emit the function epilogue.
     fn epilogue(&mut self, locals_size: u32);
@@ -355,6 +431,9 @@ pub(crate) trait MacroAssembler {
     /// Retrieves the size of the table, pushing the result to the value stack.
     fn table_size(&mut self, table_data: &TableData, context: &mut CodeGenContext);
 
+    /// Retrieves the size of the memory, pushing the result to the value stack.
+    fn memory_size(&mut self, heap_data: &HeapData, context: &mut CodeGenContext);
+
     /// Constructs an address with an offset that is relative to the
     /// current position of the stack pointer (e.g. [sp + (sp_offset -
     /// offset)].
@@ -382,8 +461,38 @@ pub(crate) trait MacroAssembler {
     /// Perform a stack store.
     fn store(&mut self, src: RegImm, dst: Self::Address, size: OperandSize);
 
-    /// Perform a stack load.
+    /// Alias for `MacroAssembler::store` with the operand size corresponding
+    /// to the pointer size of the target.
+    fn store_ptr(&mut self, src: Reg, dst: Self::Address);
+
+    /// Perform a WebAssembly store.
+    /// A WebAssebly store introduces several additional invariants compared to
+    /// [Self::store], more precisely, it can implicitly trap, in certain
+    /// circumstances, even if explicit bounds checks are elided, in that sense,
+    /// we consider this type of load as untrusted. It can also differ with
+    /// regards to the endianess depending on the target ISA. For this reason,
+    /// [Self::wasm_store], should be explicitly used when emitting WebAssembly
+    /// stores.
+    fn wasm_store(&mut self, src: Reg, dst: Self::Address, size: OperandSize);
+
+    /// Perform a zero-extended stack load.
     fn load(&mut self, src: Self::Address, dst: Reg, size: OperandSize);
+
+    /// Perform a WebAssembly load.
+    /// A WebAssebly load introduces several additional invariants compared to
+    /// [Self::load], more precisely, it can implicitly trap, in certain
+    /// circumstances, even if explicit bounds checks are elided, in that sense,
+    /// we consider this type of load as untrusted. It can also differ with
+    /// regards to the endianess depending on the target ISA. For this reason,
+    /// [Self::wasm_load], should be explicitly used when emitting WebAssembly
+    /// loads.
+    fn wasm_load(
+        &mut self,
+        src: Self::Address,
+        dst: Reg,
+        size: OperandSize,
+        kind: Option<ExtendKind>,
+    );
 
     /// Alias for `MacroAssembler::load` with the operand size corresponding
     /// to the pointer size of the target.
@@ -391,10 +500,6 @@ pub(crate) trait MacroAssembler {
 
     /// Loads the effective address into destination.
     fn load_addr(&mut self, _src: Self::Address, _dst: Reg, _size: OperandSize);
-
-    /// Alias for `MacroAssembler::store` with the operand size corresponding
-    /// to the pointer size of the target.
-    fn store_ptr(&mut self, src: Reg, dst: Self::Address);
 
     /// Pop a value from the machine stack into the given register.
     fn pop(&mut self, dst: Reg, size: OperandSize);
@@ -407,32 +512,30 @@ pub(crate) trait MacroAssembler {
 
     /// Performs a memory move of bytes from src to dest.
     /// Bytes are moved in blocks of 8 bytes, where possible.
-    fn memmove(&mut self, src: SPOffset, dst: SPOffset, bytes: u32) {
-        debug_assert!(dst.as_u32() < src.as_u32());
+    fn memmove(&mut self, src: SPOffset, dst: SPOffset, bytes: u32, direction: MemMoveDirection) {
+        match direction {
+            MemMoveDirection::LowToHigh => debug_assert!(dst.as_u32() < src.as_u32()),
+            MemMoveDirection::HighToLow => debug_assert!(dst.as_u32() > src.as_u32()),
+        }
         // At least 4 byte aligned.
         debug_assert!(bytes % 4 == 0);
         let mut remaining = bytes;
         let word_bytes = <Self::ABI as abi::ABI>::word_bytes();
         let scratch = <Self::ABI as abi::ABI>::scratch_reg();
-        let ptr_size: OperandSize = ptr_type_from_ptr_size(word_bytes as u8).into();
 
         let mut dst_offs = dst.as_u32() - bytes;
         let mut src_offs = src.as_u32() - bytes;
 
+        let word_bytes = word_bytes as u32;
         while remaining >= word_bytes {
             remaining -= word_bytes;
             dst_offs += word_bytes;
             src_offs += word_bytes;
 
-            self.load(
-                self.address_from_sp(SPOffset::from_u32(src_offs)),
-                scratch,
-                ptr_size,
-            );
-            self.store(
+            self.load_ptr(self.address_from_sp(SPOffset::from_u32(src_offs)), scratch);
+            self.store_ptr(
                 scratch.into(),
                 self.address_from_sp(SPOffset::from_u32(dst_offs)),
-                ptr_size,
             );
         }
 
@@ -458,6 +561,10 @@ pub(crate) trait MacroAssembler {
 
     /// Perform add operation.
     fn add(&mut self, dst: Reg, lhs: Reg, rhs: RegImm, size: OperandSize);
+
+    /// Perform a checked unsigned integer addition, emitting the provided trap
+    /// if the addition overflows.
+    fn checked_uadd(&mut self, dst: Reg, lhs: Reg, rhs: RegImm, size: OperandSize, trap: TrapCode);
 
     /// Perform subtraction operation.
     fn sub(&mut self, dst: Reg, lhs: Reg, rhs: RegImm, size: OperandSize);
@@ -580,13 +687,69 @@ pub(crate) trait MacroAssembler {
     /// this will emit multiple instructions if the `has_popcnt` flag is false.
     fn popcnt(&mut self, context: &mut CodeGenContext, size: OperandSize);
 
+    /// Converts an i64 to an i32 by discarding the high 32 bits.
+    fn wrap(&mut self, src: Reg, dst: Reg);
+
+    /// Extends an integer of a given size to a larger size.
+    fn extend(&mut self, src: Reg, dst: Reg, kind: ExtendKind);
+
+    /// Emits one or more instructions to perform a signed truncation of a
+    /// float into an integer.
+    fn signed_truncate(
+        &mut self,
+        src: Reg,
+        dst: Reg,
+        src_size: OperandSize,
+        dst_size: OperandSize,
+        kind: TruncKind,
+    );
+
+    /// Emits one or more instructions to perform an unsigned truncation of a
+    /// float into an integer.
+    fn unsigned_truncate(
+        &mut self,
+        src: Reg,
+        dst: Reg,
+        tmp_fpr: Reg,
+        src_size: OperandSize,
+        dst_size: OperandSize,
+        kind: TruncKind,
+    );
+
+    /// Emits one or more instructions to perform a signed convert of an
+    /// integer into a float.
+    fn signed_convert(&mut self, src: Reg, dst: Reg, src_size: OperandSize, dst_size: OperandSize);
+
+    /// Emits one or more instructions to perform an unsigned convert of an
+    /// integer into a float.
+    fn unsigned_convert(
+        &mut self,
+        src: Reg,
+        dst: Reg,
+        tmp_gpr: Reg,
+        src_size: OperandSize,
+        dst_size: OperandSize,
+    );
+
+    /// Reinterpret a float as an integer.
+    fn reinterpret_float_as_int(&mut self, src: Reg, dst: Reg, size: OperandSize);
+
+    /// Reinterpret an integer as a float.
+    fn reinterpret_int_as_float(&mut self, src: Reg, dst: Reg, size: OperandSize);
+
+    /// Demote an f64 to an f32.
+    fn demote(&mut self, src: Reg, dst: Reg);
+
+    /// Promote an f32 to an f64.
+    fn promote(&mut self, src: Reg, dst: Reg);
+
     /// Zero a given memory range.
     ///
     /// The default implementation divides the given memory range
     /// into word-sized slots. Then it unrolls a series of store
     /// instructions, effectively assigning zero to each slot.
     fn zero_mem_range(&mut self, mem: &Range<u32>) {
-        let word_size = <Self::ABI as abi::ABI>::word_bytes();
+        let word_size = <Self::ABI as abi::ABI>::word_bytes() as u32;
         if mem.is_empty() {
             return;
         }
@@ -658,9 +821,32 @@ pub(crate) trait MacroAssembler {
     /// Emit an unreachable code trap.
     fn unreachable(&mut self);
 
+    /// Emit an unconditional trap.
+    fn trap(&mut self, code: TrapCode);
+
     /// Traps if the condition code is met.
     fn trapif(&mut self, cc: IntCmpKind, code: TrapCode);
 
     /// Trap if the source register is zero.
     fn trapz(&mut self, src: Reg, code: TrapCode);
+
+    /// Ensures that the stack pointer is correctly positioned before an unconditional
+    /// jump according to the requirements of the destination target.
+    fn ensure_sp_for_jump(&mut self, target: SPOffset) {
+        let bytes = self
+            .sp_offset()
+            .as_u32()
+            .checked_sub(target.as_u32())
+            .unwrap_or(0);
+        if bytes > 0 {
+            self.free_stack(bytes);
+        }
+    }
+
+    /// Save the value of this register to the stack. By default this is the same as pushing the
+    /// register, however it's present in the [`MacroAssembler`] trait to ensure that it's possible
+    /// to add unwind info for register saves in backends.
+    fn save(&mut self, _off: u32, src: Reg, size: OperandSize) -> StackSlot {
+        self.push(src, size)
+    }
 }

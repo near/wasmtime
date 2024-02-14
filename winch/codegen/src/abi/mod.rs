@@ -1,5 +1,3 @@
-//! This module provides all the necessary building blocks for
-//! implementing ISA specific ABIs.
 //!
 //! # Default ABI
 //!
@@ -49,7 +47,7 @@ use crate::masm::{OperandSize, SPOffset};
 use smallvec::SmallVec;
 use std::collections::HashSet;
 use std::ops::{Add, BitAnd, Not, Sub};
-use wasmtime_environ::{WasmFuncType, WasmType};
+use wasmtime_environ::{WasmFuncType, WasmHeapType, WasmRefType, WasmValType};
 
 pub(crate) mod local;
 pub(crate) use local::*;
@@ -83,17 +81,20 @@ pub(crate) trait ABI {
     fn sig(wasm_sig: &WasmFuncType, call_conv: &CallingConvention) -> ABISig;
 
     /// Construct an ABI signature from WasmType params and returns.
-    fn sig_from(params: &[WasmType], returns: &[WasmType], call_conv: &CallingConvention)
-        -> ABISig;
+    fn sig_from(
+        params: &[WasmValType],
+        returns: &[WasmValType],
+        call_conv: &CallingConvention,
+    ) -> ABISig;
 
     /// Construct [`ABIResults`] from a slice of [`WasmType`].
-    fn abi_results(returns: &[WasmType], call_conv: &CallingConvention) -> ABIResults;
+    fn abi_results(returns: &[WasmValType], call_conv: &CallingConvention) -> ABIResults;
 
     /// Returns the number of bits in a word.
-    fn word_bits() -> u32;
+    fn word_bits() -> u8;
 
     /// Returns the number of bytes in a word.
-    fn word_bytes() -> u32 {
+    fn word_bytes() -> u8 {
         Self::word_bits() / 8
     }
 
@@ -104,10 +105,15 @@ pub(crate) trait ABI {
     fn float_scratch_reg() -> Reg;
 
     /// Returns the designated scratch register for the given [WasmType].
-    fn scratch_for(ty: &WasmType) -> Reg {
+    fn scratch_for(ty: &WasmValType) -> Reg {
         match ty {
-            WasmType::I32 | WasmType::I64 => Self::scratch_reg(),
-            WasmType::F32 | WasmType::F64 => Self::float_scratch_reg(),
+            WasmValType::I32
+            | WasmValType::I64
+            | WasmValType::Ref(WasmRefType {
+                heap_type: WasmHeapType::Func,
+                ..
+            }) => Self::scratch_reg(),
+            WasmValType::F32 | WasmValType::F64 => Self::float_scratch_reg(),
             _ => unimplemented!(),
         }
     }
@@ -127,10 +133,13 @@ pub(crate) trait ABI {
     fn callee_saved_regs(call_conv: &CallingConvention) -> SmallVec<[(Reg, OperandSize); 18]>;
 
     /// The size, in bytes, of each stack slot used for stack parameter passing.
-    fn stack_slot_size() -> u32;
+    fn stack_slot_size() -> u8;
 
     /// Returns the size in bytes of the given [`WasmType`].
-    fn sizeof(ty: &WasmType) -> u32;
+    fn sizeof(ty: &WasmValType) -> u8;
+
+    /// Returns the size in bits of the given [`WasmType`].
+    fn sizeof_bits(ty: &WasmValType) -> u8;
 }
 
 /// ABI-specific representation of function argument or result.
@@ -139,7 +148,7 @@ pub enum ABIOperand {
     /// A register [`ABIOperand`].
     Reg {
         /// The type of the [`ABIOperand`].
-        ty: WasmType,
+        ty: WasmValType,
         /// Register holding the [`ABIOperand`].
         reg: Reg,
         /// The size of the [`ABIOperand`], in bytes.
@@ -148,7 +157,7 @@ pub enum ABIOperand {
     /// A stack [`ABIOperand`].
     Stack {
         /// The type of the [`ABIOperand`].
-        ty: WasmType,
+        ty: WasmValType,
         /// Offset of the operand referenced through FP by the callee and
         /// through SP by the caller.
         offset: u32,
@@ -159,12 +168,12 @@ pub enum ABIOperand {
 
 impl ABIOperand {
     /// Allocate a new register [`ABIOperand`].
-    pub fn reg(reg: Reg, ty: WasmType, size: u32) -> Self {
+    pub fn reg(reg: Reg, ty: WasmValType, size: u32) -> Self {
         Self::Reg { reg, ty, size }
     }
 
     /// Allocate a new stack [`ABIOperand`].
-    pub fn stack_offset(offset: u32, ty: WasmType, size: u32) -> Self {
+    pub fn stack_offset(offset: u32, ty: WasmValType, size: u32) -> Self {
         Self::Stack { ty, offset, size }
     }
 
@@ -196,7 +205,7 @@ impl ABIOperand {
     }
 
     /// Get the type associated to this [`ABIOperand`].
-    pub fn ty(&self) -> WasmType {
+    pub fn ty(&self) -> WasmValType {
         match *self {
             ABIOperand::Reg { ty, .. } | ABIOperand::Stack { ty, .. } => ty,
         }
@@ -227,11 +236,25 @@ impl Default for ABIOperands {
 /// Machine stack location of the stack results.
 #[derive(Debug, Copy, Clone)]
 pub(crate) enum RetArea {
-    /// Addressed from SP at the given offset.
+    /// Addressed from the stack pointer at the given offset.
     SP(SPOffset),
     /// The address of the results base is stored at a particular,
     /// well known [LocalSlot].
     Slot(LocalSlot),
+    /// The return area cannot be fully resolved ahead-of-time.
+    /// If there are results on the stack, this is the default state to which
+    /// all return areas get initialized to until they can be fully resolved to
+    /// either a [RetArea::SP] or [RetArea::Slot].
+    ///
+    /// This allows a more explicit differentiation between the existence of
+    /// a return area versus no return area at all.
+    Uninit,
+}
+
+impl Default for RetArea {
+    fn default() -> Self {
+        Self::Uninit
+    }
 }
 
 impl RetArea {
@@ -255,6 +278,22 @@ impl RetArea {
             _ => unreachable!(),
         }
     }
+
+    /// Returns true if the return area is addressed via the stack pointer.
+    pub fn is_sp(&self) -> bool {
+        match self {
+            Self::SP(_) => true,
+            _ => false,
+        }
+    }
+
+    /// Returns true if the return area is uninitiliazed.
+    pub fn is_uninit(&self) -> bool {
+        match self {
+            Self::Uninit => true,
+            _ => false,
+        }
+    }
 }
 
 /// ABI-specific representation of an [`ABISig`].
@@ -262,33 +301,8 @@ impl RetArea {
 pub(crate) struct ABIResults {
     /// The result operands.
     operands: ABIOperands,
-}
-
-/// Data about the [`ABIResults`].
-/// This struct is meant to be used once the [`ABIResults`] can be
-/// materialized to a particular location in the machine stack,
-/// if any.
-#[derive(Debug, Clone)]
-pub(crate) struct ABIResultsData {
-    /// The results.
-    pub results: ABIResults,
-    /// The return pointer, if any.
-    pub ret_area: Option<RetArea>,
-}
-
-impl ABIResultsData {
-    /// Create a [`ABIResultsData`] without a stack results base.
-    pub fn wrap(results: ABIResults) -> Self {
-        Self {
-            results,
-            ret_area: None,
-        }
-    }
-
-    /// Unwraps the stack results base.
-    pub fn unwrap_ret_area(&self) -> &RetArea {
-        self.ret_area.as_ref().unwrap()
-    }
+    /// The return area, if there are results on the stack.
+    ret_area: Option<RetArea>,
 }
 
 impl ABIResults {
@@ -299,9 +313,9 @@ impl ABIResults {
     /// representation, according to the calling convention. In the case of
     /// results, one result is stored in registers and the rest at particular
     /// offsets in the stack.
-    pub fn from<F>(returns: &[WasmType], call_conv: &CallingConvention, mut map: F) -> Self
+    pub fn from<F>(returns: &[WasmValType], call_conv: &CallingConvention, mut map: F) -> Self
     where
-        F: FnMut(&WasmType, u32) -> (ABIOperand, u32),
+        F: FnMut(&WasmValType, u32) -> (ABIOperand, u32),
     {
         if returns.len() == 0 {
             return Self::default();
@@ -352,7 +366,8 @@ impl ABIResults {
 
     /// Create a new [`ABIResults`] from [`ABIOperands`].
     pub fn new(operands: ABIOperands) -> Self {
-        Self { operands }
+        let ret_area = (operands.bytes > 0).then(|| RetArea::default());
+        Self { operands, ret_area }
     }
 
     /// Returns a reference to a [HashSet<Reg>], which includes
@@ -369,6 +384,11 @@ impl ABIResults {
     /// Returns the length of the result.
     pub fn len(&self) -> usize {
         self.operands.inner.len()
+    }
+
+    /// Returns the length of results on the stack.
+    pub fn stack_operands_len(&self) -> usize {
+        self.operands().len() - self.regs().len()
     }
 
     /// Get the [`ABIOperand`] result in the nth position.
@@ -395,8 +415,27 @@ impl ABIResults {
 
     /// Returns true if the [`ABIResults`] require space on the machine stack
     /// for results.
-    pub fn has_stack_results(&self) -> bool {
+    pub fn on_stack(&self) -> bool {
         self.operands.bytes > 0
+    }
+
+    /// Set the return area of the signature.
+    ///
+    /// # Panics
+    ///
+    /// This function will panic if trying to set a return area if there are
+    /// no results on the stack or if trying to set an uninitialize return area.
+    /// This method must only be used when the return area can be fully
+    /// materialized.
+    pub fn set_ret_area(&mut self, area: RetArea) {
+        debug_assert!(self.on_stack());
+        debug_assert!(!area.is_uninit());
+        self.ret_area = Some(area);
+    }
+
+    /// Returns a reference to the return area, if any.
+    pub fn ret_area(&self) -> Option<&RetArea> {
+        self.ret_area.as_ref()
     }
 }
 
@@ -419,13 +458,13 @@ impl ABIParams {
     /// params, multiple params may be passed in registers and the rest on the
     /// stack depending on the calling convention.
     pub fn from<F, A: ABI>(
-        params: &[WasmType],
+        params: &[WasmValType],
         initial_bytes: u32,
         needs_stack_results: bool,
         mut map: F,
     ) -> Self
     where
-        F: FnMut(&WasmType, u32) -> (ABIOperand, u32),
+        F: FnMut(&WasmValType, u32) -> (ABIOperand, u32),
     {
         if params.len() == 0 && !needs_stack_results {
             return Self::with_bytes(initial_bytes);
@@ -452,7 +491,7 @@ impl ABIParams {
             },
         );
 
-        let ptr_type = ptr_type_from_ptr_size(<A as ABI>::word_bytes() as u8);
+        let ptr_type = ptr_type_from_ptr_size(<A as ABI>::word_bytes());
         // Handle stack results by specifying an extra, implicit last argument.
         if needs_stack_results {
             let (operand, bytes) = map(&ptr_type, stack_bytes);
@@ -582,7 +621,7 @@ impl ABISig {
 
     /// Returns true if the signature has results on the stack.
     pub fn has_stack_results(&self) -> bool {
-        self.results.has_stack_results()
+        self.results.on_stack()
     }
 }
 
