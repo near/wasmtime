@@ -45,21 +45,19 @@ impl SubTest for TestRunZkasm {
         _: &'a Flags,
         _: Option<&'a dyn TargetIsa>,
     ) -> anyhow::Result<()> {
-        let mut zkasm_functions: Vec<Vec<String>> = Default::default();
-        let mut invocations: Vec<Vec<String>> = Default::default();
+        let mut zkasm_functions: Vec<Vec<String>> = Vec::new();
+        let mut invocations: Vec<Vec<String>> = Vec::new();
         for (func, details) in &testfile.functions {
-            let zkasm_function = zkasm_codegen::compile_clif_function(func);
-            zkasm_functions.push(zkasm_function);
+            zkasm_functions.push(zkasm_codegen::compile_clif_function(func));
             for comment in details.comments.iter() {
                 if let Some(command) = parse_run_command(comment.text, &func.signature)? {
                     match command {
                         RunCommand::Print(_) => {
-                            unreachable!()
+                            todo!()
                         }
-                        RunCommand::Run(invoce, compare, expected) => {
-                            let invocation =
-                                zkasm_codegen::compile_invocation(invoce, compare, expected);
-                            invocations.push(invocation);
+                        RunCommand::Run(invoke, compare, expected) => {
+                            invocations
+                                .push(zkasm_codegen::compile_invocation(invoke, compare, expected));
                         }
                     }
                 }

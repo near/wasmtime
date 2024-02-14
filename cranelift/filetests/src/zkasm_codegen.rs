@@ -243,8 +243,8 @@ pub fn compile_clif_function(func: &Function) -> Vec<String> {
     let isa = isa_builder
         .finish(settings::Flags::new(flag_builder))
         .unwrap();
-    let mut comp_ctx = cranelift_codegen::Context::for_function(func.clone());
-    let compiled_code = comp_ctx
+    let mut context = cranelift_codegen::Context::for_function(func.clone());
+    let compiled_code = context
         .compile(isa.as_ref(), &mut Default::default())
         .unwrap();
     let mut code_buffer = compiled_code.code_buffer().to_vec();
@@ -255,7 +255,6 @@ pub fn compile_clif_function(func: &Function) -> Vec<String> {
     );
     let code = std::str::from_utf8(&code_buffer).unwrap();
     let mut lines: Vec<String> = code.lines().map(|s| s.to_string()).collect();
-
     // TODO: I believe it can be done more beautiful way
     let mut funcname = func.name.to_string();
     funcname.remove(0);
@@ -269,31 +268,33 @@ pub fn compile_clif_function(func: &Function) -> Vec<String> {
 // now it works for one very basic case
 pub fn build_test_zkasm(functions: Vec<Vec<String>>, invocations: Vec<Vec<String>>) -> String {
     // TODO: use generate_preambule to get preambule
-    let preambule = "start:\n  zkPC + 2 => RR\n  :JMP(main)\n  :JMP(finalizeExecution)";
+    let preamble = "\
+start:
+  zkPC + 2 => RR
+    :JMP(main)
+    :JMP(finalizeExecution)";
     let mut main = vec![
         "main:".to_string(),
         "  SP - 1 => SP".to_string(),
         "  RR :MSTORE(SP)".to_string(),
     ];
-    for invoce in invocations {
-        // TODO: remove this .clone()
-        main.append(&mut invoce.clone());
+    for invocation in invocations {
+        main.extend(invocation);
     }
     main.push("  SP - 1 => SP".to_string());
     main.push("  :JMP(RR)".to_string());
-    let mut postabmule = generate_postamble();
-    let mut program = vec![preambule.to_string()];
+    let mut postamble = generate_postamble();
+    let mut program = vec![preamble.to_string()];
     program.append(&mut main);
     for foo in functions {
-        // TODO: remove this .clone()
-        program.append(&mut foo.clone());
+        program.extend(foo);
     }
-    program.append(&mut postabmule);
+    program.append(&mut postamble);
     program.join("\n")
 }
 
 pub fn compile_invocation(
-    invoce: Invocation,
+    invoke: Invocation,
     compare: Comparison,
     expected: Vec<DataValue>,
 ) -> Vec<String> {
@@ -303,8 +304,8 @@ pub fn compile_invocation(
     let mut res: Vec<String> = Default::default();
     let registers = vec!["A", "B", "C", "D", "E"];
 
-    let args = invoce.args;
-    let funcname = invoce.func;
+    let args = invoke.args;
+    let funcname = invoke.func;
 
     // TODO: here we should pay attention to type of DataValue (I64 or I32)
     for (idx, arg) in args.iter().enumerate() {
