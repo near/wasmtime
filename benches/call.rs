@@ -23,6 +23,7 @@ enum IsAsync {
     Yes,
     YesPooling,
     No,
+    NoPooling,
 }
 
 impl IsAsync {
@@ -31,12 +32,13 @@ impl IsAsync {
             IsAsync::Yes => "async",
             IsAsync::YesPooling => "async-pool",
             IsAsync::No => "sync",
+            IsAsync::NoPooling => "sync-pool",
         }
     }
     fn use_async(&self) -> bool {
         match self {
             IsAsync::Yes | IsAsync::YesPooling => true,
-            IsAsync::No => false,
+            IsAsync::No | IsAsync::NoPooling => false,
         }
     }
 }
@@ -47,14 +49,29 @@ fn engines() -> Vec<(Engine, IsAsync)> {
     #[cfg(feature = "component-model")]
     config.wasm_component_model(true);
 
+    let mut pool = PoolingAllocationConfig::default();
+    if std::env::var("WASMTIME_TEST_FORCE_MPK").is_ok() {
+        pool.memory_protection_keys(MpkEnabled::Enable);
+    }
+
     vec![
         (Engine::new(&config).unwrap(), IsAsync::No),
+        (
+            Engine::new(
+                config
+                    .clone()
+                    .allocation_strategy(InstanceAllocationStrategy::Pooling(pool.clone())),
+            )
+            .unwrap(),
+            IsAsync::NoPooling,
+        ),
         (
             Engine::new(config.async_support(true)).unwrap(),
             IsAsync::Yes,
         ),
         (
-            Engine::new(config.allocation_strategy(InstanceAllocationStrategy::pooling())).unwrap(),
+            Engine::new(config.allocation_strategy(InstanceAllocationStrategy::Pooling(pool)))
+                .unwrap(),
             IsAsync::YesPooling,
         ),
     ]
@@ -285,9 +302,9 @@ fn wasm_to_host(c: &mut Criterion) {
 
         let mut untyped = Linker::new(&engine);
         untyped
-            .func_new("", "nop", FuncType::new([], []), |_, _, _| Ok(()))
+            .func_new("", "nop", FuncType::new(&engine, [], []), |_, _, _| Ok(()))
             .unwrap();
-        let ty = FuncType::new([ValType::I32, ValType::I64], [ValType::F32]);
+        let ty = FuncType::new(&engine, [ValType::I32, ValType::I64], [ValType::F32]);
         untyped
             .func_new(
                 "",
@@ -319,9 +336,9 @@ fn wasm_to_host(c: &mut Criterion) {
         unsafe {
             let mut unchecked = Linker::new(&engine);
             unchecked
-                .func_new_unchecked("", "nop", FuncType::new([], []), |_, _| Ok(()))
+                .func_new_unchecked("", "nop", FuncType::new(&engine, [], []), |_, _| Ok(()))
                 .unwrap();
-            let ty = FuncType::new([ValType::I32, ValType::I64], [ValType::F32]);
+            let ty = FuncType::new(&engine, [ValType::I32, ValType::I64], [ValType::F32]);
             unchecked
                 .func_new_unchecked("", "nop-params-and-results", ty, |mut caller, space| {
                     match Val::from_raw(&mut caller, space[0], ValType::I32) {

@@ -1,6 +1,7 @@
 //! Implements the base structure (i.e. [WasiHttpCtx]) that will provide the
 //! implementation of the wasi-http API.
 
+use crate::io::TokioIo;
 use crate::{
     bindings::http::types::{self, Method, Scheme},
     body::{HostIncomingBody, HyperIncomingBody, HyperOutgoingBody},
@@ -13,8 +14,8 @@ use std::sync::Arc;
 use std::time::Duration;
 use tokio::net::TcpStream;
 use tokio::time::timeout;
-use wasmtime::component::Resource;
-use wasmtime_wasi::preview2::{self, AbortOnDropJoinHandle, Subscribe, Table};
+use wasmtime::component::{Resource, ResourceTable};
+use wasmtime_wasi::preview2::{self, AbortOnDropJoinHandle, Subscribe};
 
 /// Capture the state necessary for use in the wasi-http API implementation.
 pub struct WasiHttpCtx;
@@ -30,7 +31,7 @@ pub struct OutgoingRequest {
 
 pub trait WasiHttpView: Send {
     fn ctx(&mut self) -> &mut WasiHttpCtx;
-    fn table(&mut self) -> &mut Table;
+    fn table(&mut self) -> &mut ResourceTable;
 
     fn new_incoming_request(
         &mut self,
@@ -76,7 +77,7 @@ pub trait WasiHttpView: Send {
 
 /// Returns `true` when the header is forbidden according to this [`WasiHttpView`] implementation.
 pub(crate) fn is_forbidden_header(view: &mut dyn WasiHttpView, name: &HeaderName) -> bool {
-    static FORBIDDEN_HEADERS: [HeaderName; 9] = [
+    static FORBIDDEN_HEADERS: [HeaderName; 10] = [
         hyper::header::CONNECTION,
         HeaderName::from_static("keep-alive"),
         hyper::header::PROXY_AUTHENTICATE,
@@ -85,6 +86,7 @@ pub(crate) fn is_forbidden_header(view: &mut dyn WasiHttpView, name: &HeaderName
         hyper::header::TE,
         hyper::header::TRANSFER_ENCODING,
         hyper::header::UPGRADE,
+        hyper::header::HOST,
         HeaderName::from_static("http2-settings"),
     ];
 
@@ -143,7 +145,7 @@ async fn handler(
     use_tls: bool,
     connect_timeout: Duration,
     first_byte_timeout: Duration,
-    request: http::Request<HyperOutgoingBody>,
+    mut request: http::Request<HyperOutgoingBody>,
     between_bytes_timeout: Duration,
 ) -> Result<IncomingResponseInternal, types::ErrorCode> {
     let tcp_stream = TcpStream::connect(authority.clone())
@@ -200,6 +202,7 @@ async fn handler(
                 tracing::warn!("tls protocol error: {e:?}");
                 types::ErrorCode::TlsProtocolError
             })?;
+            let stream = TokioIo::new(stream);
 
             let (sender, conn) = timeout(
                 connect_timeout,
@@ -221,6 +224,7 @@ async fn handler(
             (sender, worker)
         }
     } else {
+        let tcp_stream = TokioIo::new(tcp_stream);
         let (sender, conn) = timeout(
             connect_timeout,
             // TODO: we should plumb the builder through the http context, and use it here
@@ -241,6 +245,20 @@ async fn handler(
         (sender, worker)
     };
 
+    // at this point, the request contains the scheme and the authority, but
+    // the http packet should only include those if addressing a proxy, so
+    // remove them here, since SendRequest::send_request does not do it for us
+    *request.uri_mut() = http::Uri::builder()
+        .path_and_query(
+            request
+                .uri()
+                .path_and_query()
+                .map(|p| p.as_str())
+                .unwrap_or("/"),
+        )
+        .build()
+        .expect("comes from valid request");
+
     let resp = timeout(first_byte_timeout, sender.send_request(request))
         .await
         .map_err(|_| types::ErrorCode::ConnectionReadTimeout)?
@@ -253,6 +271,7 @@ async fn handler(
         between_bytes_timeout,
     })
 }
+
 impl From<http::Method> for types::Method {
     fn from(method: http::Method) -> Self {
         if method == http::Method::GET {

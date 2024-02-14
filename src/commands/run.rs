@@ -11,12 +11,11 @@ use anyhow::{anyhow, bail, Context as _, Error, Result};
 use clap::Parser;
 use std::ffi::OsString;
 use std::path::{Path, PathBuf};
-use std::sync::Arc;
+use std::sync::{Arc, Mutex};
 use std::thread;
+use wasi_common::sync::{ambient_authority, Dir, TcpListener, WasiCtxBuilder};
 use wasmtime::{Engine, Func, Module, Store, StoreLimits, Val, ValType};
-use wasmtime_wasi::maybe_exit_on_error;
 use wasmtime_wasi::preview2;
-use wasmtime_wasi::sync::{ambient_authority, Dir, TcpListener, WasiCtxBuilder};
 
 #[cfg(feature = "wasi-nn")]
 use wasmtime_wasi_nn::WasiNnCtx;
@@ -55,9 +54,8 @@ fn parse_preloads(s: &str) -> Result<(String, PathBuf)> {
 
 /// Runs a WebAssembly module
 #[derive(Parser, PartialEq)]
-#[structopt(name = "run")]
 pub struct RunCommand {
-    #[clap(flatten)]
+    #[command(flatten)]
     #[allow(missing_docs)]
     pub run: RunCommon,
 
@@ -67,7 +65,7 @@ pub struct RunCommand {
     /// host is made available within the guest. If specified as `HOST::GUEST`
     /// then the `HOST` directory is opened and made available as the name
     /// `GUEST` in the guest.
-    #[clap(long = "dir", value_name = "HOST_DIR[::GUEST_DIR]", value_parser = parse_dirs)]
+    #[arg(long = "dir", value_name = "HOST_DIR[::GUEST_DIR]", value_parser = parse_dirs)]
     pub dirs: Vec<(String, String)>,
 
     /// Pass an environment variable to the program.
@@ -77,15 +75,15 @@ pub struct RunCommand {
     /// form will set the environment variable named `FOO` to the same value it
     /// has in the calling process for the guest, or in other words it will
     /// cause the environment variable `FOO` to be inherited.
-    #[clap(long = "env", number_of_values = 1, value_name = "NAME[=VAL]", value_parser = parse_env_var)]
+    #[arg(long = "env", number_of_values = 1, value_name = "NAME[=VAL]", value_parser = parse_env_var)]
     pub vars: Vec<(String, Option<String>)>,
 
     /// The name of the function to run
-    #[clap(long, value_name = "FUNCTION")]
+    #[arg(long, value_name = "FUNCTION")]
     pub invoke: Option<String>,
 
     /// Load the given WebAssembly module before the main module
-    #[clap(
+    #[arg(
         long = "preload",
         number_of_values = 1,
         value_name = "NAME=MODULE_PATH",
@@ -98,7 +96,7 @@ pub struct RunCommand {
     /// Arguments passed to the wasm module will be configured as WASI CLI
     /// arguments unless the `--invoke` CLI argument is passed in which case
     /// arguments will be interpreted as arguments to the function specified.
-    #[clap(value_name = "WASM", trailing_var_arg = true, required = true)]
+    #[arg(value_name = "WASM", trailing_var_arg = true, required = true)]
     pub module_and_args: Vec<OsString>,
 }
 
@@ -224,7 +222,30 @@ impl RunCommand {
                 // Exit the process if Wasmtime understands the error;
                 // otherwise, fall back on Rust's default error printing/return
                 // code.
-                return Err(maybe_exit_on_error(e));
+                if store.data().preview1_ctx.is_some() {
+                    return Err(wasi_common::maybe_exit_on_error(e));
+                } else if store.data().preview2_ctx.is_some() {
+                    if let Some(exit) = e
+                        .downcast_ref::<preview2::I32Exit>()
+                        .map(|c| c.process_exit_code())
+                    {
+                        std::process::exit(exit);
+                    }
+                    if e.is::<wasmtime::Trap>() {
+                        eprintln!("Error: {e:?}");
+                        cfg_if::cfg_if! {
+                            if #[cfg(unix)] {
+                                std::process::exit(rustix::process::EXIT_SIGNALED_SIGABRT);
+                            } else if #[cfg(windows)] {
+                                // https://docs.microsoft.com/en-us/cpp/c-runtime-library/reference/abort?view=vs-2019
+                                std::process::exit(3);
+                            }
+                        }
+                    }
+                    return Err(e);
+                } else {
+                    unreachable!("either preview1_ctx or preview2_ctx present")
+                }
             }
         }
 
@@ -330,7 +351,7 @@ impl RunCommand {
                 .unwrap();
             Arc::get_mut(&mut profiler)
                 .expect("profiling doesn't support threads yet")
-                .sample(&store);
+                .sample(&store, std::time::Duration::ZERO);
             store.as_context_mut().data_mut().guest_profiler = Some(profiler);
         }
 
@@ -465,7 +486,7 @@ impl RunCommand {
                 // explicit exit here with status 1 if `Err(())` is returned.
                 result.and_then(|wasm_result| match wasm_result {
                     Ok(()) => Ok(()),
-                    Err(()) => Err(wasmtime_wasi::I32Exit(1).into()),
+                    Err(()) => Err(wasmtime_wasi::preview2::I32Exit(1).into()),
                 })
             }
         };
@@ -590,14 +611,21 @@ impl RunCommand {
                         // are enabled, then use the historical preview1
                         // implementation.
                         (Some(false), _) | (None, Some(true)) => {
-                            wasmtime_wasi::add_to_linker(linker, |host| {
+                            wasi_common::sync::add_to_linker(linker, |host| {
                                 host.preview1_ctx.as_mut().unwrap()
                             })?;
                             self.set_preview1_ctx(store)?;
                         }
                         // If preview2 was explicitly requested, always use it.
                         // Otherwise use it so long as threads are disabled.
+                        //
+                        // Note that for now `preview0` is currently
+                        // default-enabled but this may turn into
+                        // default-disabled in the future.
                         (Some(true), _) | (None, Some(false) | None) => {
+                            if self.run.common.wasi.preview0 != Some(false) {
+                                preview2::preview0::add_to_linker_sync(linker)?;
+                            }
                             preview2::preview1::add_to_linker_sync(linker)?;
                             self.set_preview2_ctx(store)?;
                         }
@@ -766,25 +794,36 @@ impl RunCommand {
         }
 
         if self.run.common.wasi.inherit_network == Some(true) {
-            builder.inherit_network(ambient_authority());
+            builder.inherit_network();
         }
         if let Some(enable) = self.run.common.wasi.allow_ip_name_lookup {
             builder.allow_ip_name_lookup(enable);
         }
+        if let Some(enable) = self.run.common.wasi.tcp {
+            builder.allow_tcp(enable);
+        }
+        if let Some(enable) = self.run.common.wasi.udp {
+            builder.allow_udp(enable);
+        }
 
-        store.data_mut().preview2_ctx = Some(Arc::new(builder.build()));
+        let ctx = builder.build();
+        store.data_mut().preview2_ctx = Some(Arc::new(Mutex::new(ctx)));
         Ok(())
     }
 }
 
 #[derive(Default, Clone)]
 struct Host {
-    preview1_ctx: Option<wasmtime_wasi::WasiCtx>,
-    preview2_ctx: Option<Arc<preview2::WasiCtx>>,
+    preview1_ctx: Option<wasi_common::WasiCtx>,
+
+    // The Mutex is only needed to satisfy the Sync constraint but we never
+    // actually perform any locking on it as we use Mutex::get_mut for every
+    // access.
+    preview2_ctx: Option<Arc<Mutex<preview2::WasiCtx>>>,
 
     // Resource table for preview2 if the `preview2_ctx` is in use, otherwise
     // "just" an empty table.
-    preview2_table: Arc<preview2::Table>,
+    preview2_table: Arc<Mutex<wasmtime::component::ResourceTable>>,
 
     // State necessary for the preview1 implementation of WASI backed by the
     // preview2 host implementation. Only used with the `--preview2` flag right
@@ -803,21 +842,19 @@ struct Host {
 }
 
 impl preview2::WasiView for Host {
-    fn table(&self) -> &preview2::Table {
-        &self.preview2_table
+    fn table(&mut self) -> &mut wasmtime::component::ResourceTable {
+        Arc::get_mut(&mut self.preview2_table)
+            .expect("preview2 is not compatible with threads")
+            .get_mut()
+            .unwrap()
     }
 
-    fn table_mut(&mut self) -> &mut preview2::Table {
-        Arc::get_mut(&mut self.preview2_table).expect("preview2 is not compatible with threads")
-    }
-
-    fn ctx(&self) -> &preview2::WasiCtx {
-        self.preview2_ctx.as_ref().unwrap()
-    }
-
-    fn ctx_mut(&mut self) -> &mut preview2::WasiCtx {
+    fn ctx(&mut self) -> &mut preview2::WasiCtx {
         let ctx = self.preview2_ctx.as_mut().unwrap();
-        Arc::get_mut(ctx).expect("preview2 is not compatible with threads")
+        Arc::get_mut(ctx)
+            .expect("preview2 is not compatible with threads")
+            .get_mut()
+            .unwrap()
     }
 }
 
@@ -838,8 +875,11 @@ impl wasmtime_wasi_http::types::WasiHttpView for Host {
         Arc::get_mut(ctx).expect("preview2 is not compatible with threads")
     }
 
-    fn table(&mut self) -> &mut preview2::Table {
-        Arc::get_mut(&mut self.preview2_table).expect("preview2 is not compatible with threads")
+    fn table(&mut self) -> &mut wasmtime::component::ResourceTable {
+        Arc::get_mut(&mut self.preview2_table)
+            .expect("preview2 is not compatible with threads")
+            .get_mut()
+            .unwrap()
     }
 }
 

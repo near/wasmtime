@@ -30,11 +30,12 @@ mod network;
 pub mod pipe;
 mod poll;
 #[cfg(feature = "preview1-on-preview2")]
+pub mod preview0;
+#[cfg(feature = "preview1-on-preview2")]
 pub mod preview1;
 mod random;
 mod stdio;
 mod stream;
-mod table;
 mod tcp;
 mod udp;
 mod write_stream;
@@ -52,9 +53,9 @@ pub use self::stdio::{
 pub use self::stream::{
     HostInputStream, HostOutputStream, InputStream, OutputStream, StreamError, StreamResult,
 };
-pub use self::table::{Table, TableError};
 pub use cap_fs_ext::SystemTimeSpec;
 pub use cap_rand::RngCore;
+pub use wasmtime::component::{ResourceTable, ResourceTableError};
 
 pub mod bindings {
     // Generate traits for synchronous bindings.
@@ -68,9 +69,9 @@ pub mod bindings {
             wasmtime::component::bindgen!({
                 path: "wit",
                 interfaces: "
-                    import wasi:io/poll@0.2.0-rc-2023-11-10;
-                    import wasi:io/streams@0.2.0-rc-2023-11-10;
-                    import wasi:filesystem/types@0.2.0-rc-2023-11-10;
+                    import wasi:io/poll@0.2.0;
+                    import wasi:io/streams@0.2.0;
+                    import wasi:filesystem/types@0.2.0;
                 ",
                 tracing: true,
                 trappable_error_type: {
@@ -93,7 +94,7 @@ pub mod bindings {
 
     wasmtime::component::bindgen!({
         path: "wit",
-        world: "wasi:cli/reactor",
+        world: "wasi:cli/imports",
         tracing: true,
         async: {
             // Only these functions are `async` and everything else is sync

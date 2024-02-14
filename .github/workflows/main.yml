@@ -41,7 +41,7 @@ jobs:
     name: Test generated zkAsm on the ZK processor
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - uses: actions/setup-node@v3
       with:
         node-version: '20.8.0'
@@ -55,12 +55,28 @@ jobs:
     name: Rustfmt
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
       with:
         submodules: true
     - uses: ./.github/actions/install-rust
     - run: rustup component add rustfmt
     - run: cargo fmt --all -- --check
+
+    # common logic to cancel the entire run if this job fails
+    - run: gh run cancel ${{ github.run_id }}
+      if: failure() && github.event_name != 'pull_request'
+      env:
+        GH_TOKEN: ${{ github.token }}
+
+  # Check Code style quickly by running `clang-format` over all the C/C++ code
+  clangformat:
+    name: Clang format
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        submodules: true
+    - run: git ls-files '*.h' '*.c' '*.cpp' | xargs clang-format-15 --dry-run --Werror --verbose
 
     # common logic to cancel the entire run if this job fails
     - run: gh run cancel ${{ github.run_id }}
@@ -76,7 +92,7 @@ jobs:
     if: needs.determine.outputs.audit
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
       with:
         submodules: true
     - uses: ./.github/actions/install-rust
@@ -100,7 +116,7 @@ jobs:
     if: needs.determine.outputs.audit
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
       with:
         submodules: true
     - uses: ./.github/actions/install-rust
@@ -135,7 +151,7 @@ jobs:
       audit: ${{ steps.calculate.outputs.audit }}
       preview1-adapter: ${{ steps.calculate.outputs.preview1-adapter }}
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - id: calculate
       env:
         GH_TOKEN: ${{ github.token }}
@@ -196,10 +212,10 @@ jobs:
     runs-on: ubuntu-latest
     env:
       CARGO_MDBOOK_VERSION: 0.4.21
-      RUSTDOCFLAGS: -Dbroken_intra_doc_links --cfg nightlydoc
+      RUSTDOCFLAGS: -Dbroken_intra_doc_links --cfg docsrs
       OPENVINO_SKIP_LINKING: 1
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
       with:
         submodules: true
     - uses: ./.github/actions/install-rust
@@ -212,7 +228,7 @@ jobs:
     - run: cd crates/c-api && doxygen doxygen.conf
 
     # install mdbook, build the docs, and test the docs
-    - uses: actions/cache@v3
+    - uses: actions/cache@v4
       with:
         path: ${{ runner.tool_cache }}/mdbook
         key: cargo-mdbook-bin-${{ env.CARGO_MDBOOK_VERSION }}
@@ -244,7 +260,7 @@ jobs:
         mv crates/c-api/html gh-pages/c-api
         mv target/doc gh-pages/api
         tar czf gh-pages.tar.gz gh-pages
-    - uses: actions/upload-artifact@v3
+    - uses: actions/upload-artifact@v4
       with:
         name: gh-pages
         path: gh-pages.tar.gz
@@ -266,7 +282,7 @@ jobs:
     env:
       CARGO_NDK_VERSION: 2.12.2
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
       with:
         submodules: true
     - uses: ./.github/actions/install-rust
@@ -319,15 +335,24 @@ jobs:
 
     # Check whether `wasmtime` cross-compiles to aarch64-linux-android
     - run: rustup target add aarch64-linux-android
+    - name: Set up JDK 17
+      uses: actions/setup-java@v3
+      with:
+        java-version: '17'
+        distribution: 'temurin'
     - name: Setup Android SDK
-      uses: android-actions/setup-android@v2
-    - uses: actions/cache@v3
+      uses: android-actions/setup-android@v3
+    - uses: actions/cache@v4
       with:
         path: ${{ runner.tool_cache }}/cargo-ndk
         key: cargo-ndk-bin-${{ env.CARGO_NDK_VERSION }}
     - run: echo "${{ runner.tool_cache }}/cargo-ndk/bin" >> $GITHUB_PATH
     - run: cargo install --root ${{ runner.tool_cache }}/cargo-ndk --version ${{ env.CARGO_NDK_VERSION }} cargo-ndk
     - run: cargo ndk -t arm64-v8a check -p wasmtime
+
+    # Run clippy configuration
+    - run: rustup component add clippy
+    - run: cargo clippy --workspace
 
     # common logic to cancel the entire run if this job fails
     - run: gh run cancel ${{ github.run_id }}
@@ -344,7 +369,7 @@ jobs:
     name: Check Windows ARM64
     runs-on: windows-latest
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
       with:
         submodules: true
     - uses: ./.github/actions/install-rust
@@ -364,7 +389,7 @@ jobs:
     name: Fuzz Targets
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
       with:
         submodules: true
     # Note that building with fuzzers requires nightly since it uses unstable
@@ -403,7 +428,7 @@ jobs:
       fail-fast: ${{ github.event_name != 'pull_request' }}
       matrix: ${{ fromJson(needs.determine.outputs.test-matrix) }}
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
       with:
         submodules: true
     - uses: ./.github/actions/install-rust
@@ -421,13 +446,24 @@ jobs:
     - run: echo CARGO_BUILD_TARGET=${{ matrix.target }} >> $GITHUB_ENV
       if: matrix.target != ''
 
+    # Install OpenVINO for testing wasmtime-wasi-nn.
+    - uses: abrown/install-openvino-action@v8
+      if: runner.arch == 'X64'
+
     # Fix an ICE for now in gcc when compiling zstd with debuginfo (??)
     - run: echo CFLAGS=-g0 >> $GITHUB_ENV
       if: matrix.target == 'x86_64-pc-windows-gnu'
 
+    # Update binutils if MinGW due to https://github.com/rust-lang/rust/issues/112368
+    - run: C:/msys64/usr/bin/pacman.exe -S --needed mingw-w64-x86_64-gcc --noconfirm
+      if: matrix.target == 'x86_64-pc-windows-gnu'
+    - shell: pwsh
+      run: echo "C:\msys64\mingw64\bin" >> $Env:GITHUB_PATH
+      if: matrix.target == 'x86_64-pc-windows-gnu'
+
     - run: cargo fetch --locked
 
-    - uses: actions/cache@v3
+    - uses: actions/cache@v4
       with:
         path: ${{ runner.tool_cache }}/qemu
         key: qemu-${{ matrix.target }}-${{ env.QEMU_BUILD_VERSION }}-patchcpuinfo
@@ -490,6 +526,32 @@ jobs:
       run: |
         diff -ru crates/wasi/wit crates/wasi-http/wit
 
+    # Record some CPU details; this is helpful information if tests fail due
+    # to CPU-specific features.
+    - name: CPU information
+      run: lscpu
+      if: matrix.os == 'ubuntu-latest'
+    - name: CPU information
+      run: sysctl hw
+      if: contains(matrix.os, 'macos')
+    - name: CPU information
+      run: wmic cpu list /format:list
+      shell: pwsh
+      if: matrix.os == 'windows-latest'
+
+    # Since MPK (PKU) is not present on some GitHub runners, we check if it is
+    # available before force-enabling it. This occasional testing is better than
+    # none at all; ideally we would test in a system-mode QEMU VM.
+    - name: Force-run with MPK enabled, if available
+      if: ${{ contains(matrix.name, 'MPK') }}
+      run: |
+        if cargo run --example mpk-available; then
+          echo "::notice::This CI run will force-enable MPK; this ensures tests conditioned with the \`WASMTIME_TEST_FORCE_MPK\` environment variable will run with MPK-protected memory pool stripes."
+          echo WASMTIME_TEST_FORCE_MPK=1 >> $GITHUB_ENV
+        else
+          echo "::warning::This CI run will not test MPK; it has been detected as not available on this machine (\`cargo run --example mpk-available\`)."
+        fi
+
     # Build and test all features
     - run: ./ci/run-tests.sh --locked
       env:
@@ -508,32 +570,6 @@ jobs:
     # Windows fails GitHub Actions will confusingly mark the failed Windows job
     # as cancelled instead of failed.
 
-  # Build and test the wasi-nn module.
-  test_wasi_nn:
-    needs: determine
-    if: needs.determine.outputs.run-full
-    name: Test wasi-nn module
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-        with:
-          submodules: true
-      - uses: ./.github/actions/install-rust
-      - run: rustup target add wasm32-wasi
-      - uses: abrown/install-openvino-action@v7
-        with:
-          version: 2022.3.0
-          apt: true
-      - run: ./ci/run-wasi-nn-example.sh
-        env:
-          RUST_BACKTRACE: 1
-
-      # common logic to cancel the entire run if this job fails
-      - run: gh run cancel ${{ github.run_id }}
-        if: failure() && github.event_name != 'pull_request'
-        env:
-          GH_TOKEN: ${{ github.token }}
-
   build-preview1-component-adapter:
     name: Build wasi-preview1-component-adapter
     needs: determine
@@ -543,7 +579,7 @@ jobs:
       deployments: write
       contents: write
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
       with:
         submodules: true
     - run: rustup update stable && rustup default stable
@@ -558,11 +594,32 @@ jobs:
       env:
         VERSION: ${{ github.sha }}
 
-    - uses: actions/upload-artifact@v3
+    - uses: actions/upload-artifact@v4
       with:
         name: bins-wasi-preview1-component-adapter
         path: target/wasm32-unknown-unknown/release/wasi_snapshot_preview1.*.wasm
 
+
+    # common logic to cancel the entire run if this job fails
+    - run: gh run cancel ${{ github.run_id }}
+      if: failure() && github.event_name != 'pull_request'
+      env:
+        GH_TOKEN: ${{ github.token }}
+
+
+  build-wasmtime-target-wasm32:
+    name: Build wasmtime-target-wasm32
+    needs: determine
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        submodules: true
+    - run: rustup update stable && rustup default stable
+    - run: rustup target add wasm32-wasi wasm32-unknown-unknown
+    - run: cargo build -p wasmtime --target wasm32-wasi --no-default-features --features cranelift,all-arch
+      env:
+        VERSION: ${{ github.sha }}
 
     # common logic to cancel the entire run if this job fails
     - run: gh run cancel ${{ github.run_id }}
@@ -577,7 +634,7 @@ jobs:
     name: Run benchmarks
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
       with:
         submodules: true
     - uses: ./.github/actions/install-rust
@@ -597,7 +654,7 @@ jobs:
     name: Meta deterministic check
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
       with:
         submodules: true
     - uses: ./.github/actions/install-rust
@@ -615,7 +672,7 @@ jobs:
     if: github.repository == 'bytecodealliance/wasmtime' && needs.determine.outputs.run-full
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
       with:
         submodules: true
     - run: rustup update stable && rustup default stable
@@ -653,14 +710,14 @@ jobs:
     env:
       CARGO_NEXTEST_VERSION: 0.9.51
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
       with:
         submodules: true
     - uses: ./.github/actions/install-rust
       with:
         toolchain: nightly-2023-10-10
     - run: rustup component add rust-src miri
-    - uses: actions/cache@v3
+    - uses: actions/cache@v4
       with:
         path: ${{ runner.tool_cache }}/cargo-nextest
         key: cargo-nextest-bin-${{ env.CARGO_NEXTEST_VERSION }}
@@ -695,7 +752,7 @@ jobs:
       fail-fast: ${{ github.event_name != 'pull_request' }}
       matrix: ${{ fromJson(needs.determine.outputs.build-matrix) }}
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
       with:
         submodules: true
 
@@ -720,7 +777,7 @@ jobs:
     # unconditionally to this workflow's files so we have a copy of them.
     - run: ./ci/build-tarballs.sh "${{ matrix.build }}" "${{ matrix.target }}"
 
-    - uses: actions/upload-artifact@v3
+    - uses: actions/upload-artifact@v4
       with:
         name: bins-${{ matrix.build }}
         path: dist
@@ -762,7 +819,6 @@ jobs:
       - checks
       - checks_winarm64
       - fuzz_targets
-      - test_wasi_nn
       - bench
       - meta_deterministic_check
       - verify-publish
@@ -811,7 +867,7 @@ jobs:
       && startsWith(github.ref, 'refs/heads/release-')
       && github.repository == 'bytecodealliance/wasmtime'
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
       with:
         submodules: true
         fetch-depth: 0

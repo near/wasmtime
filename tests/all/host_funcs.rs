@@ -1,8 +1,8 @@
 use anyhow::{bail, Result};
 use std::sync::atomic::{AtomicUsize, Ordering::SeqCst};
+use wasi_common::sync::WasiCtxBuilder;
+use wasi_common::I32Exit;
 use wasmtime::*;
-use wasmtime_wasi::sync::WasiCtxBuilder;
-use wasmtime_wasi::I32Exit;
 
 #[test]
 #[should_panic = "cannot use `func_new_async` without enabling async support"]
@@ -12,7 +12,7 @@ fn async_required() {
     drop(linker.func_new_async(
         "",
         "",
-        FuncType::new(None, None),
+        FuncType::new(&engine, None, None),
         move |_caller, _params, _results| Box::new(async { Ok(()) }),
     ));
 }
@@ -493,10 +493,10 @@ fn new_from_signature() -> Result<()> {
     let engine = Engine::default();
     let mut linker = Linker::new(&engine);
 
-    let ty = FuncType::new(None, None);
+    let ty = FuncType::new(&engine, None, None);
     linker.func_new("", "f1", ty, |_, _, _| panic!())?;
 
-    let ty = FuncType::new(Some(ValType::I32), Some(ValType::F64));
+    let ty = FuncType::new(&engine, Some(ValType::I32), Some(ValType::F64));
     linker.func_new("", "f2", ty, |_, _, _| panic!())?;
 
     let mut store = Store::new(&engine, ());
@@ -603,7 +603,7 @@ fn call_wrapped_func() -> Result<()> {
 fn func_return_nothing() -> Result<()> {
     let engine = Engine::default();
     let mut linker = Linker::new(&engine);
-    let ty = FuncType::new(None, Some(ValType::I32));
+    let ty = FuncType::new(&engine, None, Some(ValType::I32));
     linker.func_new("", "", ty, |_, _, _| Ok(()))?;
 
     let mut store = Store::new(&engine, ());
@@ -708,7 +708,7 @@ fn store_with_context() -> Result<()> {
 fn wasi_imports() -> Result<()> {
     let engine = Engine::default();
     let mut linker = Linker::new(&engine);
-    wasmtime_wasi::add_to_linker(&mut linker, |s| s)?;
+    wasi_common::sync::add_to_linker(&mut linker, |s| s)?;
 
     let wasm = wat::parse_str(
         r#"

@@ -7,6 +7,9 @@ publish = false
 version = "0.0.0"
 license = "Apache-2.0 WITH LLVM-exception"
 
+[lints]
+workspace = true
+
 [dependencies]
 anyhow = { workspace = true }
 arbitrary = { workspace = true, features = ["derive"] }
@@ -25,7 +28,7 @@ wasm-encoder = { workspace = true }
 wasm-smith = { workspace = true }
 wasm-mutate = { workspace = true }
 wasm-spec-interpreter = { path = "./wasm-spec-interpreter", optional = true }
-wasmi = "0.20.0"
+wasmi = "0.31.1"
 
 # We rely on precompiled v8 binaries, but rusty-v8 doesn't have a precompiled
 # binary for MinGW which is built on our CI. It does have one for Windows-msvc,
