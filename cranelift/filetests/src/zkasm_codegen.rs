@@ -1,9 +1,12 @@
+use cranelift_codegen::data_value::DataValue;
 use cranelift_codegen::entity::EntityRef;
 use cranelift_codegen::ir::function::FunctionParameters;
 use cranelift_codegen::ir::ExternalName;
 use cranelift_codegen::ir::Function;
 use cranelift_codegen::isa::zkasm;
 use cranelift_codegen::{settings, FinalizedMachReloc, FinalizedRelocTarget};
+use cranelift_reader::Comparison;
+use cranelift_reader::Invocation;
 use cranelift_wasm::{translate_module, ZkasmEnvironment};
 use std::collections::HashMap;
 
@@ -233,7 +236,8 @@ fn optimize_labels(code: &[&str], func_index: usize) -> Vec<String> {
     lines
 }
 
-pub(crate) fn compile_clif_function(func: &Function) -> Vec<String> {
+// TODO: fix same label names in different functions
+pub fn compile_clif_function(func: &Function) -> Vec<String> {
     let flag_builder = settings::builder();
     let isa_builder = zkasm::isa_builder("zkasm-unknown-unknown".parse().unwrap());
     let isa = isa_builder
@@ -250,6 +254,66 @@ pub(crate) fn compile_clif_function(func: &Function) -> Vec<String> {
         compiled_code.buffer.relocs(),
     );
     let code = std::str::from_utf8(&code_buffer).unwrap();
-    let lines: Vec<String> = code.lines().map(|s| s.to_string()).collect();
-    lines
+    let mut lines: Vec<String> = code.lines().map(|s| s.to_string()).collect();
+
+    // TODO: I believe it can be done more beautiful way
+    let mut funcname = func.name.to_string();
+    funcname.remove(0);
+    funcname.push(':');
+    let mut res = vec![funcname];
+    res.append(&mut lines);
+    res
+}
+
+// TODO: this function should be much rewrited,
+// now it works for one very basic case
+pub fn build_test_zkasm(functions: Vec<Vec<String>>, invocations: Vec<Vec<String>>) -> String {
+    // TODO: use generate_preambule to get preambule
+    let preambule = "start:\n  zkPC + 2 => RR\n  :JMP(main)\n  :JMP(finalizeExecution)";
+    let mut main = vec![
+        "main:".to_string(),
+        "  SP - 1 => SP".to_string(),
+        "  RR :MSTORE(SP)".to_string(),
+    ];
+    for invoce in invocations {
+        // TODO: remove this .clone()
+        main.append(&mut invoce.clone());
+    }
+    main.push("  SP - 1 => SP".to_string());
+    main.push("  :JMP(RR)".to_string());
+    let mut postabmule = generate_postamble();
+    let mut program = vec![preambule.to_string()];
+    program.append(&mut main);
+    for foo in functions {
+        // TODO: remove this .clone()
+        program.append(&mut foo.clone());
+    }
+    program.append(&mut postabmule);
+    program.join("\n")
+}
+
+pub fn compile_invocation(
+    invoce: Invocation,
+    compare: Comparison,
+    expected: Vec<DataValue>,
+) -> Vec<String> {
+    // Here I assume that each "function" in zkasm gets it's arguments from first N registers
+    // and put result in A.
+    // TODO: should be more robust way to do it, we need somehow define inputs and outputs
+    let mut res: Vec<String> = Default::default();
+    let registers = vec!["A", "B", "C", "D", "E"];
+
+    let args = invoce.args;
+    let funcname = invoce.func;
+
+    // TODO: here we should pay attention to type of DataValue (I64 or I32)
+    for (idx, arg) in args.iter().enumerate() {
+        res.push(format!("  {} => {}", arg, registers[idx]))
+    }
+    res.push(format!("    :JMP({})", funcname));
+    // TODO: handle functions with multiple outputs
+    res.push(format!("  {} => B", expected[0]));
+    // TODO: replace with call to host function
+    res.push(format!("  CALL AWESOME ASSERT ({})", compare));
+    res
 }
