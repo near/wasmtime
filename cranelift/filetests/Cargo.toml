@@ -44,6 +44,6 @@ env_logger = { workspace = true }
 expect-test = { workspace = true }
 smallvec = { workspace = true }
 regex = { workspace = true }
-wasmtime = { workspace = true, features = ["cranelift"] }
+wasmtime = { workspace = true, features = ["cranelift", "runtime"] }
 walkdir = { workspace = true }
 tempfile = { workspace = true }
