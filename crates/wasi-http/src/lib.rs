@@ -2,6 +2,7 @@ pub use crate::types::{WasiHttpCtx, WasiHttpView};
 
 pub mod body;
 pub mod http_impl;
+pub mod io;
 pub mod proxy;
 pub mod types;
 pub mod types_impl;
@@ -10,9 +11,9 @@ pub mod bindings {
     wasmtime::component::bindgen!({
         path: "wit",
         interfaces: "
-            import wasi:http/incoming-handler@0.2.0-rc-2023-11-10;
-            import wasi:http/outgoing-handler@0.2.0-rc-2023-11-10;
-            import wasi:http/types@0.2.0-rc-2023-11-10;
+            import wasi:http/incoming-handler@0.2.0;
+            import wasi:http/outgoing-handler@0.2.0;
+            import wasi:http/types@0.2.0;
         ",
         tracing: true,
         async: false,

@@ -701,6 +701,15 @@ who = "Chris Fallin <chris@cfallin.org>"
 criteria = "safe-to-deploy"
 delta = "0.7.6 -> 0.8.2"
 
+[[audits.ahash]]
+who = "Alex Crichton <alex@alexcrichton.com>"
+criteria = "safe-to-deploy"
+delta = "0.8.2 -> 0.8.7"
+notes = """
+Shuffling of features in this update and while there are updates to `unsafe`
+code it's no different than before and the usage remains the same.
+"""
+
 [[audits.ambient-authority]]
 who = "Dan Gohman <dev@sunfishcode.online>"
 criteria = "safe-to-deploy"
@@ -832,6 +841,11 @@ who = "Nick Fitzgerald <fitzgen@gmail.com>"
 criteria = "safe-to-deploy"
 version = "3.11.1"
 notes = "I am the author of this crate."
+
+[[audits.bytesize]]
+who = "Andrew Brown <andrew.brown@intel.com>"
+criteria = "safe-to-deploy"
+version = "1.3.0"
 
 [[audits.camino]]
 who = "Pat Hickey <phickey@fastly.com>"
@@ -982,6 +996,12 @@ criteria = "safe-to-deploy"
 version = "0.15.3"
 notes = "no build, no unsafe, inputs to cargo command are reasonably sanitized"
 
+[[audits.cargo_metadata]]
+who = "Alex Crichton <alex@alexcrichton.com>"
+criteria = "safe-to-deploy"
+delta = "0.17.0 -> 0.18.1"
+notes = "No major changes, no unsafe code here."
+
 [[audits.cast]]
 who = "Alex Crichton <alex@alexcrichton.com>"
 criteria = "safe-to-run"
@@ -1031,6 +1051,21 @@ who = "Nick Fitzgerald <fitzgen@gmail.com>"
 criteria = "safe-to-deploy"
 version = "0.2.4"
 notes = "A few tiny blocks of `unsafe` but each of them is very obviously correct."
+
+[[audits.core-foundation-sys]]
+who = "Dan Gohman <dev@sunfishcode.online>"
+criteria = "safe-to-deploy"
+delta = "0.8.4 -> 0.8.6"
+notes = """
+The changes here are all typical bindings updates: new functions, types, and
+constants. I have not audited all the bindings for ABI conformance.
+"""
+
+[[audits.cpp_demangle]]
+who = "Alex Crichton <alex@alexcrichton.com>"
+criteria = "safe-to-deploy"
+delta = "0.3.5 -> 0.4.3"
+notes = "No substantive changes to `unsafe` code and otherwise all looks good."
 
 [[audits.cpufeatures]]
 who = "Alex Crichton <alex@alexcrichton.com>"
@@ -1325,6 +1360,18 @@ who = "Jamey Sharp <jsharp@fastly.com>"
 criteria = "safe-to-deploy"
 delta = "0.3.1 -> 0.3.0"
 
+[[audits.h2]]
+who = "Alex Crichton <alex@alexcrichton.com>"
+criteria = "safe-to-deploy"
+delta = "0.3.19 -> 0.4.0"
+notes = "A number of changes but nothing adding new `unsafe` or anything outside the purview of what this crate already manages."
+
+[[audits.h2]]
+who = "Alex Crichton <alex@alexcrichton.com>"
+criteria = "safe-to-deploy"
+delta = "0.4.0 -> 0.4.2"
+notes = "Minor updates and fixes in this version bump, nothing major."
+
 [[audits.hashbrown]]
 who = "Chris Fallin <chris@cfallin.org>"
 criteria = "safe-to-deploy"
@@ -1348,10 +1395,22 @@ who = "Pat Hickey <phickey@fastly.com>"
 criteria = "safe-to-deploy"
 delta = "0.2.0 -> 0.3.0"
 
+[[audits.http]]
+who = "Alex Crichton <alex@alexcrichton.com>"
+criteria = "safe-to-deploy"
+delta = "0.2.9 -> 1.0.0"
+notes = "Minor changes leading up to the 1.0.0 release and nothing fundamentally new here."
+
 [[audits.http-body]]
 who = "Pat Hickey <phickey@fastly.com>"
 criteria = "safe-to-deploy"
 version = "1.0.0-rc.2"
+
+[[audits.http-body]]
+who = "Alex Crichton <alex@alexcrichton.com>"
+criteria = "safe-to-deploy"
+delta = "1.0.0-rc.2 -> 1.0.0"
+notes = "Only minor changes made for a stable release."
 
 [[audits.http-body-util]]
 who = "Pat Hickey <phickey@fastly.com>"
@@ -1359,11 +1418,41 @@ criteria = "safe-to-deploy"
 version = "0.1.0-rc.2"
 notes = "only one use of unsafe related to pin projection. unclear to me why pin_project! is used in many modules of the project, but the expanded output of that macro is inlined in either.rs"
 
+[[audits.http-body-util]]
+who = "Alex Crichton <alex@alexcrichton.com>"
+criteria = "safe-to-deploy"
+delta = "0.1.0-rc.2 -> 0.1.0"
+notes = "Minor documentation updates an additions, nothing major."
+
 [[audits.httpdate]]
 who = "Pat Hickey <phickey@fastly.com>"
 criteria = "safe-to-deploy"
 version = "1.0.2"
 notes = "No unsafety, no io"
+
+[[audits.hyper]]
+who = "Alex Crichton <alex@alexcrichton.com>"
+criteria = "safe-to-deploy"
+delta = "1.0.0-rc.3 -> 1.0.1"
+notes = """
+Quite a few changes here relative to the last RC but everything is related to
+refactorings and such. No new fundamental addition of functionality or
+substantially new unsafe code.
+"""
+
+[[audits.iana-time-zone]]
+who = "Dan Gohman <dev@sunfishcode.online>"
+criteria = "safe-to-deploy"
+version = "0.1.59"
+notes = """
+I also manually ran windows-bindgen and confirmed that the output matches
+the bindings checked into the repo.
+"""
+
+[[audits.iana-time-zone-haiku]]
+who = "Dan Gohman <dev@sunfishcode.online>"
+criteria = "safe-to-deploy"
+version = "0.1.2"
 
 [[audits.id-arena]]
 who = "Nick Fitzgerald <fitzgen@gmail.com>"
@@ -1455,6 +1544,15 @@ criteria = "safe-to-deploy"
 delta = "0.4.1 -> 0.4.3"
 notes = "The Bytecode Alliance is the author of this crate."
 
+[[audits.itertools]]
+who = "Nick Fitzgerald <fitzgen@gmail.com>"
+criteria = "safe-to-deploy"
+delta = "0.10.5 -> 0.12.1"
+notes = """
+Minimal `unsafe` usage. Few blocks that existed looked reasonable. Does what it
+says on the tin: lots of iterators.
+"""
+
 [[audits.ittapi]]
 who = "Andrew Brown <andrew.brown@intel.com>"
 criteria = "safe-to-deploy"
@@ -1521,6 +1619,18 @@ criteria = "safe-to-deploy"
 delta = "0.2.148 -> 0.2.149"
 notes = "Lots of new functions and constants for new platforms and nothing out of the ordinary for what one would expect of the `libc` crate."
 
+[[audits.libc]]
+who = "Dan Gohman <dev@sunfishcode.online>"
+criteria = "safe-to-deploy"
+delta = "0.2.149 -> 0.2.151"
+notes = "More new functions, types, and constants, as is usual for the `libc` crate, as well as various minor code cleanups."
+
+[[audits.libc]]
+who = "Alex Crichton <alex@alexcrichton.com>"
+criteria = "safe-to-deploy"
+delta = "0.2.151 -> 0.2.153"
+notes = "More bindings for more platforms. I have not verified that everything is exactly as-is on the platform as specified but nothing major is otherwise introduced as part of this bump."
+
 [[audits.libfuzzer-sys]]
 who = "Nick Fitzgerald <fitzgen@gmail.com>"
 criteria = "safe-to-run"
@@ -1532,6 +1642,11 @@ who = "Nick Fitzgerald <fitzgen@gmail.com>"
 criteria = "safe-to-run"
 delta = "0.4.4 -> 0.4.5"
 notes = "I am the author of this crate."
+
+[[audits.libloading]]
+who = "Iceber Gu <caiwei95@hotmail.com>"
+criteria = "safe-to-deploy"
+delta = "0.7.3 -> 0.8.1"
 
 [[audits.libm]]
 who = "Alex Crichton <alex@alexcrichton.com>"
@@ -1724,6 +1839,11 @@ who = "Andrew Brown <andrew.brown@intel.com>"
 criteria = "safe-to-deploy"
 delta = "0.4.2 -> 0.5.0"
 
+[[audits.openvino]]
+who = "Iceber Gu <caiwei95@hotmail.com>"
+criteria = "safe-to-deploy"
+delta = "0.5.0 -> 0.6.0"
+
 [[audits.openvino-finder]]
 who = "Matthew Tamayo-Rios <matthew@geekbeast.com>"
 criteria = "safe-to-deploy"
@@ -1737,6 +1857,11 @@ who = "Andrew Brown <andrew.brown@intel.com>"
 criteria = "safe-to-deploy"
 delta = "0.4.2 -> 0.5.0"
 
+[[audits.openvino-finder]]
+who = "Iceber Gu <caiwei95@hotmail.com>"
+criteria = "safe-to-deploy"
+delta = "0.5.0 -> 0.6.0"
+
 [[audits.openvino-sys]]
 who = "Matthew Tamayo-Rios <matthew@geekbeast.com>"
 criteria = "safe-to-deploy"
@@ -1749,6 +1874,11 @@ Only updates to tests to use new rust functions for mut pointers.
 who = "Andrew Brown <andrew.brown@intel.com>"
 criteria = "safe-to-deploy"
 delta = "0.4.2 -> 0.5.0"
+
+[[audits.openvino-sys]]
+who = "Iceber Gu <caiwei95@hotmail.com>"
+criteria = "safe-to-deploy"
+delta = "0.5.0 -> 0.6.0"
 
 [[audits.overload]]
 who = "Pat Hickey <phickey@fastly.com>"
@@ -1782,6 +1912,15 @@ who = "Pat Hickey <phickey@fastly.com>"
 criteria = "safe-to-deploy"
 version = "0.3.25"
 notes = "This crate shells out to the pkg-config executable, but it appears to sanitize inputs reasonably."
+
+[[audits.pkg-config]]
+who = "Alex Crichton <alex@alexcrichton.com>"
+criteria = "safe-to-deploy"
+delta = "0.3.26 -> 0.3.29"
+notes = """
+No `unsafe` additions or anything outside of the purview of the crate in this
+change.
+"""
 
 [[audits.pretty_env_logger]]
 who = "Alex Crichton <alex@alexcrichton.com>"
@@ -2251,6 +2390,12 @@ notes = "No significant changes: minor refactoring and removes the need to use `
 who = "Pat Hickey <phickey@fastly.com>"
 criteria = "safe-to-deploy"
 version = "0.3.0"
+
+[[audits.wasi-nn]]
+who = "Andrew Brown <andrew.brown@intel.com>"
+criteria = "safe-to-deploy"
+version = "0.6.0"
+notes = "This crate contains `unsafe` code due to its purpose: it wraps up `witx-bindgen`-generated code that calls the raw wasi-nn API."
 
 [[audits.wasm-bindgen-shared]]
 who = "Pat Hickey <phickey@fastly.com>"
@@ -2968,6 +3113,25 @@ criteria = "safe-to-deploy"
 version = "0.6.4"
 notes = "The Bytecode Alliance is the author of this crate."
 
+[[audits.zstd]]
+who = "Alex Crichton <alex@alexcrichton.com>"
+criteria = "safe-to-deploy"
+delta = "0.11.1+zstd.1.5.2 -> 0.13.0"
+notes = """
+No major updates to the crate here. Small updates to `unsafe` code which are
+refactorings of what was there prior.
+"""
+
+[[audits.zstd-safe]]
+who = "Alex Crichton <alex@alexcrichton.com>"
+criteria = "safe-to-deploy"
+delta = "5.0.1+zstd.1.5.2 -> 7.0.0"
+notes = """
+Lots of new comments around methods and refactorings for updates in zstd itself.
+Does contain new unsafe code, notably an implementation of an internal trait for
+the standard library `io::Cursor` type.
+"""
+
 [[trusted.aho-corasick]]
 criteria = "safe-to-deploy"
 user-id = 189 # Andrew Gallant (BurntSushi)
@@ -3099,6 +3263,12 @@ criteria = "safe-to-deploy"
 user-id = 6743 # Ed Page (epage)
 start = "2022-04-15"
 end = "2024-07-06"
+
+[[trusted.cpp_demangle]]
+criteria = "safe-to-deploy"
+user-id = 696 # Nick Fitzgerald (fitzgen)
+start = "2019-07-30"
+end = "2025-02-12"
 
 [[trusted.equivalent]]
 criteria = "safe-to-deploy"
@@ -3280,6 +3450,12 @@ user-id = 3618 # David Tolnay (dtolnay)
 start = "2019-02-28"
 end = "2024-07-06"
 
+[[trusted.serde_spanned]]
+criteria = "safe-to-deploy"
+user-id = 6743 # Ed Page (epage)
+start = "2023-01-20"
+end = "2025-02-12"
+
 [[trusted.syn]]
 criteria = "safe-to-deploy"
 user-id = 3618 # David Tolnay (dtolnay)
@@ -3321,6 +3497,24 @@ criteria = "safe-to-deploy"
 user-id = 1 # Alex Crichton (alexcrichton)
 start = "2019-05-16"
 end = "2024-07-06"
+
+[[trusted.toml]]
+criteria = "safe-to-deploy"
+user-id = 6743 # Ed Page (epage)
+start = "2022-12-14"
+end = "2025-02-12"
+
+[[trusted.toml_datetime]]
+criteria = "safe-to-deploy"
+user-id = 6743 # Ed Page (epage)
+start = "2022-10-21"
+end = "2025-02-12"
+
+[[trusted.toml_edit]]
+criteria = "safe-to-deploy"
+user-id = 6743 # Ed Page (epage)
+start = "2021-09-13"
+end = "2025-02-12"
 
 [[trusted.walkdir]]
 criteria = "safe-to-deploy"
@@ -3369,6 +3563,18 @@ criteria = "safe-to-deploy"
 user-id = 189 # Andrew Gallant (BurntSushi)
 start = "2020-01-11"
 end = "2024-07-15"
+
+[[trusted.windows]]
+criteria = "safe-to-deploy"
+user-id = 64539 # Kenny Kerr (kennykerr)
+start = "2021-01-15"
+end = "2025-01-30"
+
+[[trusted.windows-core]]
+criteria = "safe-to-deploy"
+user-id = 64539 # Kenny Kerr (kennykerr)
+start = "2021-11-15"
+end = "2025-01-02"
 
 [[trusted.windows-sys]]
 criteria = "safe-to-deploy"
@@ -3423,6 +3629,12 @@ criteria = "safe-to-deploy"
 user-id = 64539 # Kenny Kerr (kennykerr)
 start = "2021-10-27"
 end = "2024-06-17"
+
+[[trusted.winnow]]
+criteria = "safe-to-deploy"
+user-id = 6743 # Ed Page (epage)
+start = "2023-02-22"
+end = "2025-02-12"
 
 [[trusted.winx]]
 criteria = "safe-to-deploy"

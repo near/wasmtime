@@ -5,6 +5,7 @@ use libfuzzer_sys::fuzz_target;
 use std::sync::atomic::AtomicUsize;
 use std::sync::atomic::Ordering::SeqCst;
 use std::sync::Once;
+use wasmparser::ValType;
 use wasmtime_fuzzing::generators::CompilerStrategy;
 use wasmtime_fuzzing::generators::{Config, DiffValue, DiffValueType, SingleInstModule};
 use wasmtime_fuzzing::oracles::diff_wasmtime::WasmtimeInstance;
@@ -81,16 +82,25 @@ fn execute_one(data: &[u8]) -> Result<()> {
     // When fuzzing Winch, explicitly override the compiler strategy, which by
     // default its arbitrary implementation unconditionally returns
     // `Cranelift`.
-    // We also explicitly disable multi-value support.
     if fuzz_winch {
         config.wasmtime.compiler_strategy = CompilerStrategy::Winch;
-        config.module_config.config.multi_value_enabled = false;
+        // Disable the Wasm proposals not supported by Winch.
+        // Reference Types and (Function References) are not disabled entirely
+        // because certain instructions involving `funcref` are supported (all
+        // the table instructions).
+        config.module_config.config.simd_enabled = false;
+        config.module_config.config.relaxed_simd_enabled = false;
+        config.module_config.config.memory64_enabled = false;
+        config.module_config.config.gc_enabled = false;
+        config.module_config.config.threads_enabled = false;
+        config.module_config.config.tail_call_enabled = false;
+        config.module_config.config.exceptions_enabled = false;
     }
 
     // Choose an engine that Wasmtime will be differentially executed against.
     // The chosen engine is then created, which might update `config`, and
     // returned as a trait object.
-    let lhs = u.choose(unsafe { &ALLOWED_ENGINES })?;
+    let lhs = u.choose(unsafe { &*std::ptr::addr_of!(ALLOWED_ENGINES) })?;
     let mut lhs = match engine::build(&mut u, lhs, &mut config)? {
         Some(engine) => engine,
         // The chosen engine does not have support compiled into the fuzzer,
@@ -283,139 +293,72 @@ impl RuntimeStats {
 fn winch_supports_module(module: &[u8]) -> bool {
     use wasmparser::{Operator::*, Parser, Payload};
 
+    fn is_type_supported(ty: &ValType) -> bool {
+        match ty {
+            ValType::Ref(r) => r.is_func_ref(),
+            _ => true,
+        }
+    }
+
     let mut supported = true;
     let mut parser = Parser::new(0).parse_all(module);
 
     'main: while let Some(payload) = parser.next() {
         match payload.unwrap() {
             Payload::CodeSectionEntry(body) => {
+                let local_reader = body.get_locals_reader().unwrap();
+                for local in local_reader {
+                    let (_, ty) = local.unwrap();
+                    if !is_type_supported(&ty) {
+                        supported = false;
+                        break 'main;
+                    }
+                }
                 let op_reader = body.get_operators_reader().unwrap();
                 for op in op_reader {
                     match op.unwrap() {
-                        I32Const { .. }
-                        | I64Const { .. }
-                        | I32Add { .. }
-                        | I64Add { .. }
-                        | I32Sub { .. }
-                        | I32Mul { .. }
-                        | I32DivS { .. }
-                        | I32DivU { .. }
-                        | I64DivS { .. }
-                        | I64DivU { .. }
-                        | I64RemU { .. }
-                        | I64RemS { .. }
-                        | I32RemU { .. }
-                        | I32RemS { .. }
-                        | I64Mul { .. }
-                        | I64Sub { .. }
-                        | I32Eq { .. }
-                        | I64Eq { .. }
-                        | I32Ne { .. }
-                        | I64Ne { .. }
-                        | I32LtS { .. }
-                        | I64LtS { .. }
-                        | I32LtU { .. }
-                        | I64LtU { .. }
-                        | I32LeS { .. }
-                        | I64LeS { .. }
-                        | I32LeU { .. }
-                        | I64LeU { .. }
-                        | I32GtS { .. }
-                        | I64GtS { .. }
-                        | I32GtU { .. }
-                        | I64GtU { .. }
-                        | I32GeS { .. }
-                        | I64GeS { .. }
-                        | I32GeU { .. }
-                        | I64GeU { .. }
-                        | I32Eqz { .. }
-                        | I64Eqz { .. }
-                        | I32And { .. }
-                        | I64And { .. }
-                        | I32Or { .. }
-                        | I64Or { .. }
-                        | I32Xor { .. }
-                        | I64Xor { .. }
-                        | I32Shl { .. }
-                        | I64Shl { .. }
-                        | I32ShrS { .. }
-                        | I64ShrS { .. }
-                        | I32ShrU { .. }
-                        | I64ShrU { .. }
-                        | I32Rotl { .. }
-                        | I64Rotl { .. }
-                        | I32Rotr { .. }
-                        | I64Rotr { .. }
-                        | I32Clz { .. }
-                        | I64Clz { .. }
-                        | I32Ctz { .. }
-                        | I64Ctz { .. }
-                        | I32Popcnt { .. }
-                        | I64Popcnt { .. }
-                        | LocalGet { .. }
-                        | LocalSet { .. }
-                        | LocalTee { .. }
-                        | GlobalGet { .. }
-                        | GlobalSet { .. }
-                        | Call { .. }
-                        | Nop { .. }
-                        | End { .. }
-                        | If { .. }
-                        | Else { .. }
-                        | Block { .. }
-                        | Loop { .. }
-                        | Br { .. }
-                        | BrIf { .. }
-                        | BrTable { .. }
-                        | Unreachable { .. }
-                        | Return { .. }
-                        | F32Const { .. }
-                        | F64Const { .. }
-                        | F32Add { .. }
-                        | F64Add { .. }
-                        | F32Sub { .. }
-                        | F64Sub { .. }
-                        | F32Mul { .. }
-                        | F64Mul { .. }
-                        | F32Div { .. }
-                        | F64Div { .. }
-                        | F32Min { .. }
-                        | F64Min { .. }
-                        | F32Max { .. }
-                        | F64Max { .. }
-                        | F32Copysign { .. }
-                        | F64Copysign { .. }
-                        | F32Abs { .. }
-                        | F64Abs { .. }
-                        | F32Neg { .. }
-                        | F64Neg { .. }
-                        | F32Sqrt { .. }
-                        | F64Sqrt { .. }
-                        | F32Eq { .. }
-                        | F64Eq { .. }
-                        | F32Ne { .. }
-                        | F64Ne { .. }
-                        | F32Lt { .. }
-                        | F64Lt { .. }
-                        | F32Gt { .. }
-                        | F64Gt { .. }
-                        | F32Le { .. }
-                        | F64Le { .. }
-                        | F32Ge { .. }
-                        | F64Ge { .. }
-                        | CallIndirect { .. }
-                        | ElemDrop { .. }
-                        | TableCopy { .. }
-                        | TableSet { .. }
-                        | TableGet { .. }
-                        | TableFill { .. }
-                        | TableGrow { .. }
-                        | TableSize { .. }
-                        | TableInit { .. } => {}
-                        _ => {
+                        RefIsNull { .. }
+                        | RefNull { .. }
+                        | RefFunc { .. }
+                        | RefAsNonNull { .. }
+                        | BrOnNonNull { .. }
+                        | CallRef { .. }
+                        | BrOnNull { .. } => {
                             supported = false;
                             break 'main;
                         }
+                        _ => {}
+                    }
+                }
+            }
+            Payload::TypeSection(section) => {
+                for ty in section.into_iter_err_on_gc_types() {
+                    if let Ok(t) = ty {
+                        for p in t.params().iter().chain(t.results()) {
+                            if !is_type_supported(p) {
+                                supported = false;
+                                break 'main;
+                            }
+                        }
+                    } else {
+                        supported = false;
+                        break 'main;
+                    }
+                }
+            }
+            Payload::GlobalSection(section) => {
+                for global in section {
+                    if !is_type_supported(&global.unwrap().ty.content_type) {
+                        supported = false;
+                        break 'main;
+                    }
+                }
+            }
+            Payload::TableSection(section) => {
+                for t in section {
+                    if !t.unwrap().ty.element_type.is_func_ref() {
+                        supported = false;
+                        break 'main;
                     }
                 }
             }

@@ -9,6 +9,9 @@ repository = "https://github.com/bytecodealliance/wasmtime"
 publish = false
 edition.workspace = true
 
+[lints]
+workspace = true
+
 [dependencies]
 # TODO(nearcore/#9569): Add "zkasm" feature to top-level crate.
 capstone.workspace = true

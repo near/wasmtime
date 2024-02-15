@@ -523,8 +523,6 @@ fn valid_for_target(triple: &Triple, op: Opcode, args: &[Type], rets: &[Type]) -
                 rets,
                 (Opcode::UmulOverflow | Opcode::SmulOverflow, &[I128, I128]),
                 (Opcode::Imul, &[I8X16, I8X16]),
-                // https://github.com/bytecodealliance/wasmtime/issues/5468
-                (Opcode::Smulhi | Opcode::Umulhi, &[I8, I8]),
                 // https://github.com/bytecodealliance/wasmtime/issues/4756
                 (Opcode::Udiv | Opcode::Sdiv, &[I128, I128]),
                 // https://github.com/bytecodealliance/wasmtime/issues/5474
@@ -1401,7 +1399,7 @@ where
             DataValue::I8(i) => builder.ins().iconst(ty, i as u8 as i64),
             DataValue::I16(i) => builder.ins().iconst(ty, i as u16 as i64),
             DataValue::I32(i) => builder.ins().iconst(ty, i as u32 as i64),
-            DataValue::I64(i) => builder.ins().iconst(ty, i as i64),
+            DataValue::I64(i) => builder.ins().iconst(ty, i),
             DataValue::I128(i) => {
                 let hi = builder.ins().iconst(I64, (i >> 64) as i64);
                 let lo = builder.ins().iconst(I64, i as i64);

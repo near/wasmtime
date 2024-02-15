@@ -8,15 +8,14 @@ use sha2::{Digest, Sha256};
 use std::{collections::HashMap, iter, net::Ipv4Addr, str, sync::Arc};
 use tokio::task;
 use wasmtime::{
-    component::{Component, Linker, Resource},
+    component::{Component, Linker, Resource, ResourceTable},
     Config, Engine, Store,
 };
-use wasmtime_wasi::preview2::{
-    self, pipe::MemoryOutputPipe, Table, WasiCtx, WasiCtxBuilder, WasiView,
-};
+use wasmtime_wasi::preview2::{self, pipe::MemoryOutputPipe, WasiCtx, WasiCtxBuilder, WasiView};
 use wasmtime_wasi_http::{
     bindings::http::types::ErrorCode,
     body::HyperIncomingBody,
+    io::TokioIo,
     types::{self, HostFutureIncomingResponse, IncomingResponseInternal, OutgoingRequest},
     WasiHttpCtx, WasiHttpView,
 };
@@ -30,7 +29,7 @@ type RequestSender = Arc<
 >;
 
 struct Ctx {
-    table: Table,
+    table: ResourceTable,
     wasi: WasiCtx,
     http: WasiHttpCtx,
     stdout: MemoryOutputPipe,
@@ -39,16 +38,10 @@ struct Ctx {
 }
 
 impl WasiView for Ctx {
-    fn table(&self) -> &Table {
-        &self.table
-    }
-    fn table_mut(&mut self) -> &mut Table {
+    fn table(&mut self) -> &mut ResourceTable {
         &mut self.table
     }
-    fn ctx(&self) -> &WasiCtx {
-        &self.wasi
-    }
-    fn ctx_mut(&mut self) -> &mut WasiCtx {
+    fn ctx(&mut self) -> &mut WasiCtx {
         &mut self.wasi
     }
 }
@@ -58,7 +51,7 @@ impl WasiHttpView for Ctx {
         &mut self.http
     }
 
-    fn table(&mut self) -> &mut Table {
+    fn table(&mut self) -> &mut ResourceTable {
         &mut self.table
     }
 
@@ -88,7 +81,7 @@ fn store(engine: &Engine, server: &Server) -> Store<Ctx> {
     builder.stderr(stderr.clone());
     builder.env("HTTP_SERVER", server.addr().to_string());
     let ctx = Ctx {
-        table: Table::new(),
+        table: ResourceTable::new(),
         wasi: builder.build(),
         http: WasiHttpCtx {},
         stderr,
@@ -131,7 +124,7 @@ async fn run_wasi_http(
 ) -> anyhow::Result<Result<hyper::Response<Collected<Bytes>>, ErrorCode>> {
     let stdout = MemoryOutputPipe::new(4096);
     let stderr = MemoryOutputPipe::new(4096);
-    let table = Table::new();
+    let table = ResourceTable::new();
 
     let mut config = Config::new();
     config.wasm_backtrace_details(wasmtime::WasmBacktraceDetails::Enable);
@@ -181,29 +174,28 @@ async fn run_wasi_http(
             use http_body_util::BodyExt;
             let (parts, body) = resp.into_parts();
             let collected = BodyExt::collect(body).await?;
-            Ok(hyper::Response::from_parts(parts, collected))
+            Some(Ok(hyper::Response::from_parts(parts, collected)))
         }
+        Ok(Err(e)) => Some(Err(e)),
 
-        Ok(Err(e)) => Err(e),
-
-        // This happens if the wasm never calls `set-response-outparam`
-        Err(e) => panic!("Failed to receive a response: {e:?}"),
+        // Fall through below to the `resp.expect(...)` which will hopefully
+        // return a more specific error from `handle.await`.
+        Err(_) => None,
     };
 
-    // Now that the response has been processed, we can wait on the wasm to finish without
-    // deadlocking.
+    // Now that the response has been processed, we can wait on the wasm to
+    // finish without deadlocking.
     handle.await.context("Component execution")?;
 
-    Ok(resp)
+    Ok(resp.expect("wasm never called set-response-outparam"))
 }
 
 #[test_log::test(tokio::test)]
 async fn wasi_http_proxy_tests() -> anyhow::Result<()> {
-    let mut req = hyper::Request::builder().method(http::Method::GET);
-
-    req.headers_mut()
-        .unwrap()
-        .append("custom-forbidden-header", "yes".parse().unwrap());
+    let req = hyper::Request::builder()
+        .header("custom-forbidden-header", "yes")
+        .uri("http://example.com:8080/test-path")
+        .method(http::Method::GET);
 
     let resp = run_wasi_http(
         test_programs_artifacts::API_PROXY_COMPONENT,
@@ -279,15 +271,14 @@ async fn do_wasi_http_hash_all(override_send_request: bool) -> Result<()> {
                         between_bytes_timeout,
                     })
                 });
-                Ok(view
-                    .table()
-                    .push(HostFutureIncomingResponse::Ready(response))?)
+                Ok(WasiHttpView::table(view).push(HostFutureIncomingResponse::Ready(response))?)
             },
         ) as RequestSender)
     } else {
         let server = async move {
             loop {
                 let (stream, _) = listener.accept().await?;
+                let stream = TokioIo::new(stream);
                 let handle = handle.clone();
                 task::spawn(async move {
                     if let Err(e) = http1::Builder::new()
@@ -326,7 +317,9 @@ async fn do_wasi_http_hash_all(override_send_request: bool) -> Result<()> {
         None
     };
 
-    let mut request = hyper::Request::get("/hash-all");
+    let mut request = hyper::Request::builder()
+        .method(http::Method::GET)
+        .uri("http://example.com:8080/hash-all");
     for path in bodies.keys() {
         request = request.header("url", format!("{prefix}{path}"));
     }
@@ -384,6 +377,7 @@ async fn wasi_http_double_echo() -> Result<()> {
     let server = async move {
         loop {
             let (stream, _) = listener.accept().await?;
+            let stream = TokioIo::new(stream);
             task::spawn(async move {
                 if let Err(e) = http1::Builder::new()
                     .keep_alive(true)
@@ -448,8 +442,10 @@ async fn do_wasi_http_echo(uri: &str, url_header: Option<&str>) -> Result<()> {
         .collect::<Vec<_>>()
     };
 
-    let mut request =
-        hyper::Request::post(&format!("/{uri}")).header("content-type", "application/octet-stream");
+    let mut request = hyper::Request::builder()
+        .method(http::Method::POST)
+        .uri(format!("http://example.com:8080/{uri}"))
+        .header("content-type", "application/octet-stream");
 
     if let Some(url_header) = url_header {
         request = request.header("url", url_header);
