@@ -265,9 +265,12 @@ pub fn compile_clif_function(func: &Function) -> Vec<String> {
 }
 
 // TODO: this function should be much rewrited,
-// now it works for one very basic case
+// now it works for one very basic case:
+// Simple progam which don't contain globals or some other speciefic preamble\postamble
+// Program don't need helper functions (for example 2-exp.zkasm)
+// How to fix it? Use generate_preamble and provide correct inputs for it.
 pub fn build_test_zkasm(functions: Vec<Vec<String>>, invocations: Vec<Vec<String>>) -> String {
-    // TODO: use generate_preambule to get preambule
+    // TODO: use generate_preamble to get preamble
     let preamble = "\
 start:
   zkPC + 2 => RR
