@@ -17,9 +17,9 @@ function_1:
   31n => B  ;; LoadConst64
   $ => E :AND
   C => A
-;;NEED_INCLUDE: 2-exp
+  ;;NEED_INCLUDE: 2-exp
   zkPC + 2 => RR
-    :JMP(@two_power + E)
+  :JMP(@two_power + E)
   0 => C
   $${var _mul = A * B}
   ${_mul >> 64} => D

@@ -19,9 +19,9 @@ function_1:
   D => A
   C :MSTORE(SP)
   $ => E :MLOAD(SP)
-;;NEED_INCLUDE: 2-exp
+  ;;NEED_INCLUDE: 2-exp
   zkPC + 2 => RR
-    :JMP(@two_power + E)
+  :JMP(@two_power + E)
   0 => C
   $${var _mul = A * B}
   ${_mul >> 64} => D
@@ -32,9 +32,9 @@ function_1:
   $ => B :MLOAD(SP)
   $ => E :SUB
   D => A
-;;NEED_INCLUDE: 2-exp
+  ;;NEED_INCLUDE: 2-exp
   zkPC + 2 => RR
-    :JMP(@two_power + E)
+  :JMP(@two_power + E)
   A => E
   0 => D
   ${E / B} => A
