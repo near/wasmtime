@@ -1617,7 +1617,7 @@ impl MachInstEmit for Inst {
                 ref name,
                 offset,
             } => {
-                unimplemented!("LoadExtName: {name:?}");
+                // unimplemented!("LoadExtName: {name:?}, {offset}");
             }
             &Inst::TrapIfC {
                 rs1,

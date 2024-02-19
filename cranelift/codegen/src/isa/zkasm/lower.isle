@@ -157,6 +157,9 @@
 
 ;;;; Rules for `popcnt` ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+(rule 0 (lower (has_type (fits_in_64 ty) (popcnt x)))
+  (gen_popcnt (zext x ty $I64) ty))
+
 ;;;; Rules for `ishl` ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (rule (lower (has_type $I64 (ishl x y)))
@@ -364,9 +367,17 @@
 
 ;;;;;  Rules for `symbol_value`;;;;;;;;;
 ;; Heap starts at offset 0 in zkAsm machine memory.
-(rule
+(rule 0
    (lower (symbol_value (zkasm_base ZkasmBase.Heap)))
    (imm $I32 0))
+
+(rule 1
+   (lower (symbol_value (symbol_value_data name _ offset)))
+   (load_ext_name name offset))
+
+;; (rule 1
+;;    (lower (symbol_value (zkasm_base ZkasmBase.Table)))
+;;    (imm $I32 42))
 
 ;;;;;  Rules for `bitcast`;;;;;;;;;
 (rule

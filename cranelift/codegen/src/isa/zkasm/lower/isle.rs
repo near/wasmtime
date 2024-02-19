@@ -320,8 +320,32 @@ impl generated_code::Context for ZkAsmIsleContext<'_, '_, MInst, ZkAsmBackend> {
     }
 
     //
-    fn gen_shamt(&mut self, _ty: Type, _shamt: XReg) -> ValueRegs {
-        todo!()
+    fn gen_shamt(&mut self, ty: Type, shamt: XReg) -> ValueRegs {
+        let ty_bits = if ty.bits() > 64 { 64 } else { ty.bits() };
+        let ty_bits = i16::try_from(ty_bits).unwrap();
+        let shamt = {
+            let tmp = self.temp_writable_reg(I64);
+            // self.emit(&MInst::AluRRImm12 {
+            //     alu_op: AluOPRRI::Andi,
+            //     rd: tmp,
+            //     rs: shamt.to_reg(),
+            //     imm12: Imm12::from_i16(ty_bits - 1),
+            // });
+            tmp.to_reg()
+        };
+        let len_sub_shamt = {
+            let tmp = self.temp_writable_reg(I64);
+            // self.emit(&MInst::load_imm12(tmp, Imm12::from_i16(ty_bits)));
+            let len_sub_shamt = self.temp_writable_reg(I64);
+            self.emit(&MInst::AluRRR {
+                alu_op: AluOPRRR::Sub,
+                rd: len_sub_shamt,
+                rs1: tmp.to_reg(),
+                rs2: shamt,
+            });
+            len_sub_shamt.to_reg()
+        };
+        ValueRegs::two(shamt, len_sub_shamt)
     }
 
     fn default_memflags(&mut self) -> MemFlags {
