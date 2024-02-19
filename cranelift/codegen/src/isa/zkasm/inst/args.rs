@@ -811,8 +811,10 @@ impl LoadOP {
             Self::U8 => 1,
             Self::U16 => 2,
             Self::U64 => 8,
-            Self::Flw => unimplemented!(),
-            Self::Fld => unimplemented!(),
+            // Self::Flw => unimplemented!(),
+            Self::Flw => 4,
+            // Self::Fld => unimplemented!(),
+            Self::Fld => 8,
         }
     }
 }
@@ -862,8 +864,10 @@ impl StoreOP {
             Self::I16 => 2,
             Self::I32 => 4,
             Self::I64 => 8,
-            Self::Fsw => unimplemented!(),
-            Self::Fsd => unimplemented!(),
+            // Self::Fsw => unimplemented!(),
+            // Self::Fsd => unimplemented!(),
+            Self::Fsw => 4,
+            Self::Fsd => 8,
         }
     }
 }

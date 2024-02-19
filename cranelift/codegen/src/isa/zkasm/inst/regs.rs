@@ -136,7 +136,7 @@ pub fn create_reg_environment() -> MachineEnv {
             .map(|i| PReg::new(i, RegClass::Int))
             .collect();
 
-        let f_registers: Vec<PReg> = Vec::new();
+        let f_registers: Vec<PReg> = (21..=21).map(|i| PReg::new(i, RegClass::Float)).collect();
         let v_registers: Vec<PReg> = Vec::new();
         [x_registers, f_registers, v_registers]
     };

@@ -742,7 +742,8 @@ pub fn reg_name(reg: Reg) -> String {
                 28..=31 => format!("t{}", real.hw_enc() - 25),
                 _ => unreachable!(),
             },
-            RegClass::Float => unimplemented!("floating register name"),
+            // RegClass::Float => unimplemented!("floating register name"),
+            RegClass::Float => "FLOAT".into(),
             RegClass::Vector => unimplemented!("vector register name"),
         },
         None => {

@@ -629,7 +629,7 @@ fn is_reg_saved_in_prologue(conv: CallConv, reg: RealReg) -> bool {
         // FIXME(#45): Register A for returns? Find where in the code is that defined.
         RegClass::Int if reg.hw_enc() == 10 => false,
         RegClass::Int => true,
-        RegClass::Float => unimplemented!("Float reg saved in prologue"),
+        RegClass::Float => false,
         RegClass::Vector => unimplemented!("Vector reg saved in prologue"),
     }
 }
