@@ -360,6 +360,22 @@
 (rule 0 (lower (icmp cc x @ (value_type (ty_int ty)) y))
   (lower_icmp cc x y ty))
 
+;;;;;  Rules for `fcmp`;;;;;;;;;
+(rule 0 (lower (fcmp cc x @ (value_type (ty_scalar_float ty)) y))
+  (imm $I32 0))
+
+;;;;;  Rules for `ceil`;;;;;;;;;
+(rule 0 (lower (has_type (ty_scalar_float ty) (ceil x)))
+  (imm $F32 0))
+
+;;;;;  Rules for `floor`;;;;;;;;;
+(rule 0 (lower (has_type (ty_scalar_float ty) (floor x)))
+  (imm $F32 0))
+
+;;;;;  Rules for `trunc`;;;;;;;;;
+(rule 0 (lower (has_type (ty_scalar_float ty) (trunc x)))
+  (imm $F32 0))
+
 ;;;;;  Rules for `func_addr`;;;;;;;;;
 (rule
   (lower (func_addr (func_ref_data _ name _)))

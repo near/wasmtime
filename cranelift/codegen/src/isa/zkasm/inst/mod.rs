@@ -210,7 +210,6 @@ impl Inst {
             const_data as u64,
             &mut alloc_tmp,
         ));
-        todo!();
         insts
     }
 
@@ -223,7 +222,6 @@ impl Inst {
         let mut insts = SmallInstVec::new();
         let tmp = alloc_tmp(I64);
         insts.extend(Self::load_constant_u64(tmp, const_data, &mut alloc_tmp));
-        todo!();
         insts
     }
 

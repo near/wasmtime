@@ -325,17 +325,32 @@ impl generated_code::Context for ZkAsmIsleContext<'_, '_, MInst, ZkAsmBackend> {
         let ty_bits = i16::try_from(ty_bits).unwrap();
         let shamt = {
             let tmp = self.temp_writable_reg(I64);
+            let tmp1 = self.temp_writable_reg(I64);
             // self.emit(&MInst::AluRRImm12 {
             //     alu_op: AluOPRRI::Andi,
             //     rd: tmp,
             //     rs: shamt.to_reg(),
             //     imm12: Imm12::from_i16(ty_bits - 1),
             // });
+            self.emit(&MInst::LoadConst64 {
+                rd: tmp1,
+                imm: (ty_bits - 1) as u64,
+            });
+            self.emit(&MInst::AluRRR {
+                alu_op: AluOPRRR::And,
+                rd: tmp,
+                rs1: shamt.to_reg(),
+                rs2: tmp1.to_reg(),
+            });
             tmp.to_reg()
         };
         let len_sub_shamt = {
             let tmp = self.temp_writable_reg(I64);
             // self.emit(&MInst::load_imm12(tmp, Imm12::from_i16(ty_bits)));
+            self.emit(&MInst::LoadConst64 {
+                rd: tmp,
+                imm: ty_bits as u64,
+            });
             let len_sub_shamt = self.temp_writable_reg(I64);
             self.emit(&MInst::AluRRR {
                 alu_op: AluOPRRR::Sub,

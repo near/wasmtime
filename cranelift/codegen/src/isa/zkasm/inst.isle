@@ -1442,6 +1442,10 @@
 ;; Generates a bitcast instruction.
 ;; Args are: src, src_ty, dst_ty
 (decl gen_bitcast (Reg Type Type) Reg)
+(rule 1 (gen_bitcast r $F32 $I32) (imm $I32 0))
+(rule 1 (gen_bitcast r $F64 $I64) (imm $I64 0))
+(rule 1 (gen_bitcast r $I32 $F32) (imm $F32 0))
+(rule 1 (gen_bitcast r $I64 $F64) (imm $F64 0))
 (rule (gen_bitcast r _ _) r)
 
 ;; Selects the greatest of two registers as signed values.
