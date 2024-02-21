@@ -31,18 +31,39 @@ function value_to_json(key, value) {
 }
 
 /**
+ * Run this script with `--help` to print docs.
+ */
+async function main() {
+    const argv = require("yargs/yargs")(process.argv.slice(2))
+        .command("$0 <path> [outfile]", "the default command runs zkASM tests", (yargs) => {
+            yargs.positional("path", {
+                describe: "The zkASM file to run or a directory to search for zkASM files.",
+                type: "string"
+            })
+            yargs.positional("outfile", {
+                describe: "If provided, results are written to this file. Otherwise they are printed to stdout.",
+                type: "string"
+            })
+        })
+        .parse();
+
+    // Run the default command.
+    runTestsCmd(argv.path, argv.outfile);
+}
+
+/**
  * Executes zkASM stored in files. Expects the following positional command line arguments:
  *
  * @param {string} path - The file or a directory to search for zkASM files.
- * @param {string} [outFile] - If provided, results are written to this file. Otherwise they are
+ * @param {string} [outfile] - If provided, results are written to this file. Otherwise they are
  * printed to stdout.
  */
-async function main() {
+async function runTestsCmd(path, outfile) {
     // Compile pil
     const cmPols = await compilePil();
 
     // Get all zkasm files
-    const files = await getTestFiles(process.argv[2]);
+    const files = await getTestFiles(path);
 
     // Run all zkasm files
     let testResults = [];
@@ -53,9 +74,9 @@ async function main() {
         testResults.push(await runTest(file, cmPols));
     }
 
-    if (process.argv[3]) {
+    if (outfile) {
         const json = JSON.stringify(testResults, value_to_json);
-        fs.writeFileSync(process.argv[3], json);
+        fs.writeFileSync(outfile, json);
     } else {
         console.log(testResults);
     }
