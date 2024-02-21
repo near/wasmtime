@@ -10,7 +10,7 @@
   "license": "AGPL",
   "dependencies": {
     "@0xpolygonhermez/zkasmcom": "https://github.com/0xPolygonHermez/zkasmcom.git#v1.0.0",
-    "yargs": "^17.5.1"
+    "yargs": "^17.7.2"
   },
   "devDependencies": {
     "@0xpolygonhermez/zkevm-commonjs": "github:0xPolygonHermez/zkevm-commonjs#v2.0.0-fork.5",
