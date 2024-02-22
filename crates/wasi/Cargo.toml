@@ -9,17 +9,15 @@ keywords = ["webassembly", "wasm"]
 repository = "https://github.com/bytecodealliance/wasmtime"
 readme = "README.md"
 edition.workspace = true
-include = ["src/**/*", "README.md", "LICENSE", "build.rs", "witx/*", "wit/**/*"]
-build = "build.rs"
+include = ["src/**/*", "README.md", "LICENSE", "witx/*", "wit/**/*", "tests/*"]
+
+[lints]
+workspace = true
 
 [dependencies]
 wasmtime = { workspace = true }
 anyhow = { workspace = true }
-wasi-common = { workspace = true }
-wasi-cap-std-sync = { workspace = true, optional = true }
-wasi-tokio = { workspace = true, optional = true }
-wiggle = { workspace = true, optional = true }
-libc = { workspace = true }
+wiggle = { workspace = true, optional = true, features = ["wasmtime"] }
 once_cell = { workspace = true }
 log = { workspace = true }
 url = { workspace = true }
@@ -39,6 +37,8 @@ bitflags = { workspace = true, optional = true }
 async-trait = { workspace = true, optional = true }
 system-interface = { workspace = true, optional = true}
 futures = { workspace = true, optional = true }
+wasi-common = { workspace = true, optional = true, features = ["sync"] }
+cfg-if = { workspace = true, optional = true }
 
 [dev-dependencies]
 tokio = { workspace = true, features = ["time", "sync", "io-std", "io-util", "rt", "rt-multi-thread", "net", "macros"] }
@@ -51,22 +51,20 @@ wasmtime = { workspace = true, features = ['cranelift'] }
 [target.'cfg(unix)'.dependencies]
 rustix = { workspace = true, features = ["event", "fs", "net"], optional = true }
 
-[target.'cfg(unix)'.dev-dependencies]
-libc = { workspace = true }
-
 [target.'cfg(windows)'.dependencies]
 io-extras = { workspace = true }
 windows-sys = { workspace = true }
 rustix = { workspace = true, features = ["event", "net"], optional = true }
 
 [features]
-default = ["sync", "preview2", "preview1-on-preview2"]
-sync = ["wasi-cap-std-sync", "wiggle"]
-tokio = ["wasi-tokio", "wasmtime/async", "wiggle/wasmtime_async" ]
-exit = []
+default = ["wasi-common-deprecations", "preview2", "preview1-on-preview2"]
+wasi-common-deprecations = [ "dep:wasi-common" ]
+tokio = [ "wasi-common?/tokio", "wasi-common-deprecations" ]
+exit = [ "wasi-common-deprecations", "dep:cfg-if" ]
 preview2 = [
     'wasmtime/component-model',
     'wasmtime/async',
+    'wasmtime/runtime',
     'dep:thiserror',
     'dep:tracing',
     'dep:cap-std',
@@ -87,3 +85,8 @@ preview1-on-preview2 = [
     "preview2",
     "wiggle",
 ]
+
+[[test]]
+name = "process_stdin"
+harness = false
+

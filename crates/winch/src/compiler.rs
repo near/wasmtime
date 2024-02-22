@@ -1,4 +1,5 @@
 use anyhow::Result;
+use cranelift_codegen::isa::unwind::UnwindInfoKind;
 use object::write::{Object, SymbolId};
 use std::any::Any;
 use std::mem;
@@ -7,7 +8,8 @@ use wasmparser::FuncValidatorAllocations;
 use wasmtime_cranelift_shared::{CompiledFunction, ModuleTextBuilder};
 use wasmtime_environ::{
     CompileError, DefinedFuncIndex, FilePos, FuncIndex, FunctionBodyData, FunctionLoc,
-    ModuleTranslation, ModuleTypes, PrimaryMap, TrapEncodingBuilder, VMOffsets, WasmFunctionInfo,
+    ModuleTranslation, ModuleTypesBuilder, PrimaryMap, TrapEncodingBuilder, VMOffsets,
+    WasmFunctionInfo,
 };
 use winch_codegen::{BuiltinFunctions, TargetIsa, TrampolineKind};
 
@@ -62,6 +64,27 @@ impl Compiler {
         context.allocations = allocs;
         self.contexts.lock().unwrap().push(context);
     }
+
+    /// Emit unwind info into the [`CompiledFunction`].
+    fn emit_unwind_info(
+        &self,
+        compiled_function: &mut CompiledFunction<CompiledFuncEnv>,
+    ) -> Result<(), CompileError> {
+        let kind = match self.isa.triple().operating_system {
+            target_lexicon::OperatingSystem::Windows => UnwindInfoKind::Windows,
+            _ => UnwindInfoKind::SystemV,
+        };
+
+        if let Some(info) = self
+            .isa
+            .emit_unwind_info(&compiled_function.buffer, kind)
+            .map_err(|e| CompileError::Codegen(format!("{e:?}")))?
+        {
+            compiled_function.set_unwind_info(info);
+        }
+
+        Ok(())
+    }
 }
 
 impl wasmtime_environ::Compiler for Compiler {
@@ -70,7 +93,7 @@ impl wasmtime_environ::Compiler for Compiler {
         translation: &ModuleTranslation<'_>,
         index: DefinedFuncIndex,
         data: FunctionBodyData<'_>,
-        types: &ModuleTypes,
+        types: &ModuleTypesBuilder,
     ) -> Result<(WasmFunctionInfo, Box<dyn Any + Send>), CompileError> {
         let index = translation.module.func_index(index);
         let sig = translation.module.functions[index].signature;
@@ -97,8 +120,13 @@ impl wasmtime_environ::Compiler for Compiler {
             .map_err(|e| CompileError::Codegen(format!("{e:?}")));
         self.save_context(context, validator.into_allocations());
         let buffer = buffer?;
-        let compiled_function =
+
+        let mut compiled_function =
             CompiledFunction::new(buffer, CompiledFuncEnv {}, self.isa.function_alignment());
+
+        if self.isa.flags().unwind_info() {
+            self.emit_unwind_info(&mut compiled_function)?;
+        }
 
         Ok((
             WasmFunctionInfo {
@@ -112,7 +140,7 @@ impl wasmtime_environ::Compiler for Compiler {
     fn compile_array_to_wasm_trampoline(
         &self,
         translation: &ModuleTranslation<'_>,
-        types: &ModuleTypes,
+        types: &ModuleTypesBuilder,
         index: DefinedFuncIndex,
     ) -> Result<Box<dyn Any + Send>, CompileError> {
         let func_index = translation.module.func_index(index);
@@ -122,8 +150,13 @@ impl wasmtime_environ::Compiler for Compiler {
             .isa
             .compile_trampoline(&ty, TrampolineKind::ArrayToWasm(func_index))
             .map_err(|e| CompileError::Codegen(format!("{:?}", e)))?;
-        let compiled_function =
+
+        let mut compiled_function =
             CompiledFunction::new(buffer, CompiledFuncEnv {}, self.isa.function_alignment());
+
+        if self.isa.flags().unwind_info() {
+            self.emit_unwind_info(&mut compiled_function)?;
+        }
 
         Ok(Box::new(compiled_function))
     }
@@ -131,7 +164,7 @@ impl wasmtime_environ::Compiler for Compiler {
     fn compile_native_to_wasm_trampoline(
         &self,
         translation: &ModuleTranslation<'_>,
-        types: &ModuleTypes,
+        types: &ModuleTypesBuilder,
         index: DefinedFuncIndex,
     ) -> Result<Box<dyn Any + Send>, CompileError> {
         let func_index = translation.module.func_index(index);
@@ -143,8 +176,12 @@ impl wasmtime_environ::Compiler for Compiler {
             .compile_trampoline(ty, TrampolineKind::NativeToWasm(func_index))
             .map_err(|e| CompileError::Codegen(format!("{:?}", e)))?;
 
-        let compiled_function =
+        let mut compiled_function =
             CompiledFunction::new(buffer, CompiledFuncEnv {}, self.isa.function_alignment());
+
+        if self.isa.flags().unwind_info() {
+            self.emit_unwind_info(&mut compiled_function)?;
+        }
 
         Ok(Box::new(compiled_function))
     }
@@ -158,8 +195,12 @@ impl wasmtime_environ::Compiler for Compiler {
             .compile_trampoline(wasm_func_ty, TrampolineKind::WasmToNative)
             .map_err(|e| CompileError::Codegen(format!("{:?}", e)))?;
 
-        let compiled_function =
+        let mut compiled_function =
             CompiledFunction::new(buffer, CompiledFuncEnv {}, self.isa.function_alignment());
+
+        if self.isa.flags().unwind_info() {
+            self.emit_unwind_info(&mut compiled_function)?;
+        }
 
         Ok(Box::new(compiled_function))
     }

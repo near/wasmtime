@@ -74,15 +74,24 @@ pub fn run_zkasm_path(input_path: &Path) -> anyhow::Result<Vec<ExecutionResult>>
     )?;
 
     let mut output_file = NamedTempFile::new()?;
-    let output = std::process::Command::new("npm")
-        .args([
-            "--prefix",
-            "../../tests/zkasm",
-            "test",
-            input_path.to_str().unwrap(),
-            output_file.path().to_str().unwrap(),
-        ])
+    let common_args = [
+        "--prefix",
+        "../../tests/zkasm",
+        "test",
+        input_path.to_str().unwrap(),
+        output_file.path().to_str().unwrap(),
+    ];
+
+    #[cfg(target_os = "windows")]
+    let output = std::process::Command::new("cmd")
+        .args(["/C", "npm"])
+        .args(common_args)
         .output()?;
+    #[cfg(not(target_os = "windows"))]
+    let output = std::process::Command::new("npm")
+        .args(common_args)
+        .output()?;
+
     if !output.status.success() {
         return Err(anyhow::anyhow!(
             "Failed to run `npm`: {}; stderr: {}",

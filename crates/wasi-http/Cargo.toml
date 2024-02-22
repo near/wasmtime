@@ -7,6 +7,9 @@ repository = "https://github.com/bytecodealliance/wasmtime"
 license = "Apache-2.0 WITH LLVM-exception"
 description = "Experimental HTTP library for WebAssembly in Wasmtime"
 
+[lints]
+workspace = true
+
 [dependencies]
 anyhow = { workspace = true }
 async-trait = { workspace = true }
@@ -42,7 +45,3 @@ tokio = { workspace = true, features = ['macros'] }
 futures = { workspace = true, default-features = false, features = ['alloc'] }
 sha2 = "0.10.2"
 base64 = "0.21.0"
-
-[features]
-default = ["sync"]
-sync = ["wasmtime-wasi/sync"]

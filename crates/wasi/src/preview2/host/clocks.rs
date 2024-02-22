@@ -43,7 +43,7 @@ impl<T: WasiView> wall_clock::Host for T {
 }
 
 fn subscribe_to_duration(
-    table: &mut crate::preview2::Table,
+    table: &mut wasmtime::component::ResourceTable,
     duration: tokio::time::Duration,
 ) -> anyhow::Result<Resource<Pollable>> {
     let sleep = if duration.is_zero() {
@@ -77,11 +77,11 @@ impl<T: WasiView> monotonic_clock::Host for T {
         } else {
             Duration::from_nanos(0)
         };
-        subscribe_to_duration(&mut self.table_mut(), duration)
+        subscribe_to_duration(&mut self.table(), duration)
     }
 
     fn subscribe_duration(&mut self, duration: WasiDuration) -> anyhow::Result<Resource<Pollable>> {
-        subscribe_to_duration(&mut self.table_mut(), Duration::from_nanos(duration))
+        subscribe_to_duration(&mut self.table(), Duration::from_nanos(duration))
     }
 }
 

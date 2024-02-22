@@ -1,7 +1,6 @@
 use crate::{isa::reg::Reg, masm::StackSlot};
-use std::collections::VecDeque;
 use wasmparser::{Ieee32, Ieee64};
-use wasmtime_environ::WasmType;
+use wasmtime_environ::WasmValType;
 
 /// A typed register value used to track register values in the value
 /// stack.
@@ -10,19 +9,19 @@ pub struct TypedReg {
     /// The physical register.
     pub reg: Reg,
     /// The type associated to the physical register.
-    pub ty: WasmType,
+    pub ty: WasmValType,
 }
 
 impl TypedReg {
     /// Create a new [`TypedReg`].
-    pub fn new(ty: WasmType, reg: Reg) -> Self {
+    pub fn new(ty: WasmValType, reg: Reg) -> Self {
         Self { ty, reg }
     }
 
     /// Create an i64 [`TypedReg`].
     pub fn i64(reg: Reg) -> Self {
         Self {
-            ty: WasmType::I64,
+            ty: WasmValType::I64,
             reg,
         }
     }
@@ -30,7 +29,23 @@ impl TypedReg {
     /// Create an i32 [`TypedReg`].
     pub fn i32(reg: Reg) -> Self {
         Self {
-            ty: WasmType::I32,
+            ty: WasmValType::I32,
+            reg,
+        }
+    }
+
+    /// Create an f64 [`TypedReg`].
+    pub fn f64(reg: Reg) -> Self {
+        Self {
+            ty: WasmValType::F64,
+            reg,
+        }
+    }
+
+    /// Create an f32 [`TypedReg`].
+    pub fn f32(reg: Reg) -> Self {
+        Self {
+            ty: WasmValType::F32,
             reg,
         }
     }
@@ -48,14 +63,14 @@ pub struct Local {
     /// The index of the local.
     pub index: u32,
     /// The type of the local.
-    pub ty: WasmType,
+    pub ty: WasmValType,
 }
 
 /// A memory value.
 #[derive(Debug, Eq, PartialEq, Copy, Clone)]
 pub struct Memory {
     /// The type associated with the memory offset.
-    pub ty: WasmType,
+    pub ty: WasmValType,
     /// The stack slot corresponding to the memory value.
     pub slot: StackSlot,
 }
@@ -125,17 +140,17 @@ impl Val {
     }
 
     /// Create a new Reg value.
-    pub fn reg(reg: Reg, ty: WasmType) -> Self {
+    pub fn reg(reg: Reg, ty: WasmValType) -> Self {
         Self::Reg(TypedReg { reg, ty })
     }
 
     /// Create a new Local value.
-    pub fn local(index: u32, ty: WasmType) -> Self {
+    pub fn local(index: u32, ty: WasmValType) -> Self {
         Self::Local(Local { index, ty })
     }
 
     /// Create a Memory value.
-    pub fn mem(ty: WasmType, slot: StackSlot) -> Self {
+    pub fn mem(ty: WasmValType, slot: StackSlot) -> Self {
         Self::Memory(Memory { ty, slot })
     }
 
@@ -151,6 +166,14 @@ impl Val {
     pub fn is_mem(&self) -> bool {
         match *self {
             Self::Memory(_) => true,
+            _ => false,
+        }
+    }
+
+    /// Check whether the value is a constant.
+    pub fn is_const(&self) -> bool {
+        match *self {
+            Val::I32(_) | Val::I64(_) | Val::F32(_) | Val::F64(_) => true,
             _ => false,
         }
     }
@@ -221,12 +244,12 @@ impl Val {
     }
 
     /// Get the type of the value.
-    pub fn ty(&self) -> WasmType {
+    pub fn ty(&self) -> WasmValType {
         match self {
-            Val::I32(_) => WasmType::I32,
-            Val::I64(_) => WasmType::I64,
-            Val::F32(_) => WasmType::F32,
-            Val::F64(_) => WasmType::F64,
+            Val::I32(_) => WasmValType::I32,
+            Val::I64(_) => WasmValType::I64,
+            Val::F32(_) => WasmValType::F32,
+            Val::F64(_) => WasmValType::F64,
             Val::Reg(r) => r.ty,
             Val::Memory(m) => m.ty,
             Val::Local(l) => l.ty,
@@ -237,7 +260,7 @@ impl Val {
 /// The shadow stack used for compilation.
 #[derive(Default, Debug)]
 pub(crate) struct Stack {
-    inner: VecDeque<Val>,
+    inner: Vec<Val>,
 }
 
 impl Stack {
@@ -290,12 +313,12 @@ impl Stack {
 
     /// Push a value to the stack.
     pub fn push(&mut self, val: Val) {
-        self.inner.push_back(val);
+        self.inner.push(val);
     }
 
     /// Peek into the top in the stack.
     pub fn peek(&self) -> Option<&Val> {
-        self.inner.back()
+        self.inner.last()
     }
 
     /// Returns an iterator referencing the last n items of the stack,
@@ -305,29 +328,12 @@ impl Stack {
         assert!(n <= len);
 
         let partition = len - n;
-        self.inner.range(partition..)
-    }
-
-    /// Duplicates the top `n` elements of the stack.
-    // Will be needed for control flow, it's just not integrated yet.
-    #[allow(dead_code)]
-    pub fn dup(&mut self, n: usize) {
-        let len = self.len();
-        assert!(n <= len);
-        let partition = len - n;
-
-        if n > 0 {
-            for e in partition..len {
-                if let Some(v) = self.inner.get(e) {
-                    self.push(*v)
-                }
-            }
-        }
+        self.inner[partition..].into_iter()
     }
 
     /// Pops the top element of the stack, if any.
     pub fn pop(&mut self) -> Option<Val> {
-        self.inner.pop_back()
+        self.inner.pop()
     }
 
     /// Pops the element at the top of the stack if it is an i32 const;
@@ -369,8 +375,25 @@ impl Stack {
     }
 
     /// Get a mutable reference to the inner stack representation.
-    pub fn inner_mut(&mut self) -> &mut VecDeque<Val> {
+    pub fn inner_mut(&mut self) -> &mut Vec<Val> {
         &mut self.inner
+    }
+
+    /// Get a reference to the inner stack representation.
+    pub fn inner(&self) -> &Vec<Val> {
+        &self.inner
+    }
+
+    /// Calculates the size of, in bytes, of the top n [Memory] entries
+    /// in the value stack.
+    pub fn sizeof(&self, top: usize) -> u32 {
+        self.peekn(top).fold(0, |acc, v| {
+            if v.is_mem() {
+                acc + v.unwrap_mem().slot.size
+            } else {
+                acc
+            }
+        })
     }
 }
 
@@ -378,7 +401,7 @@ impl Stack {
 mod tests {
     use super::{Stack, Val};
     use crate::isa::reg::Reg;
-    use wasmtime_environ::WasmType;
+    use wasmtime_environ::WasmValType;
 
     #[test]
     fn test_pop_i32_const() {
@@ -386,7 +409,7 @@ mod tests {
         stack.push(Val::i32(33i32));
         assert_eq!(33, stack.pop_i32_const().unwrap());
 
-        stack.push(Val::local(10, WasmType::I32));
+        stack.push(Val::local(10, WasmValType::I32));
         assert!(stack.pop_i32_const().is_none());
     }
 
@@ -394,7 +417,7 @@ mod tests {
     fn test_pop_reg() {
         let mut stack = Stack::new();
         let reg = Reg::int(2usize);
-        stack.push(Val::reg(reg, WasmType::I32));
+        stack.push(Val::reg(reg, WasmValType::I32));
         stack.push(Val::i32(4));
 
         assert_eq!(None, stack.pop_reg());
@@ -406,8 +429,8 @@ mod tests {
     fn test_pop_named_reg() {
         let mut stack = Stack::new();
         let reg = Reg::int(2usize);
-        stack.push(Val::reg(reg, WasmType::I32));
-        stack.push(Val::reg(Reg::int(4), WasmType::I32));
+        stack.push(Val::reg(reg, WasmValType::I32));
+        stack.push(Val::reg(Reg::int(4), WasmValType::I32));
 
         assert_eq!(None, stack.pop_named_reg(reg));
         let _ = stack.pop().unwrap();

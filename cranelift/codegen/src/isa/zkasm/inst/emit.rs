@@ -374,6 +374,14 @@ fn put_string(s: &str, sink: &mut MachBuffer<Inst>) {
     sink.put_data(s.as_bytes());
 }
 
+fn put_lines(sink: &mut MachBuffer<Inst>, lines: &[&str]) {
+    for line in lines {
+        sink.put_data("  ".as_bytes());
+        sink.put_data(line.as_bytes());
+        sink.put_data("\n".as_bytes());
+    }
+}
+
 fn access_reg_with_offset(reg: Reg, offset: i64) -> String {
     let name = reg_name(reg);
     match offset.cmp(&0) {
@@ -454,12 +462,14 @@ impl MachInstEmit for Inst {
                 debug_assert_eq!(rs1, a0());
                 debug_assert_eq!(rs2, b0());
                 let rd = allocs.next_writable(rd);
-                put_string("0 => C\n", sink);
-                put_string("$${var _mulArith = A * B}\n", sink);
-                put_string("${_mulArith >> 64} => D\n", sink);
-                put_string(
-                    &format!("${{_mulArith}} => {} :ARITH\n", reg_name(rd.to_reg())),
+                put_lines(
                     sink,
+                    &[
+                        "0 => C",
+                        "$${var _mulArith = A * B}",
+                        "${_mulArith >> 64} => D",
+                        &format!("${{_mulArith}} => {} :ARITH", reg_name(rd.to_reg())),
+                    ],
                 );
             }
             Inst::Ineg { rd, rs1 } => {
@@ -489,14 +499,19 @@ impl MachInstEmit for Inst {
                 debug_assert_eq!(rs2, e0());
                 let rd = allocs.next_writable(rd);
 
-                sink.put_data(format!(";;NEED_INCLUDE: 2-exp\n").as_bytes());
-                put_string("zkPC + 2 => RR\n", sink);
-                put_string("  :JMP(@two_power + E)\n", sink);
-                put_string("A => E\n", sink);
-                put_string("0 => D\n", sink);
-                put_string("${E / B} => A\n", sink);
-                put_string("${E % B} => C\n", sink);
-                put_string("E :ARITH\n", sink);
+                put_lines(
+                    sink,
+                    &[
+                        ";;NEED_INCLUDE: 2-exp",
+                        "zkPC + 2 => RR",
+                        ":JMP(@two_power + E)",
+                        "A => E",
+                        "0 => D",
+                        "${E / B} => A",
+                        "${E % B} => C",
+                        "E :ARITH",
+                    ],
+                );
             }
             &Inst::Shl64 { rd, rs1, rs2 } => {
                 // A -- number.
@@ -507,15 +522,17 @@ impl MachInstEmit for Inst {
                 debug_assert_eq!(rs2, e0());
                 let rd = allocs.next_writable(rd);
 
-                sink.put_data(format!(";;NEED_INCLUDE: 2-exp\n").as_bytes());
-                put_string("zkPC + 2 => RR\n", sink);
-                put_string("  :JMP(@two_power + E)\n", sink);
-                put_string("0 => C\n", sink);
-                put_string("$${var _mul = A * B}\n", sink);
-                put_string("${_mul >> 64} => D\n", sink);
-                put_string(
-                    &format!("${{_mul}} => {} :ARITH\n", reg_name(rd.to_reg())),
+                put_lines(
                     sink,
+                    &[
+                        ";;NEED_INCLUDE: 2-exp",
+                        "zkPC + 2 => RR",
+                        ":JMP(@two_power + E)",
+                        "0 => C",
+                        "$${var _mul = A * B}",
+                        "${_mul >> 64} => D",
+                        &format!("${{_mul}} => {} :ARITH", reg_name(rd.to_reg())),
+                    ],
                 );
             }
             &Inst::DivArith { rd, rs1, rs2 } => {
@@ -524,10 +541,16 @@ impl MachInstEmit for Inst {
                 debug_assert_eq!(rs1, e0());
                 debug_assert_eq!(rs2, b0());
                 let rd = allocs.next_writable(rd);
-                put_string("0 => D\n", sink);
-                put_string("${E / B} => A\n", sink);
-                put_string("${E % B} => C\n", sink);
-                put_string("E:ARITH\n", sink);
+                #[rustfmt::skip]
+                put_lines(
+                    sink,
+                    &[
+                        "0 => D",
+                        "${E / B} => A",
+                        "${E % B} => C",
+                        "E:ARITH"
+                    ],
+                );
             }
             &Inst::UDivArith { rd, rs1, rs2 } => {
                 let rs1 = allocs.next(rs1);
@@ -535,10 +558,16 @@ impl MachInstEmit for Inst {
                 debug_assert_eq!(rs1, e0());
                 debug_assert_eq!(rs2, b0());
                 let rd = allocs.next_writable(rd);
-                put_string("0 => D\n", sink);
-                put_string("${E / B} => A\n", sink);
-                put_string("${E % B} => C\n", sink);
-                put_string("E:ARITH\n", sink);
+                #[rustfmt::skip]
+                put_lines(
+                    sink,
+                    &[
+                        "0 => D",
+                        "${E / B} => A",
+                        "${E % B} => C",
+                        "E:ARITH",
+                    ],
+                );
             }
             &Inst::RemArith { rd, rs1, rs2 } => {
                 let rs1 = allocs.next(rs1);
@@ -546,10 +575,16 @@ impl MachInstEmit for Inst {
                 debug_assert_eq!(rs1, e0());
                 debug_assert_eq!(rs2, b0());
                 let rd = allocs.next_writable(rd);
-                put_string("0 => D\n", sink);
-                put_string("${E / B} => A\n", sink);
-                put_string("${E % B} => C\n", sink);
-                put_string("E:ARITH\n", sink);
+                #[rustfmt::skip]
+                put_lines(
+                    sink,
+                    &[
+                        "0 => D",
+                        "${E / B} => A",
+                        "${E % B} => C",
+                        "E:ARITH",
+                    ],
+                );
             }
             &Inst::URemArith { rd, rs1, rs2 } => {
                 let rs1 = allocs.next(rs1);
@@ -557,10 +592,16 @@ impl MachInstEmit for Inst {
                 debug_assert_eq!(rs1, e0());
                 debug_assert_eq!(rs2, b0());
                 let rd = allocs.next_writable(rd);
-                put_string("0 => D\n", sink);
-                put_string("${E / B} => A\n", sink);
-                put_string("${E % B} => C\n", sink);
-                put_string("E:ARITH\n", sink);
+                #[rustfmt::skip]
+                put_lines(
+                    sink,
+                    &[
+                        "0 => D",
+                        "${E / B} => A",
+                        "${E % B} => C",
+                        "E:ARITH",
+                    ],
+                );
             }
             &Inst::AluRRR {
                 alu_op,
@@ -811,9 +852,15 @@ impl MachInstEmit for Inst {
                 }
                 .emit(&[], sink, emit_info, state);
                 if signed {
-                    put_string(&format!("0x80000000n => B\n"), sink);
-                    put_string(&format!("$ => A: XOR\n"), sink);
-                    put_string(&format!("$ => A: SUB\n"), sink);
+                    #[rustfmt::skip]
+                    put_lines(
+                        sink,
+                        &[
+                              "0x80000000n => B",
+                              "$ => A: XOR",
+                              "$ => A: SUB"
+                        ],
+                    );
                 }
             }
             &Inst::ReleaseSp { amount } => {
