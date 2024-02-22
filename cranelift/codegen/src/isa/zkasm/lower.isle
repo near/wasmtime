@@ -215,14 +215,12 @@
   (value_regs_get x 0))
 
 ;;;;;  Rules for `fpromote`;;;;;;;;;;;;;;;;;
-;; TODO(akashin): Fix this rule.
 (rule (lower (fpromote x))
-  x)
+  (imm $F64 0))
 
 ;;;;;  Rules for `fdemote`;;;;;;;;;;;;;;;;;;
-;; TODO(akashin): Fix this rule.
 (rule (lower (fdemote x))
-  x)
+  (imm $F32 0))
 
 ;;;;;  Rules for `stack_addr`;;;;;;;;;
 (rule

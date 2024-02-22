@@ -717,21 +717,21 @@ fn test_zkasm_binemit() {
     // insns.push(TestUnit::new(
     //     Inst::Store {
     //         to: AMode::SPOffset(100, I64),
-    //         op: StoreOP::Fsw,
+    //         op: StoreOP::F32,
     //         flags: MemFlags::new(),
     //         src: fa0(),
     //     },
-    //     "fsw fa0,100(sp)",
+    //     "f32 fa0,100(sp)",
     //     0x6a12227,
     // ));
     // insns.push(TestUnit::new(
     //     Inst::Store {
     //         to: AMode::SPOffset(100, I64),
-    //         op: StoreOP::Fsd,
+    //         op: StoreOP::F64,
     //         flags: MemFlags::new(),
     //         src: fa0(),
     //     },
-    //     "fsd fa0,100(sp)",
+    //     "f64 fa0,100(sp)",
     //     0x6a13227,
     // ));
     // insns.push(TestUnit::new(

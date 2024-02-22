@@ -314,8 +314,8 @@
   (U16)
   (U32)
   (U64)
-  (Flw)
-  (Fld)
+  (F32)
+  (F64)
 ))
 
 (type StoreOP (enum
@@ -323,8 +323,8 @@
   (I16)
   (I32)
   (I64)
-  (Fsw)
-  (Fsd)
+  (F32)
+  (F64)
 ))
 
 (type ZkasmBase (enum
@@ -1236,8 +1236,8 @@
 
 ;; Returns a canonical type for a LoadOP. We only return I64 or F64.
 (decl load_op_reg_type (LoadOP) Type)
-(rule 1 (load_op_reg_type (LoadOP.Fld)) $F64)
-(rule 1 (load_op_reg_type (LoadOP.Flw)) $F64)
+(rule 1 (load_op_reg_type (LoadOP.F64)) $F64)
+(rule 1 (load_op_reg_type (LoadOP.F32)) $F32)
 (rule 0 (load_op_reg_type _) $I64)
 
 ;; helper function to load from memory.

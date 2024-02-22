@@ -761,14 +761,14 @@ impl LoadOP {
             Self::U16 => "u16",
             Self::U32 => "u32",
             Self::U64 => "u64",
-            Self::Flw => "flw",
-            Self::Fld => "fld",
+            Self::F32 => "f32",
+            Self::F64 => "f64",
         }
     }
 
     pub(crate) fn from_type(t: Type) -> Self {
         if t.is_float() {
-            return if t == F32 { Self::Flw } else { Self::Fld };
+            return if t == F32 { Self::F32 } else { Self::F64 };
         }
         match t {
             R32 => Self::U32,
@@ -786,7 +786,7 @@ impl LoadOP {
             Self::I8 | Self::I16 | Self::I32 | Self::U8 | Self::U16 | Self::U32 | Self::U64 => {
                 0b0000011
             }
-            Self::Flw | Self::Fld => 0b0000111,
+            Self::F32 | Self::F64 => 0b0000111,
         }
     }
     pub(crate) fn funct3(self) -> u32 {
@@ -798,8 +798,8 @@ impl LoadOP {
             Self::U8 => 0b100,
             Self::U16 => 0b101,
             Self::U64 => 0b011,
-            Self::Flw => 0b010,
-            Self::Fld => 0b011,
+            Self::F32 => 0b010,
+            Self::F64 => 0b011,
         }
     }
     pub(crate) fn width(self) -> u32 {
@@ -811,10 +811,10 @@ impl LoadOP {
             Self::U8 => 1,
             Self::U16 => 2,
             Self::U64 => 8,
-            // Self::Flw => unimplemented!(),
-            Self::Flw => 4,
-            // Self::Fld => unimplemented!(),
-            Self::Fld => 8,
+            // Self::F32 => unimplemented!(),
+            Self::F32 => 4,
+            // Self::F64 => unimplemented!(),
+            Self::F64 => 8,
         }
     }
 }
@@ -826,13 +826,13 @@ impl StoreOP {
             Self::I16 => "i16",
             Self::I32 => "i32",
             Self::I64 => "i64",
-            Self::Fsw => "fsw",
-            Self::Fsd => "fsd",
+            Self::F32 => "f32",
+            Self::F64 => "f64",
         }
     }
     pub(crate) fn from_type(t: Type) -> Self {
         if t.is_float() {
-            return if t == F32 { Self::Fsw } else { Self::Fsd };
+            return if t == F32 { Self::F32 } else { Self::F64 };
         }
         match t.bits() {
             1 | 8 => Self::I8,
@@ -845,7 +845,7 @@ impl StoreOP {
     pub(crate) fn op_code(self) -> u32 {
         match self {
             Self::I8 | Self::I16 | Self::I32 | Self::I64 => 0b0100011,
-            Self::Fsw | Self::Fsd => 0b0100111,
+            Self::F32 | Self::F64 => 0b0100111,
         }
     }
     pub(crate) fn funct3(self) -> u32 {
@@ -854,8 +854,8 @@ impl StoreOP {
             Self::I16 => 0b001,
             Self::I32 => 0b010,
             Self::I64 => 0b011,
-            Self::Fsw => 0b010,
-            Self::Fsd => 0b011,
+            Self::F32 => 0b010,
+            Self::F64 => 0b011,
         }
     }
     pub(crate) fn width(self) -> u32 {
@@ -864,10 +864,10 @@ impl StoreOP {
             Self::I16 => 2,
             Self::I32 => 4,
             Self::I64 => 8,
-            // Self::Fsw => unimplemented!(),
-            // Self::Fsd => unimplemented!(),
-            Self::Fsw => 4,
-            Self::Fsd => 8,
+            // Self::F32 => unimplemented!(),
+            // Self::F64 => unimplemented!(),
+            Self::F32 => 4,
+            Self::F64 => 8,
         }
     }
 }

@@ -963,21 +963,11 @@ impl Inst {
             }
             &Inst::LoadConst32 { rd, imm } => {
                 let rd = format_reg(rd.to_reg(), allocs);
-                let mut buf = String::new();
-                write!(&mut buf, "auipc {},0; ", rd).unwrap();
-                write!(&mut buf, "ld {},12({}); ", rd, rd).unwrap();
-                write!(&mut buf, "j {}; ", Inst::INSTRUCTION_SIZE + 4).unwrap();
-                write!(&mut buf, ".4byte 0x{:x}", imm).unwrap();
-                buf
+                format!("{} => {}  ;; LoadConst32", imm, rd)
             }
             &Inst::LoadConst64 { rd, imm } => {
                 let rd = format_reg(rd.to_reg(), allocs);
-                let mut buf = String::new();
-                write!(&mut buf, "auipc {},0; ", rd).unwrap();
-                write!(&mut buf, "ld {},12({}); ", rd, rd).unwrap();
-                write!(&mut buf, "j {}; ", Inst::INSTRUCTION_SIZE + 8).unwrap();
-                write!(&mut buf, ".8byte 0x{:x}", imm).unwrap();
-                buf
+                format!("{} => {}  ;; LoadConst64", imm, rd)
             }
             &Inst::AluRRR {
                 alu_op,
@@ -1063,7 +1053,7 @@ impl Inst {
             } => {
                 let base = from.to_string_with_alloc(allocs);
                 let rd = format_reg(rd.to_reg(), allocs);
-                format!("{} {},{}", op.op_name(), rd, base,)
+                format!("MLOAD {} {},{}", op.op_name(), rd, base,)
             }
             &Inst::Store {
                 to,
@@ -1073,7 +1063,7 @@ impl Inst {
             } => {
                 let base = to.to_string_with_alloc(allocs);
                 let src = format_reg(src, allocs);
-                format!("{} {},{}", op.op_name(), src, base,)
+                format!("MSTORE {} {},{}", op.op_name(), src, base,)
             }
             &Inst::Args { ref args } => {
                 let mut s = "args".to_string();
