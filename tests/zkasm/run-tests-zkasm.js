@@ -10,7 +10,7 @@ const {
     newCommitPolsArray
 } = require('pilcom');
 const buildPoseidon = require('@0xpolygonhermez/zkevm-commonjs').getPoseidon;
-const assert_helper = require('./assert');
+const AssertHelper = require('./assert_helper');
 
 const emptyInput = require('@0xpolygonhermez/zkevm-proverjs/test/inputs/empty_input.json');
 
@@ -146,17 +146,20 @@ async function runTest(pathTest, cmPols) {
         outputFile: 'testoutput.json'
     }
 
+    let helper = new AssertHelper(assert_config);
+
     const config = {
         debug: true,
         stepsN: 8388608,
         assertOutputs: false,
         helpers: [
-            new assert_helper(assert_config),
+            helper
         ]
     };
     try {
         const rom = await zkasm.compile(pathTest, null, configZkasm);
         const result = await smMain.execute(cmPols.Main, emptyInput, rom, config);
+        helper.dump();
         return {
             path: pathTest,
             status: "pass",
