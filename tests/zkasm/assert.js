@@ -26,10 +26,10 @@ class InstrumentInst {
         // TODO print verbose error on invalid params
         // TODO: why arg* is list of two integers with last zero and first value in register???
         // Is it chunks? If yes they should be merged instead of ignoring second one
-        const arg0 = ctx[tag.params[0].regName][0];
-        const arg1 = ctx[tag.params[1].regName][0];
+        const equals = ctx[tag.params[0].regName][0] == ctx[tag.params[1].regName][0] &&
+                       ctx[tag.params[0].regName][1] == ctx[tag.params[1].regName][1];
         const testname = tag.params[2].varName;
-        this.results[testname] = arg0 === arg1 ? 'pass' : 'fail';
+        this.results[testname] = equals ? 'pass' : 'fail';
         return 0;
     }
 
@@ -45,10 +45,10 @@ class InstrumentInst {
             // TODO print verbose error on invalid params
             // TODO: why arg* is list of two integers with last zero and first value in register???
             // Is it chunks? If yes they should be merged instead of ignoring second one
-            const arg0 = ctx[tag.params[0].regName][0];
-            const arg1 = ctx[tag.params[1].regName][0];
+            const equals = ctx[tag.params[0].regName][0] == ctx[tag.params[1].regName][0] &&
+            ctx[tag.params[0].regName][1] == ctx[tag.params[1].regName][1];
             const testname = tag.params[2].varName;
-            this.results[testname] = arg0 === arg1 ? 'fail' : 'pass';
+            this.results[testname] = equals ? 'fail' : 'pass';
             return 0;
         }
 
