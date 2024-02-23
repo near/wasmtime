@@ -1,15 +1,26 @@
+use std::collections::HashMap;
+use std::sync::Arc;
+
 use cranelift_codegen::entity::EntityRef;
 use cranelift_codegen::ir::function::FunctionParameters;
 use cranelift_codegen::ir::ExternalName;
-use cranelift_codegen::isa::zkasm;
-use cranelift_codegen::{settings, FinalizedMachReloc, FinalizedRelocTarget};
+use cranelift_codegen::isa::{zkasm, IsaBuilder, TargetIsa};
+use cranelift_codegen::settings::Configurable;
+use cranelift_codegen::{settings, CodegenError, FinalizedMachReloc, FinalizedRelocTarget};
 use cranelift_wasm::{translate_module, ZkasmEnvironment};
-use std::collections::HashMap;
+
+/// ISA specific settings for zkASM codegen.
+#[derive(Default, Debug)]
+pub struct ZkasmSettings {
+    /// Instruments generated zkASM to trace executed instructions.
+    pub instrument_inst: bool,
+}
 
 #[allow(dead_code)]
-pub fn generate_zkasm(wasm_module: &[u8]) -> String {
+pub fn generate_zkasm(settings: &ZkasmSettings, wasm_module: &[u8]) -> String {
     let flag_builder = settings::builder();
-    let isa_builder = zkasm::isa_builder("zkasm-unknown-unknown".parse().unwrap());
+    let mut isa_builder = zkasm::isa_builder("zkasm-unknown-unknown".parse().unwrap());
+    handle_zkasm_settings(settings, &mut isa_builder);
     let isa = isa_builder
         .finish(settings::Flags::new(flag_builder))
         .unwrap();
@@ -57,6 +68,15 @@ pub fn generate_zkasm(wasm_module: &[u8]) -> String {
 
     program.append(&mut generate_postamble());
     program.join("\n")
+}
+
+fn handle_zkasm_settings(
+    settings: &ZkasmSettings,
+    isa_builder: &mut IsaBuilder<Result<Arc<dyn TargetIsa>, CodegenError>>,
+) {
+    if settings.instrument_inst {
+        isa_builder.enable("instrument_inst").unwrap();
+    }
 }
 
 #[allow(dead_code)]

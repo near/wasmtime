@@ -1,6 +1,7 @@
 #[cfg(test)]
 mod tests {
     use crate::zkasm_codegen;
+    use crate::zkasm_codegen::ZkasmSettings;
     use std::collections::HashMap;
     use std::path::{Path, PathBuf};
 
@@ -59,7 +60,8 @@ mod tests {
 
     fn test_module(name: &str) {
         let module_binary = wat::parse_file(format!("../zkasm_data/{name}.wat")).unwrap();
-        let program = zkasm_codegen::generate_zkasm(&module_binary);
+        let settings = ZkasmSettings::default();
+        let program = zkasm_codegen::generate_zkasm(&settings, &module_binary);
         let expected =
             expect_test::expect_file![format!("../../zkasm_data/generated/{name}.zkasm")];
         expected.assert_eq(&program);
@@ -151,7 +153,8 @@ mod tests {
                 .join(path)
                 .join(format!("generated/{name}.zkasm"))];
             let result = std::panic::catch_unwind(|| {
-                let program = zkasm_codegen::generate_zkasm(&module_binary);
+                let settings = ZkasmSettings::default();
+                let program = zkasm_codegen::generate_zkasm(&settings, &module_binary);
                 expected.assert_eq(&program);
             });
             if let Err(err) = result {
