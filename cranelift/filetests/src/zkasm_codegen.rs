@@ -1,12 +1,16 @@
 use std::collections::HashMap;
 use std::sync::Arc;
 
+use cranelift_codegen::data_value::DataValue;
 use cranelift_codegen::entity::EntityRef;
 use cranelift_codegen::ir::function::FunctionParameters;
 use cranelift_codegen::ir::ExternalName;
+use cranelift_codegen::ir::Function;
 use cranelift_codegen::isa::{zkasm, IsaBuilder, TargetIsa};
 use cranelift_codegen::settings::Configurable;
 use cranelift_codegen::{settings, CodegenError, FinalizedMachReloc, FinalizedRelocTarget};
+use cranelift_reader::Comparison;
+use cranelift_reader::Invocation;
 use cranelift_wasm::{translate_module, ZkasmEnvironment};
 
 /// ISA specific settings for zkASM codegen.
@@ -250,4 +254,90 @@ fn optimize_labels(code: &[&str], func_index: usize) -> Vec<String> {
         lines.remove(index);
     }
     lines
+}
+
+// TODO: fix same label names in different functions
+pub fn compile_clif_function(func: &Function) -> Vec<String> {
+    let flag_builder = settings::builder();
+    let isa_builder = zkasm::isa_builder("zkasm-unknown-unknown".parse().unwrap());
+    let isa = isa_builder
+        .finish(settings::Flags::new(flag_builder))
+        .unwrap();
+    let mut context = cranelift_codegen::Context::for_function(func.clone());
+    let compiled_code = context
+        .compile(isa.as_ref(), &mut Default::default())
+        .unwrap();
+    let mut code_buffer = compiled_code.code_buffer().to_vec();
+    fix_relocs(
+        &mut code_buffer,
+        &func.params,
+        compiled_code.buffer.relocs(),
+    );
+    let code = std::str::from_utf8(&code_buffer).unwrap();
+    let mut lines: Vec<String> = code.lines().map(|s| s.to_string()).collect();
+    // TODO: I believe it can be done more beautiful way
+    let mut funcname = func.name.to_string();
+    funcname.remove(0);
+    funcname.push(':');
+    let mut res = vec![funcname];
+    res.append(&mut lines);
+    res
+}
+
+// TODO: this function should be much rewrited,
+// now it works for one very basic case:
+// Simple progam which don't contain globals or some other speciefic preamble\postamble
+// Program don't need helper functions (for example 2-exp.zkasm)
+// How to fix it? Use generate_preamble and provide correct inputs for it.
+pub fn build_test_zkasm(functions: Vec<Vec<String>>, invocations: Vec<Vec<String>>) -> String {
+    // TODO: use generate_preamble to get preamble
+    let preamble = "\
+start:
+  zkPC + 2 => RR
+    :JMP(main)
+    :JMP(finalizeExecution)";
+    let mut main = vec![
+        "main:".to_string(),
+        "  SP - 1 => SP".to_string(),
+        "  RR :MSTORE(SP)".to_string(),
+    ];
+    for invocation in invocations {
+        main.extend(invocation);
+    }
+    main.push("  SP - 1 => SP".to_string());
+    main.push("  :JMP(RR)".to_string());
+    let mut postamble = generate_postamble();
+    let mut program = vec![preamble.to_string()];
+    program.append(&mut main);
+    for foo in functions {
+        program.extend(foo);
+    }
+    program.append(&mut postamble);
+    program.join("\n")
+}
+
+pub fn compile_invocation(
+    invoke: Invocation,
+    compare: Comparison,
+    expected: Vec<DataValue>,
+) -> Vec<String> {
+    // Here I assume that each "function" in zkasm gets it's arguments from first N registers
+    // and put result in A.
+    // TODO: should be more robust way to do it, we need somehow define inputs and outputs
+    let mut res: Vec<String> = Default::default();
+    let registers = vec!["A", "B", "C", "D", "E"];
+
+    let args = invoke.args;
+    let funcname = invoke.func;
+
+    // TODO: here we should pay attention to type of DataValue (I64 or I32)
+    for (idx, arg) in args.iter().enumerate() {
+        res.push(format!("  {} => {}", arg, registers[idx]))
+    }
+    res.push(format!("    :JMP({})", funcname));
+    // TODO: handle functions with multiple outputs
+    res.push(format!("  {} => B", expected[0]));
+    // TODO: replace with call to host function
+    res.push(format!("  CALL AWESOME ASSERT ({})", compare));
+    res
 }

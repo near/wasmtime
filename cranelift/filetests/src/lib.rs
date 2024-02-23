@@ -29,6 +29,7 @@ mod test_legalizer;
 mod test_optimize;
 mod test_print_cfg;
 mod test_run;
+mod test_run_zkasm;
 mod test_safepoint;
 mod test_unwind;
 mod test_verifier;
@@ -103,6 +104,7 @@ fn new_subtest(parsed: &TestCommand) -> anyhow::Result<Box<dyn subtest::SubTest>
         "safepoint" => test_safepoint::subtest(parsed),
         "unwind" => test_unwind::subtest(parsed),
         "verifier" => test_verifier::subtest(parsed),
+        "run-zkasm" => test_run_zkasm::subtest(parsed),
         _ => anyhow::bail!("unknown test command '{}'", parsed.command),
     }
 }
