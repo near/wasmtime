@@ -1,8 +1,10 @@
 #[cfg(test)]
 mod tests {
-    use crate::zkasm_codegen;
     use crate::zkasm_codegen::ZkasmSettings;
+    use crate::zkasm_runner::ExecutionStatus;
+    use crate::{zkasm_codegen, zkasm_runner};
     use std::collections::HashMap;
+    use std::env;
     use std::path::{Path, PathBuf};
 
     use regex::Regex;
@@ -16,10 +18,9 @@ mod tests {
         let _ = env_logger::builder().is_test(true).try_init();
     }
 
-    fn run_wat_file(path: &Path) -> Result<(), Box<dyn std::error::Error>> {
+    fn run_wasm(wasm_module: &[u8]) -> Result<(), Box<dyn std::error::Error>> {
         let engine = Engine::default();
-        let binary = wat::parse_file(path)?;
-        let module = Module::new(&engine, &binary)?;
+        let module = Module::new(&engine, &wasm_module)?;
         let mut store = Store::new(&engine, ());
         let mut linker = Linker::<()>::new(&engine);
         linker.func_wrap("env", "assert_eq_i32", |a: i32, b: i32| {
@@ -41,7 +42,7 @@ mod tests {
             .map(|e| e.unwrap())
         {
             if entry.path().extension().map_or(false, |ext| ext == "wat") {
-                let result = run_wat_file(entry.path());
+                let result = run_wasm(&wat::parse_file(entry.path())?);
                 if entry.path().to_str().unwrap().contains("_should_fail_") {
                     if result.is_ok() {
                         panic!(
@@ -183,6 +184,38 @@ mod tests {
     fn run_benchmarks() {
         test_wat_in_directory(Path::new(&format!("../zkasm_data/benchmarks/fibonacci")));
         test_wat_in_directory(Path::new(&format!("../zkasm_data/benchmarks/sha256")));
+    }
+
+    fn run_benchmark(benchmark_name: &str, wasm_path: &Path) {
+        let module = std::fs::read(&wasm_path).expect(&format!(
+            "Failed to read WASM module at {}",
+            wasm_path.display()
+        ));
+        run_wasm(&module).expect("WASM execution failed");
+
+        let test_dir = env::temp_dir().join(benchmark_name);
+        if test_dir.exists() {
+            std::fs::remove_dir_all(&test_dir).unwrap();
+        }
+        std::fs::create_dir_all(&test_dir).unwrap();
+        let zkasm_path = test_dir.join("main.zkasm");
+        let settings = ZkasmSettings::default();
+        let program = zkasm_codegen::generate_zkasm(&settings, &module);
+        std::fs::write(&zkasm_path, program).unwrap();
+        let results = zkasm_runner::run_zkasm_path(&zkasm_path).expect("Failed to execute zkAsm");
+        assert_eq!(results.len(), 1);
+        let result = &results[0];
+        assert!(
+            matches!(result.status, ExecutionStatus::Success),
+            "Error when executing zkAsm at {}: {}",
+            result.path,
+            result.format_error(),
+        );
+    }
+
+    #[test]
+    fn run_benchmark_keccak() {
+        run_benchmark("keccak", benchmarks::keccak_path());
     }
 
     macro_rules! testcases {

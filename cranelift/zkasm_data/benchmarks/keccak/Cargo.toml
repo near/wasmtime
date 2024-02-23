@@ -1,0 +1,12 @@
+[package]
+name = "keccak"
+version = "0.1.0"
+edition.workspace = true
+
+# This is necessary to generate a '.wasm' file.
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+panic-halt = "0.2.0"
+sha3 = { version = "0.10.8", default-features = false }
