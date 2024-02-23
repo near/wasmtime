@@ -560,6 +560,52 @@
 (decl temp_writable_xreg () WritableXReg)
 (rule (temp_writable_xreg) (temp_writable_reg $I64))
 
+;; Construct a new `FReg` from a `Reg`.
+;;
+;; Asserts that the register has a Float RegClass.
+(decl freg_new (Reg) FReg)
+(extern constructor freg_new freg_new)
+(convert Reg FReg freg_new)
+
+;; Construct a new `WritableFReg` from a `WritableReg`.
+;;
+;; Asserts that the register has a Float RegClass.
+(decl writable_freg_new (WritableReg) WritableFReg)
+(extern constructor writable_freg_new writable_freg_new)
+(convert WritableReg WritableFReg writable_freg_new)
+
+;; Put a value into a FReg.
+;;
+;; Asserts that the value goes into a FReg.
+(decl put_in_freg (Value) FReg)
+(rule (put_in_freg val) (freg_new (put_in_reg val)))
+(convert Value FReg put_in_freg)
+
+;; Construct an `InstOutput` out of a single FReg register.
+(decl output_freg (FReg) InstOutput)
+(rule (output_freg x) (output_reg x))
+(convert FReg InstOutput output_freg)
+
+;; Convert a `WritableFReg` to an `FReg`.
+(decl pure writable_freg_to_freg (WritableFReg) FReg)
+(extern constructor writable_freg_to_freg writable_freg_to_freg)
+(convert WritableFReg FReg writable_freg_to_freg)
+
+;; Convert a `WritableFReg` to an `WritableReg`.
+(decl pure writable_freg_to_writable_reg (WritableFReg) WritableReg)
+(extern constructor writable_freg_to_writable_reg writable_freg_to_writable_reg)
+(convert WritableFReg WritableReg writable_freg_to_writable_reg)
+
+;; Convert a `WritableFReg` to an `Reg`.
+(decl pure writable_freg_to_reg (WritableFReg) Reg)
+(rule (writable_freg_to_reg x) (writable_freg_to_writable_reg x))
+(convert WritableFReg Reg writable_freg_to_reg)
+
+;; Convert an `FReg` to a `Reg`.
+(decl pure freg_to_reg (FReg) Reg)
+(extern constructor freg_to_reg freg_to_reg)
+(convert FReg Reg freg_to_reg)
+
 ;; Converters
 
 (convert u8 i32 u8_as_i32)
@@ -852,6 +898,10 @@
 ;; for load immediate
 (decl imm (Type u64) Reg)
 (extern constructor imm imm)
+
+;; for load immediate float
+(decl fimm (Type u64) Reg)
+(extern constructor fimm fimm)
 
 ;; Imm12 Rules
 

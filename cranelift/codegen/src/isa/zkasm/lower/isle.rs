@@ -135,6 +135,22 @@ impl generated_code::Context for ZkAsmIsleContext<'_, '_, MInst, ZkAsmBackend> {
         *arg0
     }
 
+    fn freg_new(&mut self, r: Reg) -> FReg {
+        FReg::new(r).unwrap()
+    }
+    fn writable_freg_new(&mut self, r: WritableReg) -> WritableFReg {
+        r.map(|wr| FReg::new(wr).unwrap())
+    }
+    fn writable_freg_to_freg(&mut self, arg0: WritableFReg) -> FReg {
+        arg0.to_reg()
+    }
+    fn writable_freg_to_writable_reg(&mut self, arg0: WritableFReg) -> WritableReg {
+        arg0.map(|xr| xr.to_reg())
+    }
+    fn freg_to_reg(&mut self, arg0: FReg) -> Reg {
+        *arg0
+    }
+
     fn vec_writable_to_regs(&mut self, val: &VecWritableReg) -> ValueRegs {
         match val.len() {
             1 => ValueRegs::one(val[0].to_reg()),
@@ -257,6 +273,21 @@ impl generated_code::Context for ZkAsmIsleContext<'_, '_, MInst, ZkAsmBackend> {
         self.emit_list(&insts);
         tmp.to_reg()
     }
+
+    fn fimm(&mut self, ty: Type, val: u64) -> Reg {
+        let tmp = self.temp_writable_reg(ty);
+        let alloc_tmp = &mut |ty| self.temp_writable_reg(ty);
+        let insts = match ty {
+            F32 => MInst::load_fp_constant32(tmp, val as u32, alloc_tmp),
+            F64 => MInst::load_fp_constant64(tmp, val, alloc_tmp),
+            I32 => MInst::load_constant_u32(tmp, val, alloc_tmp),
+            I64 => MInst::load_constant_u64(tmp, val, alloc_tmp),
+            _ => panic!("Not implemented"),
+        };
+        self.emit_list(&insts);
+        tmp.to_reg()
+    }
+
     #[inline]
     fn emit(&mut self, arg0: &MInst) -> Unit {
         self.lower_ctx.emit(arg0.clone());

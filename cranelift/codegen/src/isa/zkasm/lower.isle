@@ -216,11 +216,11 @@
 
 ;;;;;  Rules for `fpromote`;;;;;;;;;;;;;;;;;
 (rule (lower (fpromote x))
-  (imm $F64 0))
+  (fimm $F64 0))
 
 ;;;;;  Rules for `fdemote`;;;;;;;;;;;;;;;;;;
 (rule (lower (fdemote x))
-  (imm $F32 0))
+  (fimm $F32 0))
 
 ;;;;;  Rules for `stack_addr`;;;;;;;;;
 (rule
