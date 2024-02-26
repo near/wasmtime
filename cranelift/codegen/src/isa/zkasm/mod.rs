@@ -18,7 +18,7 @@ use target_lexicon::{Architecture, Triple};
 mod abi;
 pub(crate) mod inst;
 mod lower;
-mod settings;
+pub mod settings;
 
 use self::inst::EmitInfo;
 
