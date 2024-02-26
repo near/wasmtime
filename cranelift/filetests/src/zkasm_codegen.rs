@@ -17,7 +17,7 @@ use cranelift_wasm::{translate_module, ZkasmEnvironment};
 #[derive(Default, Debug)]
 pub struct ZkasmSettings {
     /// Instruments generated zkASM to trace executed instructions.
-    pub instrument_inst: bool,
+    pub emit_profiling_info: bool,
 }
 
 #[allow(dead_code)]
@@ -78,8 +78,8 @@ fn handle_zkasm_settings(
     settings: &ZkasmSettings,
     isa_builder: &mut IsaBuilder<Result<Arc<dyn TargetIsa>, CodegenError>>,
 ) {
-    if settings.instrument_inst {
-        isa_builder.enable("instrument_inst").unwrap();
+    if settings.emit_profiling_info {
+        isa_builder.enable("emit_profiling_info").unwrap();
     }
 }
 

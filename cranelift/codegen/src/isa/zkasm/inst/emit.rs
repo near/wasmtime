@@ -422,7 +422,7 @@ impl MachInstEmit for Inst {
         // emitted following an `EmitIsland`.
         let mut start_off = sink.cur_offset();
 
-        if emit_info.isa_flags.instrument_inst() {
+        if emit_info.isa_flags.emit_profiling_info() {
             // Emit instrumentation *before* the instruction's zkASM. Otherwise
             // instrumentation might be skipped, e.g. in case of jumps.
             self.emit_inst_instrumentation(sink);

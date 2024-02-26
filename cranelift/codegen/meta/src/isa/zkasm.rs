@@ -6,7 +6,7 @@ pub(crate) fn define() -> TargetIsa {
 
     // Benchmarking
     settings.add_bool(
-        "instrument_inst",
+        "emit_profiling_info",
         "Instrument `Inst` to identify hot instructions.",
         "Inserts calls to `zkevm-proverjs` helpers that trace `Inst`s \
         executed at runtime",
