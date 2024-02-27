@@ -159,7 +159,7 @@ fn fix_relocs(
             if let FinalizedRelocTarget::ExternalName(ExternalName::User(name)) = reloc.target {
                 let name = &params.user_named_funcs()[name];
                 if name.index == 0 {
-                    b"  B :ASSERT".to_vec()
+                    b"  $${assert_eq(A, B, label)}".to_vec()
                 } else {
                     format!("  zkPC + 2 => RR\n  :JMP(function_{})", name.index)
                         .as_bytes()
@@ -296,28 +296,70 @@ start:
     program.join("\n")
 }
 
+fn runcommand_to_wasm(invoke: Invocation, _compare: Comparison, expected: Vec<DataValue>) -> String {
+    // TODO: support different amounts of outputs
+    let res_bitness = match expected[0] {
+        DataValue::I32(_) => "i32",
+        DataValue::I64(_) => "i64",
+        _ => unimplemented!()
+    };
+    let func_name = invoke.func;
+    let expected_result = expected[0].clone();
+    let mut arg_types = String::new();
+    let mut args_pushing = String::new();
+    for arg in &invoke.args {
+        let arg_type = match arg {
+            DataValue::I32(_) => "i32",
+            DataValue::I64(_) => "i64",
+            _ => unimplemented!()
+        };
+        arg_types.push_str(arg_type);
+        arg_types.push_str(" ");
+
+        args_pushing.push_str(&format!("{arg_type}.const {arg}\n        "));
+    }
+    if arg_types.len() > 0 {
+        arg_types.pop();
+    }
+    // TODO: remove line with 8 whitespaces in the end of args_pushing
+    let wat_code = format!(
+        r#"(module
+    (import "env" "assert_eq" (func $assert_eq (param {res_bitness} {res_bitness})))
+    (import "env" "{func_name}" (func ${func_name} (param {arg_types}) (result {res_bitness})))
+    (func $main
+        {args_pushing}
+        call ${func_name}
+        {res_bitness}.const {expected_result}
+        call $assert_eq
+    )
+    (start $main)
+)"#,
+        args_pushing = args_pushing,
+        arg_types = arg_types,
+        res_bitness = res_bitness,
+        func_name = func_name,
+        expected_result = expected_result,
+    );
+    wat_code.to_string()
+}
+
+
 pub fn compile_invocation(
     invoke: Invocation,
     compare: Comparison,
     expected: Vec<DataValue>,
 ) -> Vec<String> {
-    // Here I assume that each "function" in zkasm gets it's arguments from first N registers
-    // and put result in A.
-    // TODO: should be more robust way to do it, we need somehow define inputs and outputs
-    let mut res: Vec<String> = Default::default();
-    let registers = vec!["A", "B", "C", "D", "E"];
-
-    let args = invoke.args;
-    let funcname = invoke.func;
-
-    // TODO: here we should pay attention to type of DataValue (I64 or I32)
-    for (idx, arg) in args.iter().enumerate() {
-        res.push(format!("  {} => {}", arg, registers[idx]))
-    }
-    res.push(format!("    :JMP({})", funcname));
-    // TODO: handle functions with multiple outputs
-    res.push(format!("  {} => B", expected[0]));
-    // TODO: replace with call to host function
-    res.push(format!("  CALL AWESOME ASSERT ({})", compare));
-    res
+    let cmp =  if compare == Comparison::Equals {Comparison::Equals} else {Comparison::NotEquals};
+    let inv = Invocation {func: invoke.func.clone(), args: invoke.args.clone()};
+    let wat = runcommand_to_wasm(inv, cmp, expected.clone());
+    // TODO: remove this debug prints
+    println!("{}", wat);
+    println!("Translated wasm:\n============================================");
+    let wasm_module = wat::parse_str(wat).unwrap();
+    println!("{}\n================================ End of compiled wasm", generate_zkasm(&wasm_module));
+    // TODO: we should not use generate_zkasm itself, but a bit changed version.
+    generate_zkasm(&wasm_module).split("\n").map(|s| s.to_string()).collect()
+    // TODO: I think here is a good place to replace function_<number> in generated zkasm
+    // to name of invoked function, and replace default label in assert helper to something
+    // meaningful
 }
