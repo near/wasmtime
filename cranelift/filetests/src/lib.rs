@@ -16,7 +16,9 @@ mod match_directive;
 mod runner;
 mod runone;
 mod subtest;
-mod zkasm_codegen;
+// TODO(#X) Move `zkasm_codegen` now that it's used outside of filetests too.
+// (Will open an issue before merging the PR.)
+pub mod zkasm_codegen;
 mod zkasm_runner;
 
 mod test_alias_analysis;

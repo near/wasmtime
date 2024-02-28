@@ -1,3 +1,5 @@
+//! zkASM code generation
+
 use std::collections::HashMap;
 use std::sync::Arc;
 
@@ -20,7 +22,7 @@ pub struct ZkasmSettings {
     pub emit_profiling_info: bool,
 }
 
-#[allow(dead_code)]
+/// Generates zkASM for the provided `wasm_module`.
 pub fn generate_zkasm(settings: &ZkasmSettings, wasm_module: &[u8]) -> String {
     let flag_builder = settings::builder();
     let mut isa_builder = zkasm::isa_builder("zkasm-unknown-unknown".parse().unwrap());
@@ -83,7 +85,7 @@ fn handle_zkasm_settings(
     }
 }
 
-#[allow(dead_code)]
+/// Generates a preamble.
 pub fn generate_preamble(
     start_func_index: usize,
     globals: &[(cranelift_wasm::GlobalIndex, cranelift_wasm::GlobalInit)],
@@ -257,6 +259,7 @@ fn optimize_labels(code: &[&str], func_index: usize) -> Vec<String> {
 }
 
 // TODO: fix same label names in different functions
+/// Compiles a clif function.
 pub fn compile_clif_function(func: &Function) -> Vec<String> {
     let flag_builder = settings::builder();
     let isa_builder = zkasm::isa_builder("zkasm-unknown-unknown".parse().unwrap());
@@ -289,6 +292,7 @@ pub fn compile_clif_function(func: &Function) -> Vec<String> {
 // Simple progam which don't contain globals or some other speciefic preamble\postamble
 // Program don't need helper functions (for example 2-exp.zkasm)
 // How to fix it? Use generate_preamble and provide correct inputs for it.
+/// Builds zkASM used in filetests.
 pub fn build_test_zkasm(functions: Vec<Vec<String>>, invocations: Vec<Vec<String>>) -> String {
     // TODO: use generate_preamble to get preamble
     let preamble = "\
@@ -316,6 +320,7 @@ start:
     program.join("\n")
 }
 
+/// Compiles a invocation.
 pub fn compile_invocation(
     invoke: Invocation,
     compare: Comparison,
