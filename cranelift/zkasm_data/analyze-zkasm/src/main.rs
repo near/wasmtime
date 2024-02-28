@@ -30,7 +30,8 @@ fn main() -> anyhow::Result<()> {
 
     match &cli.command {
         Command::InstrumentInst { wat_path, out_path } => {
-            instrument_inst(wat_path, out_path)?;
+            let zkasm = instrument_inst(wat_path)?;
+            std::fs::write(out_path, zkasm.as_bytes())?;
             println!("wrote instrumented zkASM to {}", out_path.display());
         }
     }
@@ -38,12 +39,26 @@ fn main() -> anyhow::Result<()> {
     Ok(())
 }
 
-fn instrument_inst(wat_path: &PathBuf, out_path: &PathBuf) -> anyhow::Result<()> {
+fn instrument_inst(wat_path: &PathBuf) -> anyhow::Result<String> {
     let wasm_module = wat::parse_file(wat_path)?;
     let zkasm_settings = ZkasmSettings {
         emit_profiling_info: true,
     };
-    let zkasm = generate_zkasm(&zkasm_settings, &wasm_module);
-    std::fs::write(out_path, zkasm.as_bytes())?;
-    Ok(())
+    Ok(generate_zkasm(&zkasm_settings, &wasm_module))
+}
+
+#[cfg(test)]
+mod tests {
+    use std::path::PathBuf;
+
+    use super::instrument_inst;
+
+    #[test]
+    fn test_instrument_inst() -> anyhow::Result<()> {
+        let zkasm = instrument_inst(&PathBuf::from("./testfiles/simple.wat"))?;
+        let expected_zkasm =
+            std::fs::read_to_string("./testfiles/simple_instrumented.zkasm").unwrap();
+        assert_eq!(zkasm, expected_zkasm);
+        Ok(())
+    }
 }
