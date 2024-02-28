@@ -374,7 +374,10 @@ impl Inst {
             // Labels are handled separately since benchmarking will provide a separate command to
             // analyze labels.
             &MInst::Label { .. } => {}
-            _ => put_string(";; TODO(mooori) add instruction instrumentation\n", sink),
+            _ => put_string(
+                ";; TODO(mooori) call the helper to trace `MInst` execution\n",
+                sink,
+            ),
         }
     }
 }
