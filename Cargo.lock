@@ -45,6 +45,16 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e9d4ee0d472d1cd2e28c97dfa124b3d8d992e10eb0a035f33f5d12e3a177ba3b"
 
 [[package]]
+name = "analyze-zkasm"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "clap",
+ "cranelift-filetests",
+ "wat",
+]
+
+[[package]]
 name = "android_system_properties"
 version = "0.1.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"

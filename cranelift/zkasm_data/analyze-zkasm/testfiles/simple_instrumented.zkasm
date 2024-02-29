@@ -1,0 +1,21 @@
+start:
+  0xffff => SP
+  zkPC + 2 => RR
+  :JMP(function_0)
+  :JMP(finalizeExecution)
+function_0:
+  ;; TODO(mooori) call the helper to trace `MInst` execution
+  SP - 1 => SP
+  ;; TODO(mooori) call the helper to trace `MInst` execution
+  RR :MSTORE(SP)
+  ;; TODO(mooori) call the helper to trace `MInst` execution
+  ;; TODO(mooori) call the helper to trace `MInst` execution
+  $ => RR :MLOAD(SP)
+  ;; TODO(mooori) call the helper to trace `MInst` execution
+  SP + 1 => SP
+  ;; TODO(mooori) call the helper to trace `MInst` execution
+  :JMP(RR)
+finalizeExecution:
+  ${beforeLast()}  :JMPN(finalizeExecution)
+                   :JMP(start)
+INCLUDE "helpers/2-exp.zkasm"
