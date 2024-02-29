@@ -258,37 +258,52 @@ pub fn compile_clif_function(func: &Function) -> Vec<String> {
     // TODO: I believe it can be done more beautiful way
     let mut funcname = func.name.to_string();
     funcname.remove(0);
-    funcname.push(':');
-    let mut res = vec![funcname];
+    let mut res = vec![format!("{}:", funcname)];
     res.append(&mut lines);
+    res.into_iter().map(|s| s.replace("label", &format!("label_{}", funcname))).collect()
+}
+
+pub fn build_main(invoke_names: Vec<String>) -> Vec<String> {
+    let mut res = vec![
+        "main:".to_string(),
+        "  SP - 1 => SP".to_string(),
+        "  RR :MSTORE(SP)".to_string(),
+    ];
+    for name in invoke_names {
+        res.push("  zkPC + 2 => RR".to_string());
+        res.push(format!("  :JMP({})", name));
+    }
+    res.push("  $ => RR :MLOAD(SP)".to_string());
+    res.push("  SP + 1 => SP".to_string());
+    res.push("  :JMP(RR)".to_string());
     res
 }
 
-// TODO: this function should be much rewrited,
-// now it works for one very basic case:
-// Simple progam which don't contain globals or some other speciefic preamble\postamble
-// Program don't need helper functions (for example 2-exp.zkasm)
-// How to fix it? Use generate_preamble and provide correct inputs for it.
-pub fn build_test_zkasm(functions: Vec<Vec<String>>, invocations: Vec<Vec<String>>) -> String {
+pub fn invoke_name(invoke: &Invocation) -> String {
+    let mut res = invoke.func.clone();
+    for arg in &invoke.args {
+        res.push_str(&format!("_{}", arg));
+    }
+    res
+}
+
+pub fn build_test_zkasm(
+    functions: Vec<Vec<String>>,
+    invocations: Vec<Vec<String>>,
+    main: Vec<String>,
+) -> String {
     // TODO: use generate_preamble to get preamble
     let preamble = "\
 start:
   zkPC + 2 => RR
     :JMP(main)
     :JMP(finalizeExecution)";
-    let mut main = vec![
-        "main:".to_string(),
-        "  SP - 1 => SP".to_string(),
-        "  RR :MSTORE(SP)".to_string(),
-    ];
-    for invocation in invocations {
-        main.extend(invocation);
-    }
-    main.push("  SP - 1 => SP".to_string());
-    main.push("  :JMP(RR)".to_string());
     let mut postamble = generate_postamble();
     let mut program = vec![preamble.to_string()];
-    program.append(&mut main);
+    program.extend(main);
+    for inv in invocations {
+        program.extend(inv);
+    }
     for foo in functions {
         program.extend(foo);
     }
@@ -296,12 +311,16 @@ start:
     program.join("\n")
 }
 
-fn runcommand_to_wasm(invoke: Invocation, _compare: Comparison, expected: Vec<DataValue>) -> String {
+fn runcommand_to_wasm(
+    invoke: Invocation,
+    _compare: Comparison,
+    expected: Vec<DataValue>,
+) -> String {
     // TODO: support different amounts of outputs
     let res_bitness = match expected[0] {
         DataValue::I32(_) => "i32",
         DataValue::I64(_) => "i64",
-        _ => unimplemented!()
+        _ => unimplemented!(),
     };
     let func_name = invoke.func;
     let expected_result = expected[0].clone();
@@ -311,7 +330,7 @@ fn runcommand_to_wasm(invoke: Invocation, _compare: Comparison, expected: Vec<Da
         let arg_type = match arg {
             DataValue::I32(_) => "i32",
             DataValue::I64(_) => "i64",
-            _ => unimplemented!()
+            _ => unimplemented!(),
         };
         arg_types.push_str(arg_type);
         arg_types.push_str(" ");
@@ -343,23 +362,43 @@ fn runcommand_to_wasm(invoke: Invocation, _compare: Comparison, expected: Vec<Da
     wat_code.to_string()
 }
 
-
 pub fn compile_invocation(
     invoke: Invocation,
     compare: Comparison,
     expected: Vec<DataValue>,
 ) -> Vec<String> {
-    let cmp =  if compare == Comparison::Equals {Comparison::Equals} else {Comparison::NotEquals};
-    let inv = Invocation {func: invoke.func.clone(), args: invoke.args.clone()};
+    // TODO: don't do this clones
+    let cmp = if compare == Comparison::Equals {
+        Comparison::Equals
+    } else {
+        Comparison::NotEquals
+    };
+    let inv = Invocation {
+        func: invoke.func.clone(),
+        args: invoke.args.clone(),
+    };
     let wat = runcommand_to_wasm(inv, cmp, expected.clone());
-    // TODO: remove this debug prints
-    println!("{}", wat);
-    println!("Translated wasm:\n============================================");
     let wasm_module = wat::parse_str(wat).unwrap();
-    println!("{}\n================================ End of compiled wasm", generate_zkasm(&wasm_module));
+
     // TODO: we should not use generate_zkasm itself, but a bit changed version.
-    generate_zkasm(&wasm_module).split("\n").map(|s| s.to_string()).collect()
-    // TODO: I think here is a good place to replace function_<number> in generated zkasm
-    // to name of invoked function, and replace default label in assert helper to something
-    // meaningful
+    let generated: Vec<String> = generate_zkasm(&wasm_module)
+        .split("\n")
+        .map(|s| s.to_string())
+        .collect();
+    let new_label = invoke_name(&invoke);
+    let funcname = invoke.func;
+
+    let start_index = generated.iter().position(|r| r == "function_2:").unwrap();
+    let end_index = generated.iter().rposition(|r| r == "  :JMP(RR)").unwrap();
+    let mut generated_function = generated[start_index..=end_index].to_vec();
+    
+    generated_function[0] = format!("{}:", new_label);
+    let generated_replaced: Vec<String> = generated_function
+        .iter()
+        .map(|s| {
+            s.replace("label", &new_label)
+                .replace("function_1", &funcname)
+        })
+        .collect();
+    generated_replaced
 }
