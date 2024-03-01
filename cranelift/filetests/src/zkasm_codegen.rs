@@ -286,6 +286,7 @@ pub fn compile_clif_function(func: &Function) -> Vec<String> {
     res.into_iter().map(|s| s.replace("label", &format!("label_{}", funcname))).collect()
 }
 
+/// Builds main for test program
 pub fn build_main(invoke_names: Vec<String>) -> Vec<String> {
     let mut res = vec![
         "main:".to_string(),
@@ -302,6 +303,7 @@ pub fn build_main(invoke_names: Vec<String>) -> Vec<String> {
     res
 }
 
+/// Generate invoke name in format <function_name>_<arg>_..._<expected_result>
 pub fn invoke_name(invoke: &Invocation) -> String {
     let mut res = invoke.func.clone();
     for arg in &invoke.args {
@@ -310,6 +312,7 @@ pub fn invoke_name(invoke: &Invocation) -> String {
     res
 }
 
+/// Assembles all parts of zkasm test program together
 pub fn build_test_zkasm(
     functions: Vec<Vec<String>>,
     invocations: Vec<Vec<String>>,
@@ -386,57 +389,6 @@ fn runcommand_to_wasm(
     wat_code.to_string()
 }
 
-fn runcommand_to_wasm(
-    invoke: Invocation,
-    _compare: Comparison,
-    expected: Vec<DataValue>,
-) -> String {
-    // TODO: support different amounts of outputs
-    let res_bitness = match expected[0] {
-        DataValue::I32(_) => "i32",
-        DataValue::I64(_) => "i64",
-        _ => unimplemented!(),
-    };
-    let func_name = invoke.func;
-    let expected_result = expected[0].clone();
-    let mut arg_types = String::new();
-    let mut args_pushing = String::new();
-    for arg in &invoke.args {
-        let arg_type = match arg {
-            DataValue::I32(_) => "i32",
-            DataValue::I64(_) => "i64",
-            _ => unimplemented!(),
-        };
-        arg_types.push_str(arg_type);
-        arg_types.push_str(" ");
-
-        args_pushing.push_str(&format!("{arg_type}.const {arg}\n        "));
-    }
-    if arg_types.len() > 0 {
-        arg_types.pop();
-    }
-    // TODO: remove line with 8 whitespaces in the end of args_pushing
-    let wat_code = format!(
-        r#"(module
-    (import "env" "assert_eq" (func $assert_eq (param {res_bitness} {res_bitness})))
-    (import "env" "{func_name}" (func ${func_name} (param {arg_types}) (result {res_bitness})))
-    (func $main
-        {args_pushing}
-        call ${func_name}
-        {res_bitness}.const {expected_result}
-        call $assert_eq
-    )
-    (start $main)
-)"#,
-        args_pushing = args_pushing,
-        arg_types = arg_types,
-        res_bitness = res_bitness,
-        func_name = func_name,
-        expected_result = expected_result,
-    );
-    wat_code.to_string()
-}
-
 /// Compiles a invocation.
 pub fn compile_invocation(
     invoke: Invocation,
@@ -456,19 +408,24 @@ pub fn compile_invocation(
     let wat = runcommand_to_wasm(inv, cmp, expected.clone());
     let wasm_module = wat::parse_str(wat).unwrap();
 
-    // TODO: we should not use generate_zkasm itself, but a bit changed version.
-    let generated: Vec<String> = generate_zkasm(&wasm_module)
+    let settings = ZkasmSettings::default();
+
+    // TODO: we should not use generate_zkasm itself, but a bit changed version?
+    let generated: Vec<String> = generate_zkasm(&settings,&wasm_module)
         .split("\n")
         .map(|s| s.to_string())
         .collect();
     let new_label = invoke_name(&invoke);
     let funcname = invoke.func;
 
+    // TODO: will this always function_2? 
     let start_index = generated.iter().position(|r| r == "function_2:").unwrap();
     let end_index = generated.iter().rposition(|r| r == "  :JMP(RR)").unwrap();
     let mut generated_function = generated[start_index..=end_index].to_vec();
     
+    
     generated_function[0] = format!("{}:", new_label);
+    // TODO: will this always function_1?
     let generated_replaced: Vec<String> = generated_function
         .iter()
         .map(|s| {
