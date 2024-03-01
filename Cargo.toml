@@ -113,6 +113,7 @@ members = [
   "cranelift/isle/fuzz",
   "cranelift/isle/islec",
   "cranelift/serde",
+  "cranelift/zkasm_data/analyze-zkasm",
   "crates/bench-api",
   "crates/c-api/artifact",
   "crates/environ/fuzz",

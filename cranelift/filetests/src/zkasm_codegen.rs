@@ -1,19 +1,32 @@
+//! zkASM code generation
+
+use std::collections::HashMap;
+use std::sync::Arc;
+
 use cranelift_codegen::data_value::DataValue;
 use cranelift_codegen::entity::EntityRef;
 use cranelift_codegen::ir::function::FunctionParameters;
 use cranelift_codegen::ir::ExternalName;
 use cranelift_codegen::ir::Function;
-use cranelift_codegen::isa::zkasm;
-use cranelift_codegen::{settings, FinalizedMachReloc, FinalizedRelocTarget};
+use cranelift_codegen::isa::{zkasm, IsaBuilder, TargetIsa};
+use cranelift_codegen::settings::Configurable;
+use cranelift_codegen::{settings, CodegenError, FinalizedMachReloc, FinalizedRelocTarget};
 use cranelift_reader::Comparison;
 use cranelift_reader::Invocation;
 use cranelift_wasm::{translate_module, ZkasmEnvironment};
-use std::collections::HashMap;
 
-#[allow(dead_code)]
-pub fn generate_zkasm(wasm_module: &[u8]) -> String {
+/// ISA specific settings for zkASM codegen.
+#[derive(Default, Debug)]
+pub struct ZkasmSettings {
+    /// Instruments generated zkASM to trace executed instructions.
+    pub emit_profiling_info: bool,
+}
+
+/// Generates zkASM for the provided `wasm_module`.
+pub fn generate_zkasm(settings: &ZkasmSettings, wasm_module: &[u8]) -> String {
     let flag_builder = settings::builder();
-    let isa_builder = zkasm::isa_builder("zkasm-unknown-unknown".parse().unwrap());
+    let mut isa_builder = zkasm::isa_builder("zkasm-unknown-unknown".parse().unwrap());
+    handle_zkasm_settings(settings, &mut isa_builder);
     let isa = isa_builder
         .finish(settings::Flags::new(flag_builder))
         .unwrap();
@@ -63,7 +76,16 @@ pub fn generate_zkasm(wasm_module: &[u8]) -> String {
     program.join("\n")
 }
 
-#[allow(dead_code)]
+fn handle_zkasm_settings(
+    settings: &ZkasmSettings,
+    isa_builder: &mut IsaBuilder<Result<Arc<dyn TargetIsa>, CodegenError>>,
+) {
+    if settings.emit_profiling_info {
+        isa_builder.enable("emit_profiling_info").unwrap();
+    }
+}
+
+/// Generates a preamble.
 pub fn generate_preamble(
     start_func_index: usize,
     globals: &[(cranelift_wasm::GlobalIndex, cranelift_wasm::GlobalInit)],
@@ -237,6 +259,7 @@ fn optimize_labels(code: &[&str], func_index: usize) -> Vec<String> {
 }
 
 // TODO: fix same label names in different functions
+/// Compiles a clif function.
 pub fn compile_clif_function(func: &Function) -> Vec<String> {
     let flag_builder = settings::builder();
     let isa_builder = zkasm::isa_builder("zkasm-unknown-unknown".parse().unwrap());
@@ -363,6 +386,58 @@ fn runcommand_to_wasm(
     wat_code.to_string()
 }
 
+fn runcommand_to_wasm(
+    invoke: Invocation,
+    _compare: Comparison,
+    expected: Vec<DataValue>,
+) -> String {
+    // TODO: support different amounts of outputs
+    let res_bitness = match expected[0] {
+        DataValue::I32(_) => "i32",
+        DataValue::I64(_) => "i64",
+        _ => unimplemented!(),
+    };
+    let func_name = invoke.func;
+    let expected_result = expected[0].clone();
+    let mut arg_types = String::new();
+    let mut args_pushing = String::new();
+    for arg in &invoke.args {
+        let arg_type = match arg {
+            DataValue::I32(_) => "i32",
+            DataValue::I64(_) => "i64",
+            _ => unimplemented!(),
+        };
+        arg_types.push_str(arg_type);
+        arg_types.push_str(" ");
+
+        args_pushing.push_str(&format!("{arg_type}.const {arg}\n        "));
+    }
+    if arg_types.len() > 0 {
+        arg_types.pop();
+    }
+    // TODO: remove line with 8 whitespaces in the end of args_pushing
+    let wat_code = format!(
+        r#"(module
+    (import "env" "assert_eq" (func $assert_eq (param {res_bitness} {res_bitness})))
+    (import "env" "{func_name}" (func ${func_name} (param {arg_types}) (result {res_bitness})))
+    (func $main
+        {args_pushing}
+        call ${func_name}
+        {res_bitness}.const {expected_result}
+        call $assert_eq
+    )
+    (start $main)
+)"#,
+        args_pushing = args_pushing,
+        arg_types = arg_types,
+        res_bitness = res_bitness,
+        func_name = func_name,
+        expected_result = expected_result,
+    );
+    wat_code.to_string()
+}
+
+/// Compiles a invocation.
 pub fn compile_invocation(
     invoke: Invocation,
     compare: Comparison,

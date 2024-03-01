@@ -367,6 +367,19 @@ impl Inst {
         }
         insts */
     }
+
+    /// Emits zkASM to trace executed instructions.
+    fn emit_inst_instrumentation(&self, sink: &mut MachBuffer<Inst>) {
+        match self {
+            // Labels are handled separately since benchmarking will provide a separate command to
+            // analyze labels.
+            &MInst::Label { .. } => {}
+            _ => put_string(
+                ";; TODO(mooori) call the helper to trace `MInst` execution\n",
+                sink,
+            ),
+        }
+    }
 }
 
 fn put_string(s: &str, sink: &mut MachBuffer<Inst>) {
@@ -411,6 +424,13 @@ impl MachInstEmit for Inst {
         // to allow disabling the check for `JTSequence`, which is always
         // emitted following an `EmitIsland`.
         let mut start_off = sink.cur_offset();
+
+        if emit_info.isa_flags.emit_profiling_info() {
+            // Emit instrumentation *before* the instruction's zkASM. Otherwise
+            // instrumentation might be skipped, e.g. in case of jumps.
+            self.emit_inst_instrumentation(sink);
+        }
+
         match self {
             &Inst::Nop => {}
             &Inst::Label { imm } => {
