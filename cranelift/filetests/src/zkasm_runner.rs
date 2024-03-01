@@ -28,9 +28,9 @@ pub struct ExecutionResult {
     /// Path to the main zkAsm file that was executed.
     path: String,
     /// Status of the execution.
-    status: ExecutionStatus,
+    pub status: ExecutionStatus,
     /// Error message in case the execution failed.
-    error: Option<String>,
+    pub error: Option<String>,
     /// Profiling information about this execution.
     /// Only populated for the successful executions.
     counters: Option<Counters>,
@@ -76,7 +76,7 @@ pub fn run_zkasm_path(input_path: &Path) -> anyhow::Result<Vec<ExecutionResult>>
     let mut output_file = NamedTempFile::new()?;
     let common_args = [
         "--prefix",
-        "../../tests/zkasm",
+        "../tests/zkasm",
         "test",
         input_path.to_str().unwrap(),
         output_file.path().to_str().unwrap(),

@@ -295,6 +295,7 @@ pub fn build_test_zkasm(
     // TODO: use generate_preamble to get preamble
     let preamble = "\
 start:
+  0xffff => SP
   zkPC + 2 => RR
     :JMP(main)
     :JMP(finalizeExecution)";
