@@ -369,13 +369,16 @@ impl Inst {
     }
 
     /// Emits zkASM to trace executed instructions.
+    ///
+    /// Calls a method implemented by the `InstructionTracer.js` helper. An instance of this helper
+    /// must be provided to `zkevm-proverjs` for the successful execution of the generated zkASM.
     fn emit_inst_instrumentation(&self, sink: &mut MachBuffer<Inst>) {
         match self {
             // Labels are handled separately since benchmarking will provide a separate command to
             // analyze labels.
             &MInst::Label { .. } => {}
             _ => put_string(
-                ";; TODO(mooori) call the helper to trace `MInst` execution\n",
+                &format!("$${{traceInstruction({})}}\n", self.print_name()),
                 sink,
             ),
         }
