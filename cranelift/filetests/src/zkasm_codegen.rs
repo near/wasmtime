@@ -181,7 +181,9 @@ fn fix_relocs(
             if let FinalizedRelocTarget::ExternalName(ExternalName::User(name)) = reloc.target {
                 let name = &params.user_named_funcs()[name];
                 if name.index == 0 {
-                    b"  $${assert_eq(A, B, label)}".to_vec()
+                    // Codegen line after migrating to new assert:
+                    // b"  $${assert_eq(A, B, label)}".to_vec()
+                    b"  B :ASSERT".to_vec()
                 } else {
                     format!("  zkPC + 2 => RR\n  :JMP(function_{})", name.index)
                         .as_bytes()
