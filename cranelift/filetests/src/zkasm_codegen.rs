@@ -283,7 +283,9 @@ pub fn compile_clif_function(func: &Function) -> Vec<String> {
     funcname.remove(0);
     let mut res = vec![format!("{}:", funcname)];
     res.append(&mut lines);
-    res.into_iter().map(|s| s.replace("label", &format!("label_{}", funcname))).collect()
+    res.into_iter()
+        .map(|s| s.replace("label", &format!("label_{}", funcname)))
+        .collect()
 }
 
 /// Builds main for test program
@@ -303,7 +305,7 @@ pub fn build_main(invoke_names: Vec<String>) -> Vec<String> {
     res
 }
 
-/// Generate invoke name in format <function_name>_<arg>_..._<expected_result>
+/// Generate invoke name in format <function_name>_<arg>_..._<arg>
 pub fn invoke_name(invoke: &Invocation) -> String {
     let mut res = invoke.func.clone();
     for arg in &invoke.args {
@@ -411,19 +413,18 @@ pub fn compile_invocation(
     let settings = ZkasmSettings::default();
 
     // TODO: we should not use generate_zkasm itself, but a bit changed version?
-    let generated: Vec<String> = generate_zkasm(&settings,&wasm_module)
+    let generated: Vec<String> = generate_zkasm(&settings, &wasm_module)
         .split("\n")
         .map(|s| s.to_string())
         .collect();
     let new_label = invoke_name(&invoke);
     let funcname = invoke.func;
 
-    // TODO: will this always function_2? 
+    // TODO: will this always function_2?
     let start_index = generated.iter().position(|r| r == "function_2:").unwrap();
     let end_index = generated.iter().rposition(|r| r == "  :JMP(RR)").unwrap();
     let mut generated_function = generated[start_index..=end_index].to_vec();
-    
-    
+
     generated_function[0] = format!("{}:", new_label);
     // TODO: will this always function_1?
     let generated_replaced: Vec<String> = generated_function
