@@ -1,8 +1,12 @@
+//! zkASM code runner
+
 use serde_derive::Deserialize;
 use std::io::Read;
 use std::path::Path;
 use tempfile::{NamedTempFile, TempDir};
 
+/// Counters consumed during the execution of zkAsm program.
+/// Matches json structure returned by zkAsm interpreter.
 #[allow(dead_code)]
 #[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -14,31 +18,37 @@ pub struct Counters {
     cnt_steps: u64,
 }
 
+/// Status of the execution of zkAsm program.
+/// Matches json structure returned by zkAsm interpreter.
 #[derive(Deserialize, Debug)]
 pub enum ExecutionStatus {
+    /// Program ran till completion.
     #[serde(rename = "pass")]
     Success,
+    /// Program failed during compilation or execution.
     #[serde(rename = "runtime error")]
     RuntimeError,
 }
 
+/// Result of the execution of zkAsm program.
 #[allow(dead_code)]
 #[derive(Deserialize)]
 pub struct ExecutionResult {
     /// Path to the main zkAsm file that was executed.
-    path: String,
+    pub path: String,
     /// Status of the execution.
-    status: ExecutionStatus,
+    pub status: ExecutionStatus,
     /// Error message in case the execution failed.
-    error: Option<String>,
+    pub error: Option<String>,
     /// Profiling information about this execution.
     /// Only populated for the successful executions.
-    counters: Option<Counters>,
+    pub counters: Option<Counters>,
 }
 
 impl ExecutionResult {
+    /// Pretty-prints the execution error message.
     #[allow(dead_code)]
-    fn format_error(&self) -> String {
+    pub fn format_error(&self) -> String {
         match &self.error {
             Some(s) => s.replace("\\n", "\n"),
             None => "None".to_string(),
