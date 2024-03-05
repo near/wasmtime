@@ -5,4 +5,4 @@
 	i32.ctz
 	i32.const 31
 	call $assert_eq_i32)
- (start $main))
+ (export "main" (func $main)))

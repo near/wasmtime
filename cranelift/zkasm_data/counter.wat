@@ -21,4 +21,4 @@
 	(local.get $counter)
 	(i32.const 10)
 	call $assert_eq_i32)
-(start $main))
+(export "main" (func $main)))

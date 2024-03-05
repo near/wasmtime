@@ -5,4 +5,4 @@
 	i64.popcnt
 	i64.const 0
 	call $assert_eq_i64)
- (start $main))
+ (export "main" (func $main)))

@@ -6,4 +6,4 @@
 	i32.mul
 	i32.const 0x80000001
 	call $assert_eq_i32)
- (start $main))
+ (export "main" (func $main)))

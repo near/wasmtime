@@ -6,4 +6,4 @@
 	i32.shr_s
 	i32.const 0x20000000
 	call $assert_eq_i32)
- (start $main))
+ (export "main" (func $main)))

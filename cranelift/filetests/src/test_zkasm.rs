@@ -28,7 +28,9 @@ mod tests {
         linker.func_wrap("env", "assert_eq_i64", |a: i64, b: i64| {
             assert_eq!(a, b);
         })?;
-        linker.instantiate(&mut store, &module)?;
+        let instance = linker.instantiate(&mut store, &module)?;
+        let main = instance.get_typed_func::<(), ()>(&mut store, "main")?;
+        main.call(&mut store, ())?;
         Ok(())
     }
 
@@ -118,7 +120,7 @@ mod tests {
                 testcase.push_str(&format!("\t{function_type}.{}\n", function_name));
             }
             testcase.push_str(&format!(
-                "\t{}\n\tcall $assert_eq_{})\n (start $main))\n",
+                "\t{}\n\tcall $assert_eq_{})\n (export \"main\" (func $main)))\n",
                 expected_result.trim(),
                 assert_type
             ));

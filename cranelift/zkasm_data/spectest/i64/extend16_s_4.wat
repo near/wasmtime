@@ -5,4 +5,4 @@
 	i64.extend16_s
 	i64.const -1
 	call $assert_eq_i64)
- (start $main))
+ (export "main" (func $main)))

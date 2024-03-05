@@ -11,4 +11,4 @@
     i32.ne
     i32.const 1
     call $assert_eq_i32)
- (start $main))
+ (export "main" (func $main)))
