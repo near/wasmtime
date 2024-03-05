@@ -5,4 +5,4 @@
 	i32.extend8_s
 	i32.const -0x80
 	call $assert_eq_i32)
- (start $main))
+ (export "main" (func $main)))

@@ -6,4 +6,4 @@
 	i64.div_u
 	i64.const 0x20c49ba5e353f7
 	call $assert_eq_i64)
- (start $main))
+ (export "main" (func $main)))

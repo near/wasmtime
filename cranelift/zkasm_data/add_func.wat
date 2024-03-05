@@ -12,4 +12,4 @@
 		(local.get $rhs)
 	)
  )
- (start $main))
+ (export "main" (func $main)))

@@ -3,4 +3,4 @@
  (func $main
 	unreachable
 	call $assert_eq_i32)
- (start $main))
+ (export "main" (func $main)))

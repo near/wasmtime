@@ -12,4 +12,4 @@
 	i64.mul
     i64.mul
 	call $assert_eq_i64)
- (start $main))
+ (export "main" (func $main)))

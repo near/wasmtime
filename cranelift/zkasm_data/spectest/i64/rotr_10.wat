@@ -6,4 +6,4 @@
 	i64.rotr
 	i64.const 0x94a77ab3c04d5e6b
 	call $assert_eq_i64)
- (start $main))
+ (export "main" (func $main)))

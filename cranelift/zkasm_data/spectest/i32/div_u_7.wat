@@ -6,4 +6,4 @@
 	i32.div_u
 	i32.const 0x20c49b
 	call $assert_eq_i32)
- (start $main))
+ (export "main" (func $main)))

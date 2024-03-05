@@ -29,4 +29,4 @@
 	(local.get $fp)
 	(i64.const -2872092127636481573)
 	call $assert_eq_i64)
-(start $main))
+  (export "main" (func $main)))

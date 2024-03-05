@@ -6,4 +6,4 @@
 	i64.rem_s
 	i64.const 3
 	call $assert_eq_i64)
- (start $main))
+ (export "main" (func $main)))
