@@ -73,10 +73,18 @@ pub fn run_zkasm_path(input_path: &Path) -> anyhow::Result<Vec<ExecutionResult>>
         include_str!("../../zkasm_data/generated/helpers/2-exp.zkasm"),
     )?;
 
+    // The node module necessary to execute zkAsm lives in `wasmtime/tests/zkasm/package.json`.
+    // We are trying to create a path to it that would work regardless of the current working
+    // directory that the caller is using.
+    let node_module_path = Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("../../tests/zkasm/")
+        .display()
+        .to_string();
+
     let mut output_file = NamedTempFile::new()?;
     let common_args = [
         "--prefix",
-        "../../tests/zkasm",
+        &node_module_path,
         "test",
         input_path.to_str().unwrap(),
         output_file.path().to_str().unwrap(),
