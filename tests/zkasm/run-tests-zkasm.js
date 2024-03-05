@@ -35,21 +35,38 @@ function value_to_json(key, value) {
  * Run this script with `--help` to print docs.
  */
 async function main() {
-    const argv = require("yargs/yargs")(process.argv.slice(2))
-        .command("$0 <path> [outfile]", "the default command runs zkASM tests", (yargs) => {
-            yargs.positional("path", {
-                describe: "The zkASM file to run or a directory to search for zkASM files.",
-                type: "string"
-            })
-            yargs.positional("outfile", {
-                describe: "If provided, results are written to this file. Otherwise they are printed to stdout.",
-                type: "string"
-            })
+    require("yargs/yargs")(process.argv.slice(2))
+        .command({
+            command: "$0 <path> [outfile]",
+            desc: "the default command runs zkASM tests",
+            builder: (yargs) => {
+                yargs.positional("path", {
+                    describe: "The zkASM file to run or a directory to search for zkASM files.",
+                    type: "string"
+                })
+                yargs.positional("outfile", {
+                    describe: "If provided, results are written to this file. Otherwise they are printed to stdout.",
+                    type: "string"
+                })
+            },
+            handler: (argv) => runTestsCmd(argv.path, argv.outfile)
+        })
+        .command({
+            command: "profile-instructions <path> [outfile]",
+            desc: "profiles instructions executed at runtime, assuming zkASM was instrumented",
+            builder: (yargs) => {
+                yargs.positional("path", {
+                    describe: "The instrumented zkASM file to execute.",
+                    type: "string"
+                })
+                yargs.positional("outfile", {
+                    describe: "If provided, results are written to this file. Otherwise they are printed to stdout.",
+                    type: "string"
+                })
+            },
+            handler: (argv) => console.log(`running profile-instructions with ${argv.path} ${argv.outfile}`)
         })
         .parse();
-
-    // Run the default command.
-    runTestsCmd(argv.path, argv.outfile);
 }
 
 /**
