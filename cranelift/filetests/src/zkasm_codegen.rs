@@ -349,11 +349,7 @@ start:
     program.join("\n")
 }
 
-fn runcommand_to_wasm(
-    invoke: Invocation,
-    _compare: Comparison,
-    expected: Vec<DataValue>,
-) -> String {
+fn runcommand_to_wat(invoke: Invocation, _compare: Comparison, expected: Vec<DataValue>) -> String {
     // TODO: support different amounts of outputs
     let res_bitness = match expected[0] {
         DataValue::I32(_) => "i32",
@@ -389,7 +385,7 @@ fn runcommand_to_wasm(
         {res_bitness}.const {expected_result}
         call $assert_eq
     )
-    (start $main)
+    (export "main" (func $main))
 )"#,
         args_pushing = args_pushing,
         arg_types = arg_types,
@@ -416,7 +412,7 @@ pub fn compile_invocation(
         func: invoke.func.clone(),
         args: invoke.args.clone(),
     };
-    let wat = runcommand_to_wasm(inv, cmp, expected.clone());
+    let wat = runcommand_to_wat(inv, cmp, expected.clone());
     let wasm_module = wat::parse_str(wat).unwrap();
 
     let settings = ZkasmSettings::default();
