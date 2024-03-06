@@ -9,6 +9,10 @@ class InstructionTracer {
         this.rawTrace = [];
     }
 
+    setup() {
+        // `zkevm-proverjs` requires a `setup` function on helper objects.
+    }
+
     /**
      * @param {Object} ctx - The context passed by `zkevm-proverjs` to helper calls
      * @param {Object} tag - Helper call specific information passed by `zkevm-proverjs`
@@ -39,3 +43,5 @@ class InstructionTracer {
         fs.writeFileSync(path, this.rawTrace.join("\n"));
     }
 }
+
+module.exports = InstructionTracer;
