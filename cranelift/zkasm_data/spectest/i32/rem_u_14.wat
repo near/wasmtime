@@ -6,4 +6,4 @@
 	i32.rem_u
 	i32.const 3
 	call $assert_eq_i32)
- (start $main))
+ (export "main" (func $main)))
