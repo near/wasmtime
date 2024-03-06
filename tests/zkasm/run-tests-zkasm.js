@@ -11,6 +11,7 @@ const {
 } = require('pilcom');
 const buildPoseidon = require('@0xpolygonhermez/zkevm-commonjs').getPoseidon;
 const AssertHelper = require('./assert_helper');
+const InstructionTracer = require('./helpers/InstructionTracer');
 
 const emptyInput = require('@0xpolygonhermez/zkevm-proverjs/test/inputs/empty_input.json');
 
@@ -64,7 +65,7 @@ async function main() {
                     type: "string"
                 })
             },
-            handler: (argv) => console.log(`running profile-instructions with ${argv.path} ${argv.outfile}`)
+            handler: (argv) => profileInstructions(argv.path, argv.outfile)
         })
         .parse();
 }
@@ -190,6 +191,53 @@ async function runTest(pathTest, cmPols) {
             status: "runtime error",
             error: e,
         }
+    }
+}
+
+/**
+ * Executes a zkASM file instrumented for instruction tracing and produces the
+ * trace of executed instructions.
+ * 
+ * @param {string} zkasmFile - Path to the zkASM file.
+ * @param {string} [outfile] - Path to a file where output is written. If not
+ * given, the trace is written to `stdout`.
+ */
+async function profileInstructions(zkasmFile, outfile) {
+    const configZkasm = {
+        defines: [],
+        allowUndefinedLabels: true,
+        allowOverwriteLabels: true,
+    };
+
+    // Construct helper classes.
+    const instructionTracer = new InstructionTracer();
+
+    // Compile rom.
+    const config = {
+        debug: true,
+        stepsN: 8388608,
+        assertOutputs: false,
+        helpers: [
+            instructionTracer
+        ]
+    };
+    const cmPols = await compilePil();
+    const rom = await zkasm.compile(zkasmFile, null, configZkasm);
+
+    const result = await smMain.execute(cmPols.Main, emptyInput, rom, config);
+
+    console.log("Execution finished");
+    if (result.output) {
+        console.log(`Output: ${result.output}`)
+    }
+    if (result.logs && Object.keys(result.logs).length > 0) {
+        console.log(result.logs);
+    }
+
+    if (outfile) {
+        instructionTracer.writeRawTrace(outfile);
+    } else {
+        console.log(instructionTracer.rawTrace);
     }
 }
 
