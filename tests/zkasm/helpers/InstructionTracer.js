@@ -42,9 +42,9 @@ class InstructionTracer {
             // https://nodejs.org/api/fs.html#using-fswritefile-with-file-descriptors
             throw new Error("provide a file name (not descriptor) to write to");
         }
-        // Writing in batches of 1000 instructions to limit memory usage,
+        // Writing in chunks of 1000 instructions to limit memory usage,
         // as raw traces might grow big.
-        dataDump.writeToFileInBatches(this.rawTrace, path, 1000);
+        dataDump.writeToFileInChunks(this.rawTrace, path, 1000);
     }
 }
 
