@@ -5,4 +5,4 @@
 	i32.wrap_i64
 	i32.const 0x00000001
 	call $assert_eq_i32)
- (start $main))
+ (export "main" (func $main)))

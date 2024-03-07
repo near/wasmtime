@@ -103,5 +103,5 @@
         i32.load offset=25 align=4       
         i32.const 122
         call $assert_eq_i32)
-    (start $main)
+    (export "main" (func $main))
 )

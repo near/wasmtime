@@ -4,4 +4,4 @@
 	i64.const 9223372036854775807
 	i64.const 9223372036854775807
 	call $assert_eq_i64)
- (start $main))
+ (export "main" (func $main)))

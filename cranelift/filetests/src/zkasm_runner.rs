@@ -1,44 +1,56 @@
+//! zkASM code runner
+
 use serde_derive::Deserialize;
 use std::io::Read;
 use std::path::Path;
 use tempfile::{NamedTempFile, TempDir};
 
-#[allow(dead_code)]
+/// Counters consumed during the execution of zkAsm program.
+/// Matches json structure returned by zkAsm interpreter.
 #[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Counters {
-    cnt_arith: String,
-    cnt_binary: String,
-    cnt_keccak_f: String,
-    cnt_mem_align: String,
-    cnt_steps: u64,
+    /// Number of ARITH opcodes used.
+    pub cnt_arith: String,
+    /// Number of BINARY opcodes used.
+    pub cnt_binary: String,
+    /// Number of KECCAK opcodes used.
+    pub cnt_keccak_f: String,
+    /// Number of MEM_ALIGN opcodes used.
+    pub cnt_mem_align: String,
+    /// Total number of execution steps.
+    pub cnt_steps: u64,
 }
 
+/// Status of the execution of zkAsm program.
+/// Matches json structure returned by zkAsm interpreter.
 #[derive(Deserialize, Debug)]
 pub enum ExecutionStatus {
+    /// Program ran till completion.
     #[serde(rename = "pass")]
     Success,
+    /// Program failed during compilation or execution.
     #[serde(rename = "runtime error")]
     RuntimeError,
 }
 
-#[allow(dead_code)]
+/// Result of the execution of zkAsm program.
 #[derive(Deserialize)]
 pub struct ExecutionResult {
     /// Path to the main zkAsm file that was executed.
-    path: String,
+    pub path: String,
     /// Status of the execution.
-    status: ExecutionStatus,
+    pub status: ExecutionStatus,
     /// Error message in case the execution failed.
-    error: Option<String>,
+    pub error: Option<String>,
     /// Profiling information about this execution.
     /// Only populated for the successful executions.
-    counters: Option<Counters>,
+    pub counters: Option<Counters>,
 }
 
 impl ExecutionResult {
-    #[allow(dead_code)]
-    fn format_error(&self) -> String {
+    /// Pretty-prints the execution error message.
+    pub fn format_error(&self) -> String {
         match &self.error {
             Some(s) => s.replace("\\n", "\n"),
             None => "None".to_string(),
@@ -47,7 +59,6 @@ impl ExecutionResult {
 }
 
 /// Runs a given snippet of zkAsm code.
-#[allow(dead_code)]
 pub fn run_zkasm(contents: &str) -> anyhow::Result<ExecutionResult> {
     let tmp_dir = TempDir::new()?;
     let zkasm_file = tmp_dir.path().join("code.zkasm");
@@ -59,7 +70,6 @@ pub fn run_zkasm(contents: &str) -> anyhow::Result<ExecutionResult> {
 
 /// Runs zkAsm at a specified path.
 /// If the directory path is passed, all zkAsm files in that directory will be executed.
-#[allow(dead_code)]
 pub fn run_zkasm_path(input_path: &Path) -> anyhow::Result<Vec<ExecutionResult>> {
     let dir_path = if input_path.is_dir() {
         input_path
@@ -73,10 +83,18 @@ pub fn run_zkasm_path(input_path: &Path) -> anyhow::Result<Vec<ExecutionResult>>
         include_str!("../../zkasm_data/generated/helpers/2-exp.zkasm"),
     )?;
 
+    // The node module necessary to execute zkAsm lives in `wasmtime/tests/zkasm/package.json`.
+    // We are trying to create a path to it that would work regardless of the current working
+    // directory that the caller is using.
+    let node_module_path = Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("../../tests/zkasm/")
+        .display()
+        .to_string();
+
     let mut output_file = NamedTempFile::new()?;
     let common_args = [
         "--prefix",
-        "../../tests/zkasm",
+        &node_module_path,
         "test",
         input_path.to_str().unwrap(),
         output_file.path().to_str().unwrap(),
