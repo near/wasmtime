@@ -1,5 +1,7 @@
 const fs = require("fs");
 
+const dataDump = require("./data-dump");
+
 /**
  * Handles the generation of traces of instructions executed at runtime.
  */
@@ -40,7 +42,9 @@ class InstructionTracer {
             // https://nodejs.org/api/fs.html#using-fswritefile-with-file-descriptors
             throw new Error("provide a file name (not descriptor) to write to");
         }
-        fs.writeFileSync(path, this.rawTrace.join("\n"));
+        // Writing in batches of 1000 instructions to limit memory usage,
+        // as raw traces might grow big.
+        dataDump.writeToFileInBatches(this.rawTrace, path, 1000);
     }
 }
 
