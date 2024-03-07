@@ -15,6 +15,8 @@ use cranelift_reader::Comparison;
 use cranelift_reader::Invocation;
 use cranelift_wasm::{translate_module, ZkasmEnvironment};
 
+use wabt::{wasm2wat, wat2wasm};
+
 /// ISA specific settings for zkASM codegen.
 #[derive(Default, Debug)]
 pub struct ZkasmSettings {
@@ -188,7 +190,7 @@ fn fix_relocs(
             if let FinalizedRelocTarget::ExternalName(ExternalName::User(name)) = reloc.target {
                 let name = &params.user_named_funcs()[name];
                 if name.index == 0 {
-                    // Codegen line after migrating to new assert:
+                    // TODO(#246): Codegen line after migrating to new assert:
                     // b"  $${assert_eq(A, B, label)}".to_vec()
                     b"  B :ASSERT".to_vec()
                 } else {
@@ -267,8 +269,8 @@ fn optimize_labels(code: &[&str], func_index: usize) -> Vec<String> {
     lines
 }
 
-// TODO: fix same label names in different functions
-/// Compiles a clif function.
+/// Compiles a clif function into zkasm, to be used in test program construction.
+/// Result is Vec<String> where each String represents line of zkasm code
 pub fn compile_clif_function(func: &Function) -> Vec<String> {
     let flag_builder = settings::builder();
     let isa_builder = zkasm::isa_builder("zkasm-unknown-unknown".parse().unwrap());
@@ -287,18 +289,23 @@ pub fn compile_clif_function(func: &Function) -> Vec<String> {
     );
     let code = std::str::from_utf8(&code_buffer).unwrap();
     let mut lines: Vec<String> = code.lines().map(|s| s.to_string()).collect();
+
+    // Below we replacing default function name to same name as will be used in invocations
+    // to call it
     // TODO: I believe it can be done more beautiful way
     let mut funcname = func.name.to_string();
     funcname.remove(0);
     let mut res = vec![format!("{}:", funcname)];
     res.append(&mut lines);
+    // Here we adding function-speciefic prefix to internal labels of the function
+    // to make labels different in different functions.
     res.into_iter()
         .map(|s| s.replace("label", &format!("label_{}", funcname)))
         .collect()
 }
 
 /// Builds main for test program
-pub fn build_main(invoke_names: Vec<String>) -> Vec<String> {
+pub fn build_test_main(invoke_names: Vec<String>) -> Vec<String> {
     let mut res = vec![
         "main:".to_string(),
         "  SP - 1 => SP".to_string(),
@@ -315,6 +322,7 @@ pub fn build_main(invoke_names: Vec<String>) -> Vec<String> {
 }
 
 /// Generate invoke name in format <function_name>_<arg>_..._<arg>
+/// This name can be used as label in zkasm, or as tag for helpers
 pub fn invoke_name(invoke: &Invocation) -> String {
     let mut res = invoke.func.clone();
     for arg in &invoke.args {
@@ -324,6 +332,8 @@ pub fn invoke_name(invoke: &Invocation) -> String {
 }
 
 /// Assembles all parts of zkasm test program together
+/// To get this parts you can use [compile_invocation], [compile_clif_function]
+/// and [build_test_main]
 pub fn build_test_zkasm(
     functions: Vec<Vec<String>>,
     invocations: Vec<Vec<String>>,
@@ -349,6 +359,9 @@ start:
     program.join("\n")
 }
 
+/// This function serves to generate wat as intermediate step
+/// for [compile_invocation].
+/// It returns wat generated from invocation as single string
 fn runcommand_to_wat(invoke: Invocation, _compare: Comparison, expected: Vec<DataValue>) -> String {
     // TODO: support different amounts of outputs
     let res_bitness = match expected[0] {
@@ -369,10 +382,7 @@ fn runcommand_to_wat(invoke: Invocation, _compare: Comparison, expected: Vec<Dat
         arg_types.push_str(arg_type);
         arg_types.push_str(" ");
 
-        args_pushing.push_str(&format!("{arg_type}.const {arg}\n        "));
-    }
-    if arg_types.len() > 0 {
-        arg_types.pop();
+        args_pushing.push_str(&format!("{arg_type}.const {arg}\n"));
     }
     // TODO: remove line with 8 whitespaces in the end of args_pushing
     let wat_code = format!(
@@ -385,18 +395,20 @@ fn runcommand_to_wat(invoke: Invocation, _compare: Comparison, expected: Vec<Dat
         {res_bitness}.const {expected_result}
         call $assert_eq
     )
-    (export "main" (func $main))
-)"#,
+    (export "main" (func $main)))"#,
         args_pushing = args_pushing,
         arg_types = arg_types,
         res_bitness = res_bitness,
         func_name = func_name,
         expected_result = expected_result,
     );
-    wat_code.to_string()
+    // This wasm2wat and wat2wasm used to automatically format wat code.
+    wasm2wat(wat2wasm(wat_code).unwrap()).unwrap()
 }
 
-/// Compiles a invocation.
+/// This function compiles clif run command (aka invocation) into zkasm.
+/// To properly allocate registers, it use wat as intermediate step.
+/// Result is Vec<Strings> where String represents line of zkasm code
 pub fn compile_invocation(
     invoke: Invocation,
     compare: Comparison,
@@ -425,13 +437,17 @@ pub fn compile_invocation(
     let new_label = invoke_name(&invoke);
     let funcname = invoke.func;
 
-    // TODO: will this always function_2?
+    // Next two lines used to cut preamble and postamble generated by [generate_zkasm]
+    // We need only function body, since it will be only part of zkasm test program, not a single program
+    // TODO: do not rely on label name ("function_2")
     let start_index = generated.iter().position(|r| r == "function_2:").unwrap();
     let end_index = generated.iter().rposition(|r| r == "  :JMP(RR)").unwrap();
     let mut generated_function = generated[start_index..=end_index].to_vec();
 
+    // Here we replace call to function from default generated label by [generate_zkasm] to
+    // to proper name. Also, here we replace default tag for assert-helper to something more verbose
+    // TODO: Do not rely on function name ("function_1")
     generated_function[0] = format!("{}:", new_label);
-    // TODO: will this always function_1?
     let generated_replaced: Vec<String> = generated_function
         .iter()
         .map(|s| {
