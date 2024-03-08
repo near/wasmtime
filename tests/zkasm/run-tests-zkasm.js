@@ -11,6 +11,7 @@ const {
 } = require('pilcom');
 const buildPoseidon = require('@0xpolygonhermez/zkevm-commonjs').getPoseidon;
 const AssertHelper = require('./assert_helper');
+const InstructionTracer = require('./helpers/InstructionTracer');
 
 const emptyInput = require('@0xpolygonhermez/zkevm-proverjs/test/inputs/empty_input.json');
 
@@ -35,21 +36,38 @@ function value_to_json(key, value) {
  * Run this script with `--help` to print docs.
  */
 async function main() {
-    const argv = require("yargs/yargs")(process.argv.slice(2))
-        .command("$0 <path> [outfile]", "the default command runs zkASM tests", (yargs) => {
-            yargs.positional("path", {
-                describe: "The zkASM file to run or a directory to search for zkASM files.",
-                type: "string"
-            })
-            yargs.positional("outfile", {
-                describe: "If provided, results are written to this file. Otherwise they are printed to stdout.",
-                type: "string"
-            })
+    require("yargs/yargs")(process.argv.slice(2))
+        .command({
+            command: "$0 <path> [outfile]",
+            desc: "the default command runs zkASM tests",
+            builder: (yargs) => {
+                yargs.positional("path", {
+                    describe: "The zkASM file to run or a directory to search for zkASM files.",
+                    type: "string"
+                })
+                yargs.positional("outfile", {
+                    describe: "If provided, results are written to this file. Otherwise they are printed to stdout.",
+                    type: "string"
+                })
+            },
+            handler: (argv) => runTestsCmd(argv.path, argv.outfile)
+        })
+        .command({
+            command: "profile-instructions <path> [outfile]",
+            desc: "profiles instructions executed at runtime, assuming zkASM was instrumented",
+            builder: (yargs) => {
+                yargs.positional("path", {
+                    describe: "The instrumented zkASM file to execute.",
+                    type: "string"
+                })
+                yargs.positional("outfile", {
+                    describe: "If provided, results are written to this file. Otherwise they are printed to stdout.",
+                    type: "string"
+                })
+            },
+            handler: (argv) => profileInstructions(argv.path, argv.outfile)
         })
         .parse();
-
-    // Run the default command.
-    runTestsCmd(argv.path, argv.outfile);
 }
 
 /**
@@ -173,6 +191,53 @@ async function runTest(pathTest, cmPols) {
             status: "runtime error",
             error: e,
         }
+    }
+}
+
+/**
+ * Executes a zkASM file instrumented for instruction tracing and produces the
+ * trace of executed instructions.
+ * 
+ * @param {string} zkasmFile - Path to the zkASM file.
+ * @param {string} [outfile] - Path to a file where output is written. If not
+ * given, the trace is written to `stdout`.
+ */
+async function profileInstructions(zkasmFile, outfile) {
+    const configZkasm = {
+        defines: [],
+        allowUndefinedLabels: true,
+        allowOverwriteLabels: true,
+    };
+
+    // Construct helper classes.
+    const instructionTracer = new InstructionTracer();
+
+    // Compile rom.
+    const config = {
+        debug: true,
+        stepsN: 8388608,
+        assertOutputs: false,
+        helpers: [
+            instructionTracer
+        ]
+    };
+    const cmPols = await compilePil();
+    const rom = await zkasm.compile(zkasmFile, null, configZkasm);
+
+    const result = await smMain.execute(cmPols.Main, emptyInput, rom, config);
+
+    console.log("Execution finished");
+    if (result.output) {
+        console.log(`Output: ${result.output}`)
+    }
+    if (result.logs && Object.keys(result.logs).length > 0) {
+        console.log(result.logs);
+    }
+
+    if (outfile) {
+        instructionTracer.writeRawTrace(outfile);
+    } else {
+        console.log(instructionTracer.rawTrace);
     }
 }
 

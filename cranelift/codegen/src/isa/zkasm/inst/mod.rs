@@ -752,6 +752,8 @@ pub fn reg_name(reg: Reg) -> String {
 }
 
 impl Inst {
+    // TODO(#218): remove Risc-V info from `print_with_state`
+    // TODO(#217): print consistent names by reusing `print_name`
     fn print_with_state(
         &self,
         _state: &mut EmitState,
@@ -1257,6 +1259,65 @@ impl Inst {
             &Inst::EBreak {} => String::from("ebreak"),
             &Inst::ECall {} => String::from("ecall"),
         }
+    }
+
+    /// Prints the enum variant identifier.
+    fn print_name(&self) -> String {
+        let name = match self {
+            &Inst::Nop => "Nop",
+            &Inst::Label { .. } => "Label",
+            &Inst::LoadConst32 { .. } => "LoadConst32",
+            &Inst::LoadConst64 { .. } => "LoadConst64",
+            &Inst::AluRRR { .. } => "AluRRR",
+            &Inst::MulArith { .. } => "MulArith",
+            &Inst::Shl64 { .. } => "Shl64",
+            &Inst::Shru64 { .. } => "Shru64",
+            &Inst::DivArith { .. } => "DivArith",
+            &Inst::UDivArith { .. } => "UDivArith",
+            &Inst::RemArith { .. } => "RemArith",
+            &Inst::URemArith { .. } => "URemArith",
+            &Inst::Ineg { .. } => "Ineg",
+            &Inst::Bnot { .. } => "Bnot",
+            &Inst::Load { .. } => "Load",
+            &Inst::Store { .. } => "Store",
+            &Inst::Args { .. } => "Args",
+            &Inst::Ret { .. } => "Ret",
+            &Inst::Extend { .. } => "Extend",
+            &Inst::ReserveSp { .. } => "ReserveSp",
+            &Inst::ReleaseSp { .. } => "ReleaseSp",
+            &Inst::Call { .. } => "Call",
+            &Inst::CallInd { .. } => "CallInd",
+            &Inst::ReturnCall { .. } => "ReturnCall",
+            &Inst::ReturnCallInd { .. } => "ReturnCallInd",
+            &Inst::TrapIf { .. } => "TrapIf",
+            &Inst::TrapIfC { .. } => "TrapIfC",
+            &Inst::Jal { .. } => "Jal",
+            &Inst::CondBr { .. } => "CondBr",
+            &Inst::LoadExtName { .. } => "LoadExtName",
+            &Inst::LoadAddr { .. } => "LoadAddr",
+            &Inst::VirtualSPOffsetAdj { .. } => "VirtualSPOffsetAdj",
+            &Inst::Mov { .. } => "Mov",
+            &Inst::MovFromPReg { .. } => "MovFromPReg",
+            &Inst::ECall => "ECall",
+            &Inst::EBreak => "EBreak",
+            &Inst::Udf { .. } => "Udf",
+            &Inst::Jalr { .. } => "Jalr",
+            &Inst::Select { .. } => "Select",
+            &Inst::BrTable { .. } => "BrTable",
+            &Inst::IntSelect { .. } => "IntSelect",
+            &Inst::Icmp { .. } => "Icmp",
+            &Inst::SelectReg { .. } => "SelectReg",
+            &Inst::RawData { .. } => "RawData",
+            &Inst::Unwind { .. } => "Unwind",
+            &Inst::DummyUse { .. } => "DummyUse",
+            &Inst::Popcnt { .. } => "Popcnt",
+            &Inst::Cltz { .. } => "Cltz",
+            &Inst::Rev8 { .. } => "Rev8",
+            &Inst::Brev8 { .. } => "Brev8",
+            &Inst::StackProbeLoop { .. } => "StackProbeLoop",
+            &Inst::AddImm32 { .. } => "AddImm32",
+        };
+        String::from(name)
     }
 }
 

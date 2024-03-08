@@ -4,16 +4,16 @@ start:
   :JMP(function_0)
   :JMP(finalizeExecution)
 function_0:
-  ;; TODO(mooori) call the helper to trace `MInst` execution
+  $${traceInstruction(ReserveSp)}
   SP - 1 => SP
-  ;; TODO(mooori) call the helper to trace `MInst` execution
+  $${traceInstruction(Store)}
   RR :MSTORE(SP)
-  ;; TODO(mooori) call the helper to trace `MInst` execution
-  ;; TODO(mooori) call the helper to trace `MInst` execution
+  $${traceInstruction(Jal)}
+  $${traceInstruction(Load)}
   $ => RR :MLOAD(SP)
-  ;; TODO(mooori) call the helper to trace `MInst` execution
+  $${traceInstruction(ReleaseSp)}
   SP + 1 => SP
-  ;; TODO(mooori) call the helper to trace `MInst` execution
+  $${traceInstruction(Ret)}
   :JMP(RR)
 finalizeExecution:
   ${beforeLast()}  :JMPN(finalizeExecution)
