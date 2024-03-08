@@ -191,8 +191,8 @@ fn fix_relocs(
                 let name = &params.user_named_funcs()[name];
                 if name.index == 0 {
                     // TODO(#246): Codegen line after migrating to new assert:
-                    // b"  $${assert_eq(A, B, label)}".to_vec()
-                    b"  B :ASSERT".to_vec()
+                    b"  $${assert_eq(A, B, label)}".to_vec()
+                    // b"  B :ASSERT".to_vec()
                 } else {
                     format!("  zkPC + 2 => RR\n  :JMP(function_{})", name.index)
                         .as_bytes()
@@ -326,7 +326,8 @@ pub fn build_test_main(invoke_names: Vec<String>) -> Vec<String> {
 pub fn invoke_name(invoke: &Invocation) -> String {
     let mut res = invoke.func.clone();
     for arg in &invoke.args {
-        res.push_str(&format!("_{}", arg));
+        // two underscores for easy parsing. If funcname contains underscore it can be mixed with ours.
+        res.push_str(&format!("__{}", arg));
     }
     res
 }
