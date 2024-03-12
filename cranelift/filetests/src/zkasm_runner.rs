@@ -3,6 +3,7 @@
 use serde_derive::Deserialize;
 use std::io::Read;
 use std::path::Path;
+use std::process::Command;
 use tempfile::{NamedTempFile, TempDir};
 
 /// Counters consumed during the execution of zkAsm program.
@@ -68,6 +69,36 @@ pub fn run_zkasm(contents: &str) -> anyhow::Result<ExecutionResult> {
     Ok(results.remove(0))
 }
 
+/// Sets up the helpers required to execute generated zkASM. Generates a subdirectory in the
+/// provided `path`.
+fn create_zkasm_helpers(path: &Path) -> anyhow::Result<()> {
+    std::fs::create_dir(path.join("helpers"))?;
+    let helpers_file = path.join("helpers/2-exp.zkasm");
+    std::fs::write(
+        helpers_file,
+        include_str!("../../zkasm_data/generated/helpers/2-exp.zkasm"),
+    )?;
+    Ok(())
+}
+
+/// Returns the path to the Node module necessary to execute zkASM. No assumptions regarding the
+/// current path of the caller are made.
+fn node_module_path() -> String {
+    // The node module necessary to execute zkAsm lives in `wasmtime/tests/zkasm/package.json`.
+    Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("../../tests/zkasm/")
+        .display()
+        .to_string()
+}
+
+/// Generates a `Command` to launch `npm` in a manner compatible with the target OS.
+fn new_npm_command() -> Command {
+    #[cfg(target_os = "windows")]
+    return std::process::Command::new("cmd").args(["/C", "npm"]);
+    #[cfg(not(target_os = "windows"))]
+    return std::process::Command::new("npm");
+}
+
 /// Runs zkAsm at a specified path.
 /// If the directory path is passed, all zkAsm files in that directory will be executed.
 pub fn run_zkasm_path(input_path: &Path) -> anyhow::Result<Vec<ExecutionResult>> {
@@ -76,38 +107,17 @@ pub fn run_zkasm_path(input_path: &Path) -> anyhow::Result<Vec<ExecutionResult>>
     } else {
         input_path.parent().unwrap()
     };
-    std::fs::create_dir(dir_path.join("helpers"))?;
-    let helpers_file = dir_path.join("helpers/2-exp.zkasm");
-    std::fs::write(
-        helpers_file,
-        include_str!("../../zkasm_data/generated/helpers/2-exp.zkasm"),
-    )?;
-
-    // The node module necessary to execute zkAsm lives in `wasmtime/tests/zkasm/package.json`.
-    // We are trying to create a path to it that would work regardless of the current working
-    // directory that the caller is using.
-    let node_module_path = Path::new(env!("CARGO_MANIFEST_DIR"))
-        .join("../../tests/zkasm/")
-        .display()
-        .to_string();
 
     let mut output_file = NamedTempFile::new()?;
-    let common_args = [
-        "--prefix",
-        &node_module_path,
-        "test",
-        input_path.to_str().unwrap(),
-        output_file.path().to_str().unwrap(),
-    ];
-
-    #[cfg(target_os = "windows")]
-    let output = std::process::Command::new("cmd")
-        .args(["/C", "npm"])
-        .args(common_args)
-        .output()?;
-    #[cfg(not(target_os = "windows"))]
-    let output = std::process::Command::new("npm")
-        .args(common_args)
+    create_zkasm_helpers(dir_path)?;
+    let output = new_npm_command()
+        .args([
+            "--prefix",
+            &node_module_path(),
+            "test",
+            input_path.to_str().unwrap(),
+            output_file.path().to_str().unwrap(),
+        ])
         .output()?;
 
     if !output.status.success() {
@@ -117,6 +127,7 @@ pub fn run_zkasm_path(input_path: &Path) -> anyhow::Result<Vec<ExecutionResult>>
             String::from_utf8(output.stderr)?
         ));
     }
+
     let mut buf = String::new();
     output_file.read_to_string(&mut buf)?;
     if buf.is_empty() {
