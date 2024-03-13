@@ -249,5 +249,28 @@ finalizeExecution:
         Ok(())
     }
 
-    // TODO fn test_profile_zkasm_runtime_error
+    #[test]
+    fn test_profile_zkasm_runtime_error() -> anyhow::Result<()> {
+        let code = r#"
+start:
+    2 + 2 => A
+    $${traceInstruction(TestInstruction1)}
+    5 => B
+    $${traceInstruction(TestInstruction42)}
+    B: ASSERT
+    $${traceInstruction(TestInstruction3)}
+finalizeExecution:
+    ${beforeLast()}  :JMPN(finalizeExecution)
+    :JMP(start)
+        "#;
+
+        let temp_dir = TempDir::new()?;
+        let trace_file = temp_dir.path().join("trace_file");
+        let err = profile_zkasm(code, &trace_file)
+            .expect_err("A runtime error should lead to an `Err`")
+            .to_string();
+        assert!(err.contains("The `profile-instructions` script failed"));
+        assert!(err.contains("Error: Assert does not match"));
+        Ok(())
+    }
 }
