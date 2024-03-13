@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "description": "zkASM Test Utils",
   "scripts": {
-    "test": "node run-tests-zkasm.js"
+    "test": "node run-tests-zkasm.js",
+    "profile-instructions": "node run-tests-zkasm.js profile-instructions"
   },
   "keywords": [],
   "author": "Andrei Kashin",

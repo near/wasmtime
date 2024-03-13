@@ -1,5 +1,6 @@
 //! zkASM code runner
 
+use anyhow::anyhow;
 use serde_derive::Deserialize;
 use std::io::Read;
 use std::path::Path;
@@ -137,6 +138,48 @@ pub fn run_zkasm_path(input_path: &Path) -> anyhow::Result<Vec<ExecutionResult>>
     Ok(execution_results)
 }
 
+/// Profiles the provided zkASM code and writes the trace of executed instructions to `trace_file`.
+pub fn profile_zkasm(zkasm: &str, trace_file: &Path) -> anyhow::Result<()> {
+    let tmp_dir = TempDir::new()?;
+    let zkasm_file = tmp_dir.path().join("code.zkasm");
+    std::fs::write(&zkasm_file, zkasm)?;
+    profile_zkasm_path(&zkasm_file, trace_file)
+}
+
+/// Profiles zkASM stored in a file and writes the trace of executed instructions to `trace_file`.
+pub fn profile_zkasm_path(zkasm_file: &Path, trace_file: &Path) -> anyhow::Result<()> {
+    if !zkasm_file.is_file() {
+        return Err(anyhow!("`zkasm_file` should point to a file"));
+    }
+    // Path to a file is expected to have parent.
+    let zkasm_dir = zkasm_file.parent().unwrap();
+
+    create_zkasm_helpers(zkasm_dir)?;
+    let output = new_npm_command()
+        .args([
+            "--prefix",
+            &node_module_path(),
+            "run",
+            "profile-instructions",
+            "--",
+            zkasm_file.to_str().unwrap(),
+            trace_file.to_str().unwrap(),
+        ])
+        .output()?;
+
+    // Errors occurring in the `profile-instructions` script are thrown (JavaScript), hence
+    // `ExitStatus::Success` indicates that the script ran successfully.
+    if output.status.success() {
+        Ok(())
+    } else {
+        Err(anyhow!(
+            "The `profile-instructions` script failed: {}; stderr: {}",
+            output.status,
+            String::from_utf8(output.stderr)?
+        ))
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -178,4 +221,33 @@ finalizeExecution:
             result.format_error()
         );
     }
+
+    #[test]
+    fn test_profile_zkasm_success() -> anyhow::Result<()> {
+        let code = r#"
+start:
+    2 + 3 => A
+    $${traceInstruction(TestInstruction1)}
+    5 => B
+    $${traceInstruction(TestInstruction42)}
+    B: ASSERT
+    $${traceInstruction(TestInstruction3)}
+finalizeExecution:
+    ${beforeLast()}  :JMPN(finalizeExecution)
+    :JMP(start)
+        "#;
+
+        // Write trace to a temp file, then check that file's content equals the expected trace.
+        let temp_dir = TempDir::new()?;
+        let trace_file = temp_dir.path().join("trace_file");
+        profile_zkasm(code, &trace_file)?;
+        let trace = std::fs::read_to_string(trace_file).unwrap();
+        assert_eq!(
+            trace,
+            "TestInstruction1\nTestInstruction42\nTestInstruction3\n"
+        );
+        Ok(())
+    }
+
+    // TODO fn test_profile_zkasm_runtime_error
 }
