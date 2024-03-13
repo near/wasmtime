@@ -15,8 +15,6 @@ use cranelift_reader::Comparison;
 use cranelift_reader::Invocation;
 use cranelift_wasm::{translate_module, ZkasmEnvironment};
 
-use wabt::{wasm2wat, wat2wasm};
-
 /// ISA specific settings for zkASM codegen.
 #[derive(Default, Debug)]
 pub struct ZkasmSettings {
@@ -402,8 +400,8 @@ fn runcommand_to_wat(invoke: Invocation, _compare: Comparison, expected: Vec<Dat
         func_name = func_name,
         expected_result = expected_result,
     );
-    // This wasm2wat and wat2wasm used to automatically format wat code.
-    wasm2wat(wat2wasm(wat_code).unwrap()).unwrap()
+    // TODO: format wat code using something like wasm2wat(wat2wasm(wat_code)).
+    wat_code
 }
 
 /// This function compiles clif run command (aka invocation) into zkasm.

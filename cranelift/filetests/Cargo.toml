@@ -47,4 +47,3 @@ regex = { workspace = true }
 wasmtime = { workspace = true, features = ["cranelift", "runtime"] }
 walkdir = { workspace = true }
 tempfile = { workspace = true }
-wabt = "0.10.0"
