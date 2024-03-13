@@ -188,6 +188,8 @@ fn fix_relocs(
             if let FinalizedRelocTarget::ExternalName(ExternalName::User(name)) = reloc.target {
                 let name = &params.user_named_funcs()[name];
                 if name.index == 0 {
+                    // TODO(#246): Codegen line after migrating to new assert:
+                    // b"  $${assert_eq(A, B, label)}".to_vec()
                     b"  B :ASSERT".to_vec()
                 } else {
                     format!("  zkPC + 2 => RR\n  :JMP(function_{})", name.index)
@@ -265,8 +267,8 @@ fn optimize_labels(code: &[&str], func_index: usize) -> Vec<String> {
     lines
 }
 
-// TODO: fix same label names in different functions
-/// Compiles a clif function.
+/// Compiles a clif function into zkasm, to be used in test program construction.
+/// Result is Vec<String> where each String represents line of zkasm code
 pub fn compile_clif_function(func: &Function) -> Vec<String> {
     let flag_builder = settings::builder();
     let isa_builder = zkasm::isa_builder("zkasm-unknown-unknown".parse().unwrap());
@@ -285,41 +287,69 @@ pub fn compile_clif_function(func: &Function) -> Vec<String> {
     );
     let code = std::str::from_utf8(&code_buffer).unwrap();
     let mut lines: Vec<String> = code.lines().map(|s| s.to_string()).collect();
+
+    // Below we replacing default function name to same name as will be used in invocations
+    // to call it
     // TODO: I believe it can be done more beautiful way
     let mut funcname = func.name.to_string();
     funcname.remove(0);
-    funcname.push(':');
-    let mut res = vec![funcname];
+    let mut res = vec![format!("{}:", funcname)];
     res.append(&mut lines);
-    res
+    // Here we adding function-speciefic prefix to internal labels of the function
+    // to make labels different in different functions.
+    res.into_iter()
+        .map(|s| s.replace("label", &format!("label_{}", funcname)))
+        .collect()
 }
 
-// TODO: this function should be much rewrited,
-// now it works for one very basic case:
-// Simple progam which don't contain globals or some other speciefic preamble\postamble
-// Program don't need helper functions (for example 2-exp.zkasm)
-// How to fix it? Use generate_preamble and provide correct inputs for it.
-/// Builds zkASM used in filetests.
-pub fn build_test_zkasm(functions: Vec<Vec<String>>, invocations: Vec<Vec<String>>) -> String {
-    // TODO: use generate_preamble to get preamble
-    let preamble = "\
-start:
-  zkPC + 2 => RR
-    :JMP(main)
-    :JMP(finalizeExecution)";
-    let mut main = vec![
+/// Builds main for test program
+pub fn build_test_main(invoke_names: Vec<String>) -> Vec<String> {
+    let mut res = vec![
         "main:".to_string(),
         "  SP - 1 => SP".to_string(),
         "  RR :MSTORE(SP)".to_string(),
     ];
-    for invocation in invocations {
-        main.extend(invocation);
+    for name in invoke_names {
+        res.push("  zkPC + 2 => RR".to_string());
+        res.push(format!("  :JMP({})", name));
     }
-    main.push("  SP - 1 => SP".to_string());
-    main.push("  :JMP(RR)".to_string());
+    res.push("  $ => RR :MLOAD(SP)".to_string());
+    res.push("  SP + 1 => SP".to_string());
+    res.push("  :JMP(RR)".to_string());
+    res
+}
+
+/// Generate invoke name in format <function_name>_<arg>_..._<arg>
+/// This name can be used as label in zkasm, or as tag for helpers
+pub fn invoke_name(invoke: &Invocation) -> String {
+    let mut res = invoke.func.clone();
+    for arg in &invoke.args {
+        res.push_str(&format!("_{}", arg));
+    }
+    res
+}
+
+/// Assembles all parts of zkasm test program together
+/// To get this parts you can use [compile_invocation], [compile_clif_function]
+/// and [build_test_main]
+pub fn build_test_zkasm(
+    functions: Vec<Vec<String>>,
+    invocations: Vec<Vec<String>>,
+    main: Vec<String>,
+) -> String {
+    // TODO: use generate_preamble to get preamble
+    let preamble = "\
+start:
+  0xffff => SP
+  zkPC + 2 => RR
+    :JMP(main)
+    :JMP(finalizeExecution)";
     let mut postamble = generate_postamble();
     let mut program = vec![preamble.to_string()];
-    program.append(&mut main);
+    program.extend(main);
+    for inv in invocations {
+        program.extend(inv);
+    }
     for foo in functions {
         program.extend(foo);
     }
@@ -327,29 +357,101 @@ start:
     program.join("\n")
 }
 
-/// Compiles a invocation.
+/// This function serves to generate wat as intermediate step
+/// for [compile_invocation].
+/// It returns wat generated from invocation as single string
+fn runcommand_to_wat(invoke: Invocation, _compare: Comparison, expected: Vec<DataValue>) -> String {
+    // TODO: support different amounts of outputs
+    let res_bitness = match expected[0] {
+        DataValue::I32(_) => "i32",
+        DataValue::I64(_) => "i64",
+        _ => unimplemented!(),
+    };
+    let func_name = invoke.func;
+    let expected_result = expected[0].clone();
+    let mut arg_types = String::new();
+    let mut args_pushing = String::new();
+    for arg in &invoke.args {
+        let arg_type = match arg {
+            DataValue::I32(_) => "i32",
+            DataValue::I64(_) => "i64",
+            _ => unimplemented!(),
+        };
+        arg_types.push_str(arg_type);
+        arg_types.push_str(" ");
+
+        args_pushing.push_str(&format!("{arg_type}.const {arg}\n"));
+    }
+    // TODO: remove line with 8 whitespaces in the end of args_pushing
+    let wat_code = format!(
+        r#"(module
+    (import "env" "assert_eq" (func $assert_eq (param {res_bitness} {res_bitness})))
+    (import "env" "{func_name}" (func ${func_name} (param {arg_types}) (result {res_bitness})))
+    (func $main
+        {args_pushing}
+        call ${func_name}
+        {res_bitness}.const {expected_result}
+        call $assert_eq
+    )
+    (export "main" (func $main)))"#,
+        args_pushing = args_pushing,
+        arg_types = arg_types,
+        res_bitness = res_bitness,
+        func_name = func_name,
+        expected_result = expected_result,
+    );
+    // TODO: format wat code using something like wasm2wat(wat2wasm(wat_code)).
+    wat_code
+}
+
+/// This function compiles clif run command (aka invocation) into zkasm.
+/// To properly allocate registers, it use wat as intermediate step.
+/// Result is Vec<Strings> where String represents line of zkasm code
 pub fn compile_invocation(
     invoke: Invocation,
     compare: Comparison,
     expected: Vec<DataValue>,
 ) -> Vec<String> {
-    // Here I assume that each "function" in zkasm gets it's arguments from first N registers
-    // and put result in A.
-    // TODO: should be more robust way to do it, we need somehow define inputs and outputs
-    let mut res: Vec<String> = Default::default();
-    let registers = vec!["A", "B", "C", "D", "E"];
+    // TODO: don't do this clones
+    let cmp = if compare == Comparison::Equals {
+        Comparison::Equals
+    } else {
+        Comparison::NotEquals
+    };
+    let inv = Invocation {
+        func: invoke.func.clone(),
+        args: invoke.args.clone(),
+    };
+    let wat = runcommand_to_wat(inv, cmp, expected.clone());
+    let wasm_module = wat::parse_str(wat).unwrap();
 
-    let args = invoke.args;
+    let settings = ZkasmSettings::default();
+
+    // TODO: we should not use generate_zkasm itself, but a bit changed version?
+    let generated: Vec<String> = generate_zkasm(&settings, &wasm_module)
+        .split("\n")
+        .map(|s| s.to_string())
+        .collect();
+    let new_label = invoke_name(&invoke);
     let funcname = invoke.func;
 
-    // TODO: here we should pay attention to type of DataValue (I64 or I32)
-    for (idx, arg) in args.iter().enumerate() {
-        res.push(format!("  {} => {}", arg, registers[idx]))
-    }
-    res.push(format!("    :JMP({})", funcname));
-    // TODO: handle functions with multiple outputs
-    res.push(format!("  {} => B", expected[0]));
-    // TODO: replace with call to host function
-    res.push(format!("  CALL AWESOME ASSERT ({})", compare));
-    res
+    // Next two lines used to cut preamble and postamble generated by [generate_zkasm]
+    // We need only function body, since it will be only part of zkasm test program, not a single program
+    // TODO: do not rely on label name ("function_2")
+    let start_index = generated.iter().position(|r| r == "function_2:").unwrap();
+    let end_index = generated.iter().rposition(|r| r == "  :JMP(RR)").unwrap();
+    let mut generated_function = generated[start_index..=end_index].to_vec();
+
+    // Here we replace call to function from default generated label by [generate_zkasm] to
+    // to proper name. Also, here we replace default tag for assert-helper to something more verbose
+    // TODO: Do not rely on function name ("function_1")
+    generated_function[0] = format!("{}:", new_label);
+    let generated_replaced: Vec<String> = generated_function
+        .iter()
+        .map(|s| {
+            s.replace("label", &new_label)
+                .replace("function_1", &funcname)
+        })
+        .collect();
+    generated_replaced
 }
