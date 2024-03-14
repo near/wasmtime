@@ -104,7 +104,7 @@ impl SubTest for TestRunZkasm {
         for (testname, status) in results.results {
             if status != "pass" {
                 let fail_parsed: Vec<&str> = testname.split("__").collect();
-                let args = fail_parsed[1..fail_parsed.len()].join(", ");
+                let args = fail_parsed[1..fail_parsed.len()].join(", ").replace("MINUS", "-");
                 let fail_formatted = format!(
                     "Failed to calculate {}({}). Expected: {}. Actual:{}\n",
                     fail_parsed[0], args, expected_results[&testname], status
