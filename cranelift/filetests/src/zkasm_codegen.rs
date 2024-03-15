@@ -329,7 +329,9 @@ pub fn invoke_name(invoke: &Invocation) -> String {
         // two underscores for easy parsing. If funcname contains underscore it can be mixed with ours.
         res.push_str(&format!("__{}", arg));
     }
-    res
+    // ZKASM don't allow "-" be in the label name, but we want to keep this info to make different
+    // run commands produce different labels
+    res.replace("-", "MINUS")
 }
 
 /// Assembles all parts of zkasm test program together

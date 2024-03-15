@@ -1,0 +1,22 @@
+test run-zkasm
+
+;;;; basic uextend
+
+function %uextend32_64(i32) -> i64 {
+block0(v0: i32):
+    v1 = uextend.i64 v0
+    return v1
+}
+; run: %uextend32_64(0xffff_ee00) == 0xffff_ee00
+; run: %uextend32_64(0x7fff_ee00) == 0x7fff_ee00
+
+;; uextend of an `add` that we know is likely to set undefined bits
+;; above the narrow value
+
+function %add_uextend32_64(i32, i32) -> i64 {
+block0(v0: i32, v1: i32):
+    v2 = iadd.i32 v0, v1
+    v3 = uextend.i64 v2
+    return v3
+}
+; run: %add_uextend32_64(0xffff_ee00, 0x1000_0001) == 0x0000_0000_0fff_ee01
