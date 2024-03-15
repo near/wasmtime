@@ -235,7 +235,7 @@ async function profileInstructions(zkasmFile, outfile) {
     }
 
     if (outfile) {
-        instructionTracer.writeRawTrace(outfile);
+        instructionTracer.writeTrace(outfile);
     } else {
         console.log(instructionTracer.rawTrace);
     }

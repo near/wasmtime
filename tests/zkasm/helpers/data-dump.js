@@ -20,6 +20,18 @@ function writeToFileInChunks(lines, filePath, chunkSize) {
     }
 }
 
+/**
+ * Serializes `obj` as JSON string and writes that string to `filePath`.
+ * 
+ * @param {Object} obj 
+ * @param {string} filePath 
+ */
+function writeJsonToFile(obj, filePath) {
+    const jsonString = JSON.stringify(obj, null, 4);
+    fs.writeFileSync(filePath, jsonString);
+}
+
 module.exports = {
-    writeToFileInChunks
+    writeToFileInChunks,
+    writeJsonToFile
 }
