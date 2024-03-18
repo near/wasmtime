@@ -26,7 +26,8 @@ class AssertHelper {
         const equals = ctx[tag.params[0].regName][0] == ctx[tag.params[1].regName][0] &&
                        ctx[tag.params[0].regName][1] == ctx[tag.params[1].regName][1];
         const testname = tag.params[2].varName;
-        this.results[testname] = equals ? 'pass' : 'fail';
+        const actual = BigInt(ctx[tag.params[0].regName][0]) + BigInt(ctx[tag.params[0].regName][1]) * BigInt(2 ** 32);
+        this.results[testname] = equals ? 'pass' : actual.toString();
     }
 
     /**
