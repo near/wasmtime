@@ -210,7 +210,7 @@ async function profileInstructions(zkasmFile, outfile) {
     };
 
     // Construct helper classes.
-    const instructionTracer = new InstructionTracer();
+    const instructionTracer = new InstructionTracer({});
 
     // Compile rom.
     const config = {
