@@ -61,7 +61,8 @@ class InstructionTracer {
         }
 
         if (this.isAggregatingTrace) {
-            dataDump.writeJsonToFile(this.aggregatedTrace, path);
+            const orderedTrace = dataDump.orderObjectByValues(this.aggregatedTrace);
+            dataDump.writeJsonToFile(orderedTrace, path);
         } else {
             // Writing in chunks of 1000 instructions to limit memory usage,
             // as raw traces might grow big.

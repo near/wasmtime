@@ -31,7 +31,30 @@ function writeJsonToFile(obj, filePath) {
     fs.writeFileSync(filePath, jsonString);
 }
 
+/**
+ * Returns a shallow clone of `obj` with fields ordered by value (descending).
+ * 
+ * Object key order can be relied upon in recent versions of Node.js, see
+ * https://node.green/#ES2015-misc-own-property-order
+ * 
+ * @param {Object} obj 
+ * @returns {Object}
+ * @example
+ * // {a: 2, b: 4} will be ordered to {b: 4, a: 2}
+ */
+function orderObjectByValues(obj) {
+    const compareFn = ([_key1, val1], [_key2, val2]) => val1 > val2 ? -1:1;
+    return Object.entries(obj).sort(compareFn).reduce(
+        (accumulator, [key, val]) => {
+            accumulator[key] = val;
+            return accumulator;
+        },
+        {}
+    );
+}
+
 module.exports = {
+    orderObjectByValues,
     writeToFileInChunks,
     writeJsonToFile
 }
