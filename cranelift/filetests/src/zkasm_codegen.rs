@@ -342,15 +342,31 @@ pub fn build_test_zkasm(
     invocations: Vec<Vec<String>>,
     main: Vec<String>,
 ) -> String {
-    // TODO: use generate_preamble to get preamble
-    let preamble = "\
-start:
-  0xffff => SP
-  zkPC + 2 => RR
-    :JMP(main)
-    :JMP(finalizeExecution)";
+    let settings = ZkasmSettings::default();
+
+    let flag_builder = settings::builder();
+
+    let mut isa_builder = zkasm::isa_builder("zkasm-unknown-unknown".parse().unwrap());
+    let isa = isa_builder
+        .finish(settings::Flags::new(flag_builder))
+        .unwrap();
+    let mut zkasm_environ = ZkasmEnvironment::new(isa.frontend_config());
+
+    let mut preamble = generate_preamble(
+        0,
+        &zkasm_environ.info.global_inits,
+        &zkasm_environ.info.data_inits,
+    );
+
     let mut postamble = generate_postamble();
-    let mut program = vec![preamble.to_string()];
+    // generate_zkasm don't have ways to name main function different from 
+    // function_<number>
+    let mut program: Vec<String> = preamble
+        .join("\n")
+        .replace("function_0", "main")
+        .split("\n")
+        .map(|s| s.to_string())
+        .collect();
     program.extend(main);
     for inv in invocations {
         program.extend(inv);
