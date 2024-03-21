@@ -53,3 +53,15 @@ Probably, we will add some new test types, for example, test type which takes wa
 ## One zkasm program per file
 
 This decision have it's own pros and cons: while it allows to run tests fastly, it leads to not good behaviour in case of compilation and runtime errors. It will be nice to find some better option here.
+
+
+# Current state of the infra.
+
+Most part of infra is already implemented. Files to look at:
+
+- `cranelift/filetests/src/test_run_zkasm.rs` -- file which describes our new test type `test run-zkasm`
+- `cranelift/filetests/src/zkasm_codegen.rs` -- currently contains functions for compiling different parts of testing program and assembling everything together. Also contains some functions not related to testing.
+- `tests/zkasm/assert_helper.js` -- file with custom assert helper function, which don't terminate program on assertation fail.
+
+
+In general, our new infra compiles `.clif` file into `zkasm` and run it. In case of fail it prints list of failed tests at the end. Remaining work is related to globals -- currently they are not supported. To support them, we need to build `ZkasmEnvironment` correctly, and provide it to all parts of compiler, to give them information about globals used in the program.
