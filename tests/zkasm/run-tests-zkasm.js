@@ -64,8 +64,21 @@ async function main() {
                     describe: "If provided, results are written to this file. Otherwise they are printed to stdout.",
                     type: "string"
                 })
+                yargs.options({
+                    "aggregate": {
+                        type: "boolean",
+                        default: false,
+                        describe: "Summarize how often each instruction was executed instead of collecting the raw trace."
+                    }
+                })
             },
-            handler: (argv) => profileInstructions(argv.path, argv.outfile)
+            handler: (argv) => profileInstructions(
+                argv.path,
+                {
+                    aggregate: argv.aggregate,
+                },
+                argv.outfile
+            )
         })
         .parse();
 }
@@ -199,10 +212,13 @@ async function runTest(pathTest, cmPols) {
  * trace of executed instructions.
  * 
  * @param {string} zkasmFile - Path to the zkASM file.
+ * @param {Object} settings
+ * @param {boolean} settings.aggregate - Summarize how often each instruction
+ * was executed instead of collecting the raw trace.
  * @param {string} [outfile] - Path to a file where output is written. If not
  * given, the trace is written to `stdout`.
  */
-async function profileInstructions(zkasmFile, outfile) {
+async function profileInstructions(zkasmFile, { aggregate } ,outfile) {
     const configZkasm = {
         defines: [],
         allowUndefinedLabels: true,
@@ -210,7 +226,9 @@ async function profileInstructions(zkasmFile, outfile) {
     };
 
     // Construct helper classes.
-    const instructionTracer = new InstructionTracer();
+    const instructionTracer = new InstructionTracer({
+        aggregateTrace: aggregate
+    });
 
     // Compile rom.
     const config = {
@@ -235,7 +253,7 @@ async function profileInstructions(zkasmFile, outfile) {
     }
 
     if (outfile) {
-        instructionTracer.writeRawTrace(outfile);
+        instructionTracer.writeTrace(outfile);
     } else {
         console.log(instructionTracer.rawTrace);
     }
